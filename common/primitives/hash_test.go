@@ -9,18 +9,18 @@ import (
 
 var _ = fmt.Sprintf("")
 
-func TestInfoHash(t *testing.T) {
-	i, err := HexToInfoHash("")
+func TestHash(t *testing.T) {
+	h, err := HexToHash("")
 	if err == nil {
 		t.Error("Should fail")
 	}
 
-	i, err = HexToInfoHash("0000000000000000000000000000000000000000")
+	h, err = HexToHash("0000000000000000000000000000000000000000000000000000000000000000")
 	if err != nil {
 		t.Error(err)
 	}
 
-	if i.String() != "0000000000000000000000000000000000000000" {
+	if h.String() != "0000000000000000000000000000000000000000000000000000000000000000" {
 		t.Error("Failed, should be all 0s")
 	}
 }

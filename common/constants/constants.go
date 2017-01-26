@@ -1,9 +1,22 @@
 package constants
 
 const (
-	INFOHASH_LENGTH int = 20
+	INFOHASH_LENGTH               int = 20
+	HASH_LENGTH                   int = 32
+	LONG_DESCRIPTION_MAX_LENGTH   int = 100
+	SHORT_DESCRIPTION_MAX_LENGTH  int = 20
+	FILE_NAME_MAX_LENGTH          int = 50
+	FILENAME_EXTENSION_MAX_LENGTH int = 10
+	MD5_CHECKSUM_LENGTH           int = 16
+	TRACKER_URL_MAX_LENGTH        int = 100
 )
 
+// Content Types
 const (
 	CONTENT_TYPE_VIDEO byte = iota
+)
+
+// Image Types
+const (
+	IMAGE_JPEG byte = iota
 )

@@ -9,7 +9,17 @@ import (
 
 type InfoHash [constants.INFOHASH_LENGTH]byte
 
-func HexToHash(h string) (*InfoHash, error) {
+func BytesToInfoHash(b []byte) (*InfoHash, error) {
+	i := new(InfoHash)
+	err := i.SetBytes(b)
+	if err != nil {
+		return nil, err
+	}
+
+	return i, nil
+}
+
+func HexToInfoHash(h string) (*InfoHash, error) {
 	data, err := hex.DecodeString(h)
 	if err != nil {
 		return nil, err
@@ -37,4 +47,8 @@ func (i *InfoHash) SetBytes(ni []byte) error {
 
 	copy(i[:], ni)
 	return nil
+}
+
+func (i *InfoHash) String() string {
+	return hex.EncodeToString(i.Bytes())
 }
