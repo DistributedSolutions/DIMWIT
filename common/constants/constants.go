@@ -23,3 +23,9 @@ const (
 const (
 	IMAGE_JPEG byte = iota
 )
+
+// Hidden File Directory
+const (
+	HIDDEN_DIR = ".DistroSols/"
+	SQL_DB     = "sql.db"
+)
