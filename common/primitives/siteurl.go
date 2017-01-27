@@ -41,16 +41,16 @@ func (a *SiteURL) IsSameAs(b *SiteURL) bool {
 	return a.String() == b.String()
 }
 
-func (d *SiteURL) MarshalBinary() ([]byte, error) {
-	return MarshalStringToBytes(d.String(), d.MaxLength())
+func (s *SiteURL) MarshalBinary() ([]byte, error) {
+	return MarshalStringToBytes(s.String(), s.MaxLength())
 }
 
-func (d *SiteURL) UnmarshalBinary(data []byte) error {
-	str, err := UnmarshalStringFromBytes(data, d.MaxLength())
+func (s *SiteURL) UnmarshalBinary(data []byte) error {
+	str, err := UnmarshalStringFromBytes(data, s.MaxLength())
 	if err != nil {
 		return err
 	}
-	err = d.SetString(str)
+	err = s.SetString(str)
 	if err != nil {
 		return err
 	}
@@ -58,13 +58,13 @@ func (d *SiteURL) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-func (d *SiteURL) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	str, data, err := UnmarshalStringFromBytesData(data, d.MaxLength())
+func (s *SiteURL) UnmarshalBinaryData(data []byte) ([]byte, error) {
+	str, data, err := UnmarshalStringFromBytesData(data, s.MaxLength())
 	if err != nil {
 		return data, err
 	}
 
-	err = d.SetString(str)
+	err = s.SetString(str)
 	if err != nil {
 		return data, err
 	}

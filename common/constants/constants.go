@@ -1,5 +1,6 @@
 package constants
 
+// Byte length can be max length + 1
 const (
 	INFOHASH_LENGTH               int = 20
 	HASH_LENGTH                   int = 32
@@ -12,6 +13,11 @@ const (
 	TITLE_MAX_LENGTH              int = 30
 	URL_MAX_LENGTH                int = 20
 	TAG_MAX_LENGTH                int = 15
+)
+
+const (
+	MAX_CONTENT_TAGS int = 4
+	MAX_CHANNEL_TAGS int = 4
 )
 
 // Content Types

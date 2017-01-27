@@ -20,9 +20,9 @@ func NewTitle(title string) (*Title, error) {
 }
 
 func (d *Title) SetString(title string) error {
-	if len(title) > constants.TITLE_MAX_LENGTH {
+	if len(title) > d.MaxLength() {
 		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
-			constants.TITLE_MAX_LENGTH, len(title))
+			d.MaxLength(), len(title))
 	}
 
 	*d = Title(title)
@@ -31,4 +31,43 @@ func (d *Title) SetString(title string) error {
 
 func (d *Title) String() string {
 	return string(*d)
+}
+
+func (d *Title) MaxLength() int {
+	return constants.TITLE_MAX_LENGTH
+}
+
+func (a *Title) IsSameAs(b *Title) bool {
+	return a.String() == b.String()
+}
+
+func (s *Title) MarshalBinary() ([]byte, error) {
+	return MarshalStringToBytes(s.String(), s.MaxLength())
+}
+
+func (s *Title) UnmarshalBinary(data []byte) error {
+	str, err := UnmarshalStringFromBytes(data, s.MaxLength())
+	if err != nil {
+		return err
+	}
+	err = s.SetString(str)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Title) UnmarshalBinaryData(data []byte) ([]byte, error) {
+	str, data, err := UnmarshalStringFromBytesData(data, s.MaxLength())
+	if err != nil {
+		return data, err
+	}
+
+	err = s.SetString(str)
+	if err != nil {
+		return data, err
+	}
+
+	return data, nil
 }

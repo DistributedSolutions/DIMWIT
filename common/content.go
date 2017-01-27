@@ -22,6 +22,7 @@ type Content struct {
 	Series           byte
 	// There can be lots of parts
 	Part [2]byte
+	Tags primitives.TagList
 
 	// Torrent Metadata
 	Tracker  primitives.TrackerList

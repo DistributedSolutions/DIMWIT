@@ -5,16 +5,17 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
 
-func TestHash(t *testing.T) {
+func TestMd5(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		h := RandomHash()
+		h := RandomMD5()
 		data, _ := h.MarshalBinary()
 
-		n := new(Hash)
+		n := new(MD5Checksum)
 		err := n.UnmarshalBinary(data)
 		if err != nil {
 			t.Error(err)
@@ -25,17 +26,20 @@ func TestHash(t *testing.T) {
 		}
 	}
 
-	h, err := HexToHash("")
+	m := new(MD5Checksum)
+
+	i, err := HexToMD5Checksum("")
 	if err == nil {
 		t.Error("Should fail")
 	}
 
-	h, err = HexToHash("0000000000000000000000000000000000000000000000000000000000000000")
+	str, _ := random.RandomHexStringOfSize(m.Length() * 2)
+	i, err = HexToMD5Checksum(str)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if h.String() != "0000000000000000000000000000000000000000000000000000000000000000" {
+	if i.String() != str {
 		t.Error("Failed, should be all 0s")
 	}
 }
