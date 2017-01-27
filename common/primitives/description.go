@@ -21,7 +21,8 @@ func NewLongDescription(description string) (*LongDescription, error) {
 
 func (d *LongDescription) SetString(description string) error {
 	if len(description) > constants.LONG_DESCRIPTION_MAX_LENGTH {
-		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d", constants.LONG_DESCRIPTION_MAX_LENGTH, len(description))
+		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
+			constants.LONG_DESCRIPTION_MAX_LENGTH, len(description))
 	}
 
 	*d = LongDescription(description)
@@ -47,7 +48,8 @@ func NewShortDescription(description string) (*ShortDescription, error) {
 
 func (d *ShortDescription) SetString(description string) error {
 	if len(description) > constants.SHORT_DESCRIPTION_MAX_LENGTH {
-		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d", constants.SHORT_DESCRIPTION_MAX_LENGTH, len(description))
+		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
+			constants.SHORT_DESCRIPTION_MAX_LENGTH, len(description))
 	}
 
 	*d = ShortDescription(description)

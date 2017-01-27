@@ -4,6 +4,11 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 )
 
+type ContentList struct {
+	Length      int
+	ContentList []Content
+}
+
 type Content struct {
 	// Content Metadada
 	Type             byte

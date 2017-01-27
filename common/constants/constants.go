@@ -9,6 +9,9 @@ const (
 	FILENAME_EXTENSION_MAX_LENGTH int = 10
 	MD5_CHECKSUM_LENGTH           int = 16
 	TRACKER_URL_MAX_LENGTH        int = 100
+	TITLE_MAX_LENGTH              int = 30
+	URL_MAX_LENGTH                int = 20
+	TAG_MAX_LENGTH                int = 15
 )
 
 // Content Types

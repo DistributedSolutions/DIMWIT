@@ -7,6 +7,11 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 )
 
+type HashList struct {
+	Length int
+	List   []Hash
+}
+
 type Hash [constants.HASH_LENGTH]byte
 
 func BytesToHash(b []byte) (*Hash, error) {

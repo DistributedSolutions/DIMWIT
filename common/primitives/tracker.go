@@ -46,7 +46,8 @@ func NewTracker(url string) (*Tracker, error) {
 
 func (t *Tracker) SetString(url string) error {
 	if len(url) > constants.TRACKER_URL_MAX_LENGTH {
-		return fmt.Errorf("Tracker url given is too long, length must be under %d, given length is %d", constants.TRACKER_URL_MAX_LENGTH, len(url))
+		return fmt.Errorf("Tracker url given is too long, length must be under %d, given length is %d",
+			constants.TRACKER_URL_MAX_LENGTH, len(url))
 	}
 
 	*t = Tracker(url)
