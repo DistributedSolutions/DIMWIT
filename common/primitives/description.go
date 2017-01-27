@@ -20,9 +20,9 @@ func NewLongDescription(description string) (*LongDescription, error) {
 }
 
 func (d *LongDescription) SetString(description string) error {
-	if len(description) > constants.LONG_DESCRIPTION_MAX_LENGTH {
+	if len(description) > d.MaxLength() {
 		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
-			constants.LONG_DESCRIPTION_MAX_LENGTH, len(description))
+			d.MaxLength(), len(description))
 	}
 
 	*d = LongDescription(description)
@@ -31,6 +31,45 @@ func (d *LongDescription) SetString(description string) error {
 
 func (d *LongDescription) String() string {
 	return string(*d)
+}
+
+func (a *LongDescription) IsSameAs(b *LongDescription) bool {
+	return a.String() == b.String()
+}
+
+func (d *LongDescription) MaxLength() int {
+	return constants.LONG_DESCRIPTION_MAX_LENGTH
+}
+
+func (d *LongDescription) MarshalBinary() ([]byte, error) {
+	return MarshalStringToBytes(d.String(), d.MaxLength())
+}
+
+func (d *LongDescription) UnmarshalBinary(data []byte) error {
+	str, err := UnmarshalStringFromBytes(data, d.MaxLength())
+	if err != nil {
+		return err
+	}
+	err = d.SetString(str)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *LongDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
+	str, data, err := UnmarshalStringFromBytesData(data, d.MaxLength())
+	if err != nil {
+		return data, err
+	}
+
+	err = d.SetString(str)
+	if err != nil {
+		return data, err
+	}
+
+	return data, nil
 }
 
 type ShortDescription string
@@ -47,9 +86,9 @@ func NewShortDescription(description string) (*ShortDescription, error) {
 }
 
 func (d *ShortDescription) SetString(description string) error {
-	if len(description) > constants.SHORT_DESCRIPTION_MAX_LENGTH {
+	if len(description) > d.MaxLength() {
 		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
-			constants.SHORT_DESCRIPTION_MAX_LENGTH, len(description))
+			d.MaxLength(), len(description))
 	}
 
 	*d = ShortDescription(description)
@@ -58,4 +97,43 @@ func (d *ShortDescription) SetString(description string) error {
 
 func (d *ShortDescription) String() string {
 	return string(*d)
+}
+
+func (d *ShortDescription) MaxLength() int {
+	return constants.SHORT_DESCRIPTION_MAX_LENGTH
+}
+
+func (a *ShortDescription) IsSameAs(b *ShortDescription) bool {
+	return a.String() == b.String()
+}
+
+func (d *ShortDescription) MarshalBinary() ([]byte, error) {
+	return MarshalStringToBytes(d.String(), d.MaxLength())
+}
+
+func (d *ShortDescription) UnmarshalBinary(data []byte) error {
+	str, err := UnmarshalStringFromBytes(data, d.MaxLength())
+	if err != nil {
+		return err
+	}
+	err = d.SetString(str)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *ShortDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
+	str, data, err := UnmarshalStringFromBytesData(data, d.MaxLength())
+	if err != nil {
+		return data, err
+	}
+
+	err = d.SetString(str)
+	if err != nil {
+		return data, err
+	}
+
+	return data, nil
 }
