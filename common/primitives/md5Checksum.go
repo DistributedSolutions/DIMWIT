@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 type MD5Checksum [constants.MD5_CHECKSUM_LENGTH]byte
@@ -35,14 +36,14 @@ func HexToMD5Checksum(he string) (*MD5Checksum, error) {
 }
 
 func (m *MD5Checksum) Bytes() []byte {
-	ni := make([]byte, constants.MD5_CHECKSUM_LENGTH)
+	ni := make([]byte, m.Length())
 	copy(ni, m[:])
 	return ni
 }
 
 func (m *MD5Checksum) SetBytes(ni []byte) error {
-	if len(ni) != constants.MD5_CHECKSUM_LENGTH {
-		return fmt.Errorf("Length is invalid, must be of length %d", constants.MD5_CHECKSUM_LENGTH)
+	if len(ni) != m.Length() {
+		return fmt.Errorf("Length is invalid, must be of length %d", m.Length())
 	}
 
 	copy(m[:], ni)
@@ -51,4 +52,50 @@ func (m *MD5Checksum) SetBytes(ni []byte) error {
 
 func (m *MD5Checksum) String() string {
 	return hex.EncodeToString(m.Bytes())
+}
+
+func RandomMD5() *MD5Checksum {
+	h := new(MD5Checksum)
+	h.SetBytes(random.RandByteSliceOfSize(h.Length()))
+	return h
+}
+
+func (h *MD5Checksum) Length() int {
+	return constants.MD5_CHECKSUM_LENGTH
+}
+
+func (h *MD5Checksum) MarshalBinary() ([]byte, error) {
+	return h.Bytes(), nil
+}
+
+func (h *MD5Checksum) UnmarshalBinary(data []byte) error {
+	_, err := h.UnmarshalBinaryData(data)
+	return err
+}
+
+func (h *MD5Checksum) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	newData = data
+	if len(newData) < h.Length() {
+		err = fmt.Errorf("Length is invalid, must be of length %d, found length %d", h.Length(), len(newData))
+		return
+	}
+
+	err = h.SetBytes(newData[:h.Length()])
+	if err != nil {
+		return
+	}
+	newData = newData[h.Length():]
+	return
+}
+
+func (a *MD5Checksum) IsSameAs(b *MD5Checksum) bool {
+	adata := a.Bytes()
+	bdata := b.Bytes()
+	for i := 0; i < a.Length(); i++ {
+		if adata[i] != bdata[i] {
+			return false
+		}
+	}
+
+	return true
 }

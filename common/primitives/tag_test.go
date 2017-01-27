@@ -5,19 +5,20 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
 
-func TestDescriptions(t *testing.T) {
+func TestSingleTags(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		l := RandomLongDescription()
+		l := RandomTag()
 		data, err := l.MarshalBinary()
 		if err != nil {
 			t.Error(err)
 		}
 
-		n := new(LongDescription)
+		n := new(Tag)
 		err = n.UnmarshalBinary(data)
 		if err != nil {
 			t.Error(err)
@@ -26,20 +27,23 @@ func TestDescriptions(t *testing.T) {
 			t.Error("Should match.")
 		}
 	}
+}
 
-	for i := 0; i < 1000; i++ {
-		s := RandomShortDescription()
-		data, err := s.MarshalBinary()
+func TestTagList(t *testing.T) {
+	for i := 0; i < 100; i++ {
+		l := RandomTagList(random.RandomUInt32Between(0, 100))
+		data, err := l.MarshalBinary()
 		if err != nil {
-			t.Error(err)
+			t.Error(i, err)
 		}
 
-		n := new(ShortDescription)
+		n := new(TagList)
 		err = n.UnmarshalBinary(data)
 		if err != nil {
-			t.Error(err)
+			t.Error(i, err)
 		}
-		if !n.IsSameAs(s) {
+
+		if !n.IsSameAs(l) {
 			t.Error("Should match.")
 		}
 	}

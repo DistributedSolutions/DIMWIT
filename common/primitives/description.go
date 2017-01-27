@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 type LongDescription string
@@ -72,6 +73,13 @@ func (d *LongDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
 	return data, nil
 }
 
+func RandomLongDescription() *LongDescription {
+	l, _ := NewLongDescription("")
+	l.SetString(random.RandStringOfSize(l.MaxLength()))
+
+	return l
+}
+
 type ShortDescription string
 
 func NewShortDescription(description string) (*ShortDescription, error) {
@@ -136,4 +144,11 @@ func (d *ShortDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+func RandomShortDescription() *ShortDescription {
+	l, _ := NewShortDescription("")
+	l.SetString(random.RandStringOfSize(l.MaxLength()))
+
+	return l
 }

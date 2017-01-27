@@ -5,16 +5,17 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
 
-func TestHash(t *testing.T) {
+func TestPublicKey(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		h := RandomHash()
+		h := RandomPublicKey()
 		data, _ := h.MarshalBinary()
 
-		n := new(Hash)
+		n := new(PublicKey)
 		err := n.UnmarshalBinary(data)
 		if err != nil {
 			t.Error(err)
@@ -25,17 +26,20 @@ func TestHash(t *testing.T) {
 		}
 	}
 
-	h, err := HexToHash("")
+	m := new(PublicKey)
+
+	i, err := PublicKeyFromHex("")
 	if err == nil {
 		t.Error("Should fail")
 	}
 
-	h, err = HexToHash("0000000000000000000000000000000000000000000000000000000000000000")
+	str, _ := random.RandomHexStringOfSize(m.Length() * 2)
+	i, err = PublicKeyFromHex(str)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if h.String() != "0000000000000000000000000000000000000000000000000000000000000000" {
+	if i.String() != str {
 		t.Error("Failed, should be all 0s")
 	}
 }

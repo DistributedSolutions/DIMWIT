@@ -1,6 +1,8 @@
 package primitives
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 )
 
@@ -11,6 +13,12 @@ func MarshalStringToBytes(str string, maxlength int) ([]byte, error) {
 	}
 
 	data := []byte(str)
+	for i := 0; i < len(data); i++ {
+		if data[i] == 0x00 {
+			// Naughty, Naughty, Naughty
+			data[i] = 0x01
+		}
+	}
 	data = append(data, 0x00)
 
 	return data, nil
@@ -42,5 +50,18 @@ func UnmarshalStringFromBytesData(data []byte, maxlength int) (resp string, newD
 
 	resp = string(newData[:end])
 	newData = newData[end+1:]
+	return
+}
+
+func Uint32ToBytes(val uint32) ([]byte, error) {
+	b := make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, val)
+
+	return b, nil
+}
+
+func BytesToUInt32(data []byte) (ret uint32, err error) {
+	buf := bytes.NewBuffer(data)
+	err = binary.Read(buf, binary.LittleEndian, &ret)
 	return
 }
