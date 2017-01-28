@@ -47,3 +47,14 @@ func TestMd5(t *testing.T) {
 		t.Error("Failed")
 	}
 }
+
+func TestBadUnmarshalMD5(t *testing.T) {
+	badData := []byte{}
+
+	n := new(Hash)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

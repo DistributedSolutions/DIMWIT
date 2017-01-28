@@ -55,3 +55,20 @@ func TestTrackerList(t *testing.T) {
 		}
 	}
 }
+
+func TestBadUnmarshalTracker(t *testing.T) {
+	badData := []byte{}
+
+	n := new(TrackerList)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	s := new(Tracker)
+	_, err = s.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

@@ -39,3 +39,14 @@ func RandomTitle() *Title {
 
 	return l
 }
+
+func TestBadUnmarshalTitle(t *testing.T) {
+	badData := []byte{}
+
+	n := new(Title)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

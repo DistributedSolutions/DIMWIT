@@ -30,6 +30,12 @@ func UnmarshalStringFromBytes(data []byte, maxlength int) (resp string, err erro
 }
 
 func UnmarshalStringFromBytesData(data []byte, maxlength int) (resp string, newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+		}
+	}()
+
 	newData = data
 	end := -1
 	if len(data)-1 < maxlength {

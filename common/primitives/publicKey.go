@@ -80,6 +80,13 @@ func (h *PublicKey) UnmarshalBinary(data []byte) error {
 }
 
 func (h *PublicKey) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
 	newData = data
 	if len(newData) < h.Length() {
 		err = fmt.Errorf("Length is invalid, must be of length %d, found length %d", h.Length(), len(newData))

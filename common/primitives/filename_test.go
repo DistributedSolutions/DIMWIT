@@ -55,3 +55,20 @@ func TestFileList(t *testing.T) {
 		}
 	}
 }
+
+func TestBadUnmarshalFile(t *testing.T) {
+	badData := []byte{}
+
+	n := new(File)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	s := new(FileList)
+	_, err = s.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

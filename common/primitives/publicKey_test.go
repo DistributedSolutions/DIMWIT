@@ -47,3 +47,14 @@ func TestPublicKey(t *testing.T) {
 		t.Error("Failed, should be all 0s")
 	}
 }
+
+func TestBadUnmarshalPK(t *testing.T) {
+	badData := []byte{}
+
+	n := new(PublicKey)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

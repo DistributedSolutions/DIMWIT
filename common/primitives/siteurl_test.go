@@ -39,3 +39,14 @@ func RandomSitUrl() *SiteURL {
 
 	return l
 }
+
+func TestBadUnmarshalSURL(t *testing.T) {
+	badData := []byte{}
+
+	n := new(SiteURL)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

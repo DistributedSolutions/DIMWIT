@@ -2,6 +2,7 @@ package primitives
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
@@ -51,6 +52,13 @@ func (i *Image) UnmarshalBinary(data []byte) error {
 }
 
 func (i *Image) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
 	newData = data
 
 	i.imgType = newData[0]

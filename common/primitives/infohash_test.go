@@ -43,3 +43,14 @@ func TestInfoHash(t *testing.T) {
 		t.Error("Failed, should be all 0s")
 	}
 }
+
+func TestBadUnmarshalInfoHash(t *testing.T) {
+	badData := []byte{}
+
+	n := new(InfoHash)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

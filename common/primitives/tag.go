@@ -123,6 +123,13 @@ func (tl *TagList) UnmarshalBinary(data []byte) error {
 }
 
 func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
 	newData = data
 	if len(newData) < 4 {
 		newData = data
@@ -209,8 +216,15 @@ func (d *Tag) UnmarshalBinary(data []byte) error {
 	return err
 }
 
-func (d *Tag) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	newData := data
+func (d *Tag) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
 	str, newData, err := UnmarshalStringFromBytesData(newData, d.MaxLength())
 	if err != nil {
 		return data, err
@@ -221,7 +235,7 @@ func (d *Tag) UnmarshalBinaryData(data []byte) ([]byte, error) {
 		return data, err
 	}
 
-	return newData, nil
+	return
 }
 
 func RandomTag() *Tag {

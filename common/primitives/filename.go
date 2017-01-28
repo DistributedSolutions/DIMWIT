@@ -91,6 +91,13 @@ func (fl *FileList) UnmarshalBinary(data []byte) error {
 }
 
 func (fl *FileList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
 	newData = data
 
 	u, err := BytesToUint32(newData[:4])
@@ -117,6 +124,7 @@ func (fl *FileList) UnmarshalBinaryData(data []byte) (newData []byte, err error)
 type File struct {
 	fileName string // includes extension
 	size     int64
+	checksum MD5Checksum
 }
 
 func NewFile(filename string, size int64) (*File, error) {
@@ -202,6 +210,12 @@ func (f *File) MarshalBinary() ([]byte, error) {
 	}
 	buf.Write(data)
 
+	data, err = f.checksum.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
 	return buf.Next(buf.Len()), nil
 }
 
@@ -211,6 +225,13 @@ func (f *File) UnmarshalBinary(data []byte) error {
 }
 
 func (f *File) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
 	newData = data
 
 	str, newData, err := UnmarshalStringFromBytesData(newData, f.MaxLength())
@@ -230,5 +251,11 @@ func (f *File) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	f.SetSize(val)
 
 	newData = newData[8:]
+
+	newData, err = f.checksum.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
 	return
 }

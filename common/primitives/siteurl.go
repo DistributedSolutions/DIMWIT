@@ -50,8 +50,16 @@ func (s *SiteURL) UnmarshalBinary(data []byte) error {
 	return err
 }
 
-func (s *SiteURL) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	str, data, err := UnmarshalStringFromBytesData(data, s.MaxLength())
+func (s *SiteURL) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
+	str, newData, err := UnmarshalStringFromBytesData(newData, s.MaxLength())
 	if err != nil {
 		return data, err
 	}
@@ -61,5 +69,5 @@ func (s *SiteURL) UnmarshalBinaryData(data []byte) ([]byte, error) {
 		return data, err
 	}
 
-	return data, nil
+	return
 }

@@ -78,6 +78,13 @@ func (tl *TrackerList) UnmarshalBinary(data []byte) error {
 }
 
 func (tl *TrackerList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
 	newData = data
 
 	u, err := BytesToUint32(newData[:4])
@@ -157,8 +164,15 @@ func (t *Tracker) UnmarshalBinary(data []byte) error {
 	return err
 }
 
-func (d *Tracker) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	newData := data
+func (d *Tracker) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
 	str, newData, err := UnmarshalStringFromBytesData(newData, d.MaxLength())
 	if err != nil {
 		return data, err

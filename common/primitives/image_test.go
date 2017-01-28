@@ -30,3 +30,14 @@ func TestImage(t *testing.T) {
 		}
 	}
 }
+
+func TestBadUnmarshalImage(t *testing.T) {
+	badData := []byte{}
+
+	n := new(Image)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

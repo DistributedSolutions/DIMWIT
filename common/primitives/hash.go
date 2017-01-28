@@ -9,11 +9,19 @@ import (
 )
 
 type HashList struct {
-	Length int
-	List   []Hash
+	length int
+	list   []Hash
 }
 
 type Hash [constants.HASH_LENGTH]byte
+
+func NewEmptyHashList() *HashList {
+	h := new(HashList)
+	h.length = 0
+	h.list = make([]Hash, 0)
+
+	return h
+}
 
 func BytesToHash(b []byte) (*Hash, error) {
 	h := new(Hash)
@@ -79,6 +87,13 @@ func (h *Hash) UnmarshalBinary(data []byte) error {
 }
 
 func (h *Hash) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
 	newData = data
 	if len(newData) < h.Length() {
 		err = fmt.Errorf("Length is invalid, must be of length %d, found length %d", h.Length(), len(newData))

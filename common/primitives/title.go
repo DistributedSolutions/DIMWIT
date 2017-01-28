@@ -50,8 +50,15 @@ func (t *Title) UnmarshalBinary(data []byte) error {
 	return err
 }
 
-func (t *Title) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	newData := data
+func (t *Title) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
 	str, newData, err := UnmarshalStringFromBytesData(newData, t.MaxLength())
 	if err != nil {
 		return data, err

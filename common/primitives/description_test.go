@@ -48,3 +48,20 @@ func TestDescriptions(t *testing.T) {
 		}
 	}
 }
+
+func TestBadUnmarshalDesc(t *testing.T) {
+	badData := []byte{}
+
+	n := new(LongDescription)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	s := new(ShortDescription)
+	_, err = s.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

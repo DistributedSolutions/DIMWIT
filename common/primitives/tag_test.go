@@ -55,3 +55,20 @@ func TestTagList(t *testing.T) {
 		}
 	}
 }
+
+func TestBadUnmarshalTag(t *testing.T) {
+	badData := []byte{}
+
+	n := new(Tag)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	s := new(TagList)
+	_, err = s.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}

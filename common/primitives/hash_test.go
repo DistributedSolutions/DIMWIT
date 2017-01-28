@@ -47,3 +47,14 @@ func TestHash(t *testing.T) {
 		t.Error("Failed")
 	}
 }
+
+func TestBadUnmarshalHash(t *testing.T) {
+	badData := []byte{}
+
+	n := new(Hash)
+
+	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+}
