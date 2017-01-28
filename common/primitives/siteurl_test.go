@@ -19,12 +19,16 @@ func TestSiteUrl(t *testing.T) {
 		}
 
 		n := new(SiteURL)
-		err = n.UnmarshalBinary(data)
+		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
 		}
 		if !n.IsSameAs(l) {
 			t.Error("Should match.")
+		}
+
+		if len(newData) != 0 {
+			t.Error("Failed, should have no bytes left")
 		}
 	}
 }

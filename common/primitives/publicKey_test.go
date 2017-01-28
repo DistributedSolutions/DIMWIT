@@ -16,13 +16,17 @@ func TestPublicKey(t *testing.T) {
 		data, _ := h.MarshalBinary()
 
 		n := new(PublicKey)
-		err := n.UnmarshalBinary(data)
+		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
 		}
 
 		if !h.IsSameAs(n) {
 			t.Error("Failed, should be same")
+		}
+
+		if len(newData) != 0 {
+			t.Error("Failed, should have no bytes left")
 		}
 	}
 

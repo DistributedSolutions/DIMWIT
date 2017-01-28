@@ -45,29 +45,22 @@ func (s *Title) MarshalBinary() ([]byte, error) {
 	return MarshalStringToBytes(s.String(), s.MaxLength())
 }
 
-func (s *Title) UnmarshalBinary(data []byte) error {
-	str, err := UnmarshalStringFromBytes(data, s.MaxLength())
-	if err != nil {
-		return err
-	}
-	err = s.SetString(str)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (t *Title) UnmarshalBinary(data []byte) error {
+	_, err := t.UnmarshalBinaryData(data)
+	return err
 }
 
-func (s *Title) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	str, data, err := UnmarshalStringFromBytesData(data, s.MaxLength())
+func (t *Title) UnmarshalBinaryData(data []byte) ([]byte, error) {
+	newData := data
+	str, newData, err := UnmarshalStringFromBytesData(newData, t.MaxLength())
 	if err != nil {
 		return data, err
 	}
 
-	err = s.SetString(str)
+	err = t.SetString(str)
 	if err != nil {
 		return data, err
 	}
 
-	return data, nil
+	return newData, nil
 }

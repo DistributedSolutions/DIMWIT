@@ -41,6 +41,12 @@ func (p *PublicKey) Bytes() []byte {
 	return b
 }
 
+func (p *PublicKey) FixedBytes() [ed.PublicKeySize]byte {
+	var b [ed.PublicKeySize]byte
+	copy(b[:], p[:])
+	return b
+}
+
 func (p *PublicKey) SetBytes(b []byte) error {
 	if len(b) != ed.PublicKeySize {
 		return fmt.Errorf("Length is invalid, must be of length %d", p.Length())
@@ -98,4 +104,8 @@ func (a *PublicKey) IsSameAs(b *PublicKey) bool {
 	}
 
 	return true
+}
+
+func (p *PublicKey) Verify(msg []byte, sig []byte) bool {
+	return ed.Verify(p.Bytes(), msg, sig)
 }

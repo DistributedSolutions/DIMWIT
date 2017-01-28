@@ -5,16 +5,17 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
+	//"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
 
-func TestInfoHash(t *testing.T) {
+func TestImage(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		h := RandomInfoHash()
+		h := RandomImage()
 		data, _ := h.MarshalBinary()
 
-		n := new(InfoHash)
+		n := new(Image)
 		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
@@ -27,19 +28,5 @@ func TestInfoHash(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
-	}
-
-	i, err := HexToInfoHash("")
-	if err == nil {
-		t.Error("Should fail")
-	}
-
-	i, err = HexToInfoHash("0000000000000000000000000000000000000000")
-	if err != nil {
-		t.Error(err)
-	}
-
-	if i.String() != "0000000000000000000000000000000000000000" {
-		t.Error("Failed, should be all 0s")
 	}
 }

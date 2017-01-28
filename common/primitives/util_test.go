@@ -36,7 +36,7 @@ func TestMarshal(t *testing.T) {
 	}
 }
 
-func TestUIntBytes(t *testing.T) {
+func TestUInt32Bytes(t *testing.T) {
 	var i uint32 = 0
 	for ; i < 2000; i++ {
 		a := i
@@ -45,7 +45,27 @@ func TestUIntBytes(t *testing.T) {
 			t.Error(err)
 		}
 
-		b, err := BytesToUInt32(data)
+		b, err := BytesToUint32(data)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if b != a {
+			t.Error("Failed, should be same")
+		}
+	}
+}
+
+func TestUInt64Bytes(t *testing.T) {
+	var i uint64 = 0
+	for ; i < 2000; i++ {
+		a := i
+		data, err := Uint64ToBytes(a)
+		if err != nil {
+			t.Error(err)
+		}
+
+		b, err := BytesToUint64(data)
 		if err != nil {
 			t.Error(err)
 		}

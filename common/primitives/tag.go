@@ -130,7 +130,7 @@ func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 		return
 	}
 
-	u, err := BytesToUInt32(newData[:4])
+	u, err := BytesToUint32(newData[:4])
 	if err != nil {
 		return data, err
 	}
@@ -143,7 +143,7 @@ func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 		return data, err
 	}
 
-	l, err := BytesToUInt32(newData[:4])
+	l, err := BytesToUint32(newData[:4])
 	if err != nil {
 		return data, err
 	}
@@ -205,20 +205,13 @@ func (d *Tag) MarshalBinary() ([]byte, error) {
 }
 
 func (d *Tag) UnmarshalBinary(data []byte) error {
-	str, err := UnmarshalStringFromBytes(data, d.MaxLength())
-	if err != nil {
-		return err
-	}
-	err = d.SetString(str)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := d.UnmarshalBinaryData(data)
+	return err
 }
 
 func (d *Tag) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	str, data, err := UnmarshalStringFromBytesData(data, d.MaxLength())
+	newData := data
+	str, newData, err := UnmarshalStringFromBytesData(newData, d.MaxLength())
 	if err != nil {
 		return data, err
 	}
@@ -228,7 +221,7 @@ func (d *Tag) UnmarshalBinaryData(data []byte) ([]byte, error) {
 		return data, err
 	}
 
-	return data, nil
+	return newData, nil
 }
 
 func RandomTag() *Tag {

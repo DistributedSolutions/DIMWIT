@@ -47,20 +47,13 @@ func (d *LongDescription) MarshalBinary() ([]byte, error) {
 }
 
 func (d *LongDescription) UnmarshalBinary(data []byte) error {
-	str, err := UnmarshalStringFromBytes(data, d.MaxLength())
-	if err != nil {
-		return err
-	}
-	err = d.SetString(str)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := d.UnmarshalBinaryData(data)
+	return err
 }
 
 func (d *LongDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	str, data, err := UnmarshalStringFromBytesData(data, d.MaxLength())
+	newData := data
+	str, newData, err := UnmarshalStringFromBytesData(newData, d.MaxLength())
 	if err != nil {
 		return data, err
 	}
@@ -70,7 +63,7 @@ func (d *LongDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
 		return data, err
 	}
 
-	return data, nil
+	return newData, nil
 }
 
 func RandomLongDescription() *LongDescription {
@@ -120,20 +113,13 @@ func (d *ShortDescription) MarshalBinary() ([]byte, error) {
 }
 
 func (d *ShortDescription) UnmarshalBinary(data []byte) error {
-	str, err := UnmarshalStringFromBytes(data, d.MaxLength())
-	if err != nil {
-		return err
-	}
-	err = d.SetString(str)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := d.UnmarshalBinaryData(data)
+	return err
 }
 
 func (d *ShortDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	str, data, err := UnmarshalStringFromBytesData(data, d.MaxLength())
+	newData := data
+	str, newData, err := UnmarshalStringFromBytesData(newData, d.MaxLength())
 	if err != nil {
 		return data, err
 	}
@@ -143,7 +129,7 @@ func (d *ShortDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
 		return data, err
 	}
 
-	return data, nil
+	return newData, nil
 }
 
 func RandomShortDescription() *ShortDescription {

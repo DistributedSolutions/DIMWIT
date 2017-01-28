@@ -46,16 +46,8 @@ func (s *SiteURL) MarshalBinary() ([]byte, error) {
 }
 
 func (s *SiteURL) UnmarshalBinary(data []byte) error {
-	str, err := UnmarshalStringFromBytes(data, s.MaxLength())
-	if err != nil {
-		return err
-	}
-	err = s.SetString(str)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := s.UnmarshalBinaryData(data)
+	return err
 }
 
 func (s *SiteURL) UnmarshalBinaryData(data []byte) ([]byte, error) {

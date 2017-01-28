@@ -16,13 +16,17 @@ func TestMd5(t *testing.T) {
 		data, _ := h.MarshalBinary()
 
 		n := new(MD5Checksum)
-		err := n.UnmarshalBinary(data)
+		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
 		}
 
 		if !h.IsSameAs(n) {
 			t.Error("Failed, should be same")
+		}
+
+		if len(newData) != 0 {
+			t.Error("Failed, should have no bytes left")
 		}
 	}
 
@@ -40,6 +44,6 @@ func TestMd5(t *testing.T) {
 	}
 
 	if i.String() != str {
-		t.Error("Failed, should be all 0s")
+		t.Error("Failed")
 	}
 }

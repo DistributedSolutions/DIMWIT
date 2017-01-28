@@ -60,8 +60,45 @@ func Uint32ToBytes(val uint32) ([]byte, error) {
 	return b, nil
 }
 
-func BytesToUInt32(data []byte) (ret uint32, err error) {
+func BytesToUint32(data []byte) (ret uint32, err error) {
 	buf := bytes.NewBuffer(data)
 	err = binary.Read(buf, binary.LittleEndian, &ret)
 	return
+}
+
+func Uint64ToBytes(val uint64) ([]byte, error) {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, val)
+
+	return b, nil
+}
+
+func BytesToUint64(data []byte) (uint64, error) {
+	if len(data) != 8 {
+		return 0, fmt.Errorf("Must be exactly 8 bytes in length, found length of %d bytes", len(data))
+	}
+	u := binary.LittleEndian.Uint64(data)
+	return u, nil
+}
+
+func Int64ToBytes(val int64) ([]byte, error) {
+	return Uint64ToBytes(uint64(val))
+}
+
+func BytesToInt64(data []byte) (int64, error) {
+	val, err := BytesToUint64(data)
+	return int64(val), err
+}
+
+func BytesIsSame(a []byte, b []byte) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }

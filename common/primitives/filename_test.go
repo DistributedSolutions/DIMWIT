@@ -5,19 +5,20 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
 
-func TestDescriptions(t *testing.T) {
+func TestSingleFile(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		l := RandomLongDescription()
+		l := RandomFile()
 		data, err := l.MarshalBinary()
 		if err != nil {
 			t.Error(err)
 		}
 
-		n := new(LongDescription)
+		n := new(File)
 		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
@@ -30,21 +31,27 @@ func TestDescriptions(t *testing.T) {
 			t.Error("Failed, should have no bytes left")
 		}
 	}
+}
 
-	for i := 0; i < 1000; i++ {
-		s := RandomShortDescription()
-		data, err := s.MarshalBinary()
+func TestFileList(t *testing.T) {
+	for i := 0; i < 100; i++ {
+		l := RandomFileList(random.RandomUInt32Between(0, 100))
+		data, err := l.MarshalBinary()
 		if err != nil {
-			t.Error(err)
+			t.Error(i, err)
 		}
 
-		n := new(ShortDescription)
-		err = n.UnmarshalBinary(data)
+		n := new(FileList)
+		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
-			t.Error(err)
+			t.Error(i, err)
 		}
-		if !n.IsSameAs(s) {
+
+		if !n.IsSameAs(l) {
 			t.Error("Should match.")
+		}
+		if len(newData) != 0 {
+			t.Error("Failed, should have no bytes left")
 		}
 	}
 }

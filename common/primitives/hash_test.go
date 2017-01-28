@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
@@ -15,7 +16,7 @@ func TestHash(t *testing.T) {
 		data, _ := h.MarshalBinary()
 
 		n := new(Hash)
-		err := n.UnmarshalBinary(data)
+		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
 		}
@@ -23,19 +24,26 @@ func TestHash(t *testing.T) {
 		if !h.IsSameAs(n) {
 			t.Error("Failed, should be same")
 		}
+
+		if len(newData) != 0 {
+			t.Error("Failed, should have no bytes left")
+		}
 	}
 
-	h, err := HexToHash("")
+	m := new(Hash)
+
+	i, err := HexToHash("")
 	if err == nil {
 		t.Error("Should fail")
 	}
 
-	h, err = HexToHash("0000000000000000000000000000000000000000000000000000000000000000")
+	str, _ := random.RandomHexStringOfSize(m.Length() * 2)
+	i, err = HexToHash(str)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if h.String() != "0000000000000000000000000000000000000000000000000000000000000000" {
-		t.Error("Failed, should be all 0s")
+	if i.String() != str {
+		t.Error("Failed")
 	}
 }

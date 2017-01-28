@@ -30,10 +30,6 @@ func RandomHexStringOfSize(n int) (string, error) {
 	return hex.EncodeToString(data), nil
 }
 
-func RandomInt() int {
-	return rand.Int()
-}
-
 func RandomUInt32Between(min uint32, max uint32) uint32 {
 	return uint32(RandomIntBetween(int(min), int(max)))
 }
@@ -42,8 +38,26 @@ func RandomUInt32() uint32 {
 	return uint32(RandomInt())
 }
 
+func RandomInt() int {
+	return rand.Int()
+}
+
 func RandomIntBetween(min int, max int) int {
+	if min == max {
+		max = min + 1
+	}
 	return rand.Intn(max-min) + min
+}
+
+func RandomInt64() int64 {
+	return rand.Int63()
+}
+
+func RandomInt64Between(min int64, max int64) int64 {
+	if min == max {
+		max = min + 1
+	}
+	return rand.Int63n(max-min) + min
 }
 
 func RandByteSlice() []byte {
