@@ -3,14 +3,14 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
+	// _ "github.com/mattn/go-sqlite3"
 	"os"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
 
-func CreateDb() error {
+func CreateDB() error {
 	dir := util.GetHomeDir() + constants.HIDDEN_DIR
 	println(dir)
 	d, err := os.Stat(dir)

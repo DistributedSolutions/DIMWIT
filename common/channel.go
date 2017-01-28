@@ -23,5 +23,5 @@ type Channel struct {
 	Banner           primitives.Image
 	Tags             primitives.TagList
 	SuggestedChannel primitives.HashList
-	Content          primitives.ContentList
+	Content          ContentList
 }
