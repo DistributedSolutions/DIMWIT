@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/DistributedSolutions/DIMWIT.svg?branch=master)](https://travis-ci.org/DistributedSolutions/DIMWIT) [![Coverage Status](https://coveralls.io/repos/github/DistributedSolutions/DIMWIT/badge.svg?branch=master)](https://coveralls.io/github/DistributedSolutions/DIMWIT?branch=master)

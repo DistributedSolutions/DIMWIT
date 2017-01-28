@@ -9,6 +9,6 @@ import (
 
 var _ = fmt.Sprintf("")
 
-func TestCreateDb(t *testing.T) {
-	CreateDb()
+func TestCreateDB(t *testing.T) {
+	CreateDB()
 }
