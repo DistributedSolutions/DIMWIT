@@ -1,0 +1,11 @@
+hash: 2bed206f52fd4b9109453e5dbe7098671b35677c7205467a35a95962bbf22d63
+updated: 2017-01-28T13:09:26.443951547-06:00
+imports:
+- name: github.com/dustin/go-humanize
+  version: 7a41df006ff9af79a29f0ffa9c5f21fbe6314a2d
+- name: golang.org/x/crypto
+  version: c3b1d0d6d8690eaebe3064711b026770cc37efa3
+  subpackages:
+  - ed25519
+  - ed25519/internal/edwards25519
+testImports: []

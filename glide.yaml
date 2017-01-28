@@ -1,0 +1,6 @@
+package: github.com/DistributedSolutions/DIMWIT
+import:
+- package: github.com/dustin/go-humanize
+- package: golang.org/x/crypto
+  subpackages:
+  - ed25519
