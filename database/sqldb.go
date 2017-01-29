@@ -3,12 +3,14 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	// _ "github.com/mattn/go-sqlite3"
+	"github.com/mattn/go-sqlite3"
 	"os"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
+
+var _ = sqlite3.ErrNoMask
 
 func CreateDB() error {
 	dir := util.GetHomeDir() + constants.HIDDEN_DIR

@@ -1,7 +1,12 @@
 package common
 
 import (
+	"bytes"
+	"fmt"
+
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 type Channel struct {
@@ -24,4 +29,315 @@ type Channel struct {
 	Tags             primitives.TagList
 	SuggestedChannel primitives.HashList
 	Content          ContentList
+}
+
+func RandomNewChannel() *Channel {
+	c := new(Channel)
+
+	c.RootChainID = *primitives.RandomHash()
+	c.ManagementChainID = *primitives.RandomHash()
+	c.ContentChainID = *primitives.RandomHash()
+	c.LV1PublicKey = *primitives.RandomPublicKey()
+	c.LV2PublicKey = *primitives.RandomPublicKey()
+	c.LV3PublicKey = *primitives.RandomPublicKey()
+	c.ContentSingingKey = *primitives.RandomPublicKey()
+
+	c.ChannelTitle = *primitives.RandomTitle()
+	c.Website = *primitives.RandomSiteURL()
+	c.LongDescription = *primitives.RandomLongDescription()
+	c.ShortDescription = *primitives.RandomShortDescription()
+	c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
+	c.Thumbnail = *primitives.RandomImage()
+	c.Banner = *primitives.RandomImage()
+	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
+	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))
+	c.Content = *RandomContentList(random.RandomUInt32Between(0, 10))
+
+	return c
+}
+
+func (a *Channel) IsSameAs(b *Channel) bool {
+	if !a.RootChainID.IsSameAs(&b.RootChainID) {
+		return false
+	}
+
+	if !a.ManagementChainID.IsSameAs(&b.ManagementChainID) {
+		return false
+	}
+
+	if !a.ContentChainID.IsSameAs(&b.ContentChainID) {
+		return false
+	}
+
+	if !a.LV1PublicKey.IsSameAs(&b.LV1PublicKey) {
+		return false
+	}
+
+	if !a.LV2PublicKey.IsSameAs(&b.LV2PublicKey) {
+		return false
+	}
+
+	if !a.LV3PublicKey.IsSameAs(&b.LV3PublicKey) {
+		return false
+	}
+
+	if !a.ContentSingingKey.IsSameAs(&b.ContentSingingKey) {
+		return false
+	}
+
+	if !a.Website.IsSameAs(&b.Website) {
+		return false
+	}
+
+	if !a.LongDescription.IsSameAs(&b.LongDescription) {
+		return false
+	}
+
+	if !a.ShortDescription.IsSameAs(&b.ShortDescription) {
+		return false
+	}
+
+	if !a.Playlist.IsSameAs(&b.Playlist) {
+		return false
+	}
+
+	if !a.Thumbnail.IsSameAs(&b.Thumbnail) {
+		return false
+	}
+
+	if !a.Banner.IsSameAs(&b.Banner) {
+		return false
+	}
+
+	if !a.Tags.IsSameAs(&b.Tags) {
+		return false
+	}
+
+	if !a.SuggestedChannel.IsSameAs(&b.SuggestedChannel) {
+		return false
+	}
+
+	if !a.Content.IsSameAs(&b.Content) {
+		return false
+	}
+
+	return true
+}
+
+func (c *Channel) MarshalBinary() (data []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while marshaling: %s", r)
+			return
+		}
+	}()
+
+	buf := new(bytes.Buffer)
+
+	data, err = c.RootChainID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.ManagementChainID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.ContentChainID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.LV1PublicKey.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.LV2PublicKey.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.LV3PublicKey.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.ContentSingingKey.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.ChannelTitle.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.Website.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.LongDescription.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.ShortDescription.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.Playlist.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.Thumbnail.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.Banner.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.Tags.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.SuggestedChannel.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.Content.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	return buf.Next(buf.Len()), nil
+}
+
+func (c *Channel) UnmarshalBinary(data []byte) (err error) {
+	_, err = c.UnmarshalBinaryData(data)
+	return err
+}
+
+func (c *Channel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while marshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
+
+	newData, err = c.RootChainID.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.ManagementChainID.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.ContentChainID.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.LV1PublicKey.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.LV2PublicKey.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.LV3PublicKey.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.ContentSingingKey.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.ChannelTitle.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.Website.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.LongDescription.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.ShortDescription.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.Playlist.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.Thumbnail.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.Banner.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.Tags.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.SuggestedChannel.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	newData, err = c.Content.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	return newData, nil
 }

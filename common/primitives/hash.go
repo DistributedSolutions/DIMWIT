@@ -1,6 +1,7 @@
 package primitives
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 
@@ -9,19 +10,111 @@ import (
 )
 
 type HashList struct {
-	length int
+	length uint32
 	list   []Hash
 }
 
 type Hash [constants.HASH_LENGTH]byte
 
-func NewEmptyHashList() *HashList {
+func RandomHashList(max uint32) *HashList {
+	h := NewHashList()
+	l := random.RandomUInt32Between(0, max)
+	h.length = l
+	h.list = make([]Hash, l)
+
+	for i := range h.list {
+		h.list[i] = *RandomHash()
+	}
+
+	return h
+}
+
+func NewHashList() *HashList {
 	h := new(HashList)
 	h.length = 0
 	h.list = make([]Hash, 0)
 
 	return h
 }
+
+func (a *HashList) IsSameAs(b *HashList) bool {
+	if a.length != b.length {
+		return false
+	}
+
+	for i := range a.list {
+		if a.list[i] != b.list[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (h *HashList) GetHashes() []Hash {
+	return h.list
+}
+
+func (h *HashList) AddHash(hash *Hash) {
+	h.list = append(h.list, *hash)
+	h.length++
+}
+
+func (h *HashList) MarshalBinary() ([]byte, error) {
+	buf := new(bytes.Buffer)
+
+	data, err := Uint32ToBytes(h.length)
+	if err != nil {
+		return nil, err
+	}
+
+	buf.Write(data)
+
+	for i := range h.list {
+		data, err = h.list[i].MarshalBinary()
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(data)
+	}
+
+	return buf.Next(buf.Len()), nil
+}
+
+func (h *HashList) UnmarshalBinary(data []byte) error {
+	_, err := h.UnmarshalBinaryData(data)
+	return err
+}
+
+func (h *HashList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
+	u, err := BytesToUint32(newData[:4])
+	if err != nil {
+		return data, err
+	}
+	h.length = u
+	newData = newData[4:]
+
+	h.list = make([]Hash, u)
+	var i uint32
+	for i = 0; i < u; i++ {
+		newData, err = h.list[i].UnmarshalBinaryData(newData)
+		if err != nil {
+			return data, err
+		}
+	}
+
+	return
+}
+
+// TODO: Hashlist
 
 func BytesToHash(b []byte) (*Hash, error) {
 	h := new(Hash)

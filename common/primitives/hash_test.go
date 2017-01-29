@@ -48,6 +48,32 @@ func TestHash(t *testing.T) {
 	}
 }
 
+func TestHashList(t *testing.T) {
+	for i := 0; i < 100; i++ {
+		max := random.RandomUInt32Between(0, 100)
+
+		l := RandomHashList(max)
+
+		data, err := l.MarshalBinary()
+		if err != nil {
+			t.Error(i, err)
+		}
+
+		n := new(HashList)
+		newData, err := n.UnmarshalBinaryData(data)
+		if err != nil {
+			t.Error(i, err)
+		}
+
+		if !n.IsSameAs(l) {
+			t.Error("Should match.")
+		}
+		if len(newData) != 0 {
+			t.Error("Failed, should have no bytes left")
+		}
+	}
+}
+
 func TestBadUnmarshalHash(t *testing.T) {
 	badData := []byte{}
 

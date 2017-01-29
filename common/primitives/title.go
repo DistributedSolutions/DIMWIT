@@ -4,9 +4,17 @@ import (
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 type Title string
+
+func RandomTitle() *Title {
+	l, _ := NewTitle("")
+	l.SetString(random.RandStringOfSize(l.MaxLength()))
+
+	return l
+}
 
 func NewTitle(title string) (*Title, error) {
 	d := new(Title)

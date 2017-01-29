@@ -1,23 +1,25 @@
-package primitives_test
+package common_test
 
 import (
 	"fmt"
 	"testing"
 
-	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
+	. "github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
 
-func TestTitle(t *testing.T) {
+func TestPlayList(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		l := RandomTitle()
+		max := random.RandomUInt32Between(0, 25)
+		l := RandomManyPlayList(max)
 		data, err := l.MarshalBinary()
 		if err != nil {
 			t.Error(err)
 		}
 
-		n := new(Title)
+		n := new(ManyPlayList)
 		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
@@ -32,10 +34,10 @@ func TestTitle(t *testing.T) {
 	}
 }
 
-func TestBadUnmarshalTitle(t *testing.T) {
+func TestBadUnmarshalManyPlayList(t *testing.T) {
 	badData := []byte{}
 
-	n := new(Title)
+	n := new(ManyPlayList)
 
 	_, err := n.UnmarshalBinaryData(badData)
 	if err == nil {

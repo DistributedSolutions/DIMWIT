@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 type SiteURL string
@@ -17,6 +18,13 @@ func NewURL(url string) (*SiteURL, error) {
 	}
 
 	return d, nil
+}
+
+func RandomSiteURL() *SiteURL {
+	l, _ := NewURL("")
+	l.SetString(random.RandStringOfSize(l.MaxLength()))
+
+	return l
 }
 
 func (d *SiteURL) SetString(url string) error {

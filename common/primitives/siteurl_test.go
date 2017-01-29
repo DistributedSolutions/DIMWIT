@@ -5,14 +5,13 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
-	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
 var _ = fmt.Sprintf("")
 
 func TestSiteUrl(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		l := RandomSitUrl()
+		l := RandomSiteURL()
 		data, err := l.MarshalBinary()
 		if err != nil {
 			t.Error(err)
@@ -31,13 +30,6 @@ func TestSiteUrl(t *testing.T) {
 			t.Error("Failed, should have no bytes left")
 		}
 	}
-}
-
-func RandomSitUrl() *SiteURL {
-	l, _ := NewURL("")
-	l.SetString(random.RandStringOfSize(l.MaxLength()))
-
-	return l
 }
 
 func TestBadUnmarshalSURL(t *testing.T) {
