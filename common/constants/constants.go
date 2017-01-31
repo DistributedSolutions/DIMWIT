@@ -36,3 +36,8 @@ const (
 	HIDDEN_DIR = ".DistroSols/"
 	SQL_DB     = "sql.db"
 )
+
+// For version bytes
+const (
+	FACTOM_VERSION byte = 0x00
+)
