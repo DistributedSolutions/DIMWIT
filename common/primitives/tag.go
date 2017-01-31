@@ -240,7 +240,9 @@ func (d *Tag) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 
 func RandomTag() *Tag {
 	l, _ := NewTag("")
-	l.SetString(random.RandStringOfSize(l.MaxLength()))
+
+	i := random.RandomIntBetween(0, len(constants.ALLOWED_TAGS))
+	l.SetString(constants.ALLOWED_TAGS[i])
 
 	return l
 }

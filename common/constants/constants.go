@@ -41,3 +41,6 @@ const (
 const (
 	FACTOM_VERSION byte = 0x00
 )
+
+// Constant Tags
+var ALLOWED_TAGS = [8]string{"DIMWIT", "CLIT", "FRUIT", "Jesse", "Steve", "Go", "Node", "PEEEEEENNNNNIIIIIISSSSSS"}
