@@ -46,6 +46,7 @@ func UnmarshalStringFromBytesData(data []byte, maxlength int) (resp string, newD
 		if newData[i] == 0x00 {
 			// found null terminator
 			end = i
+			break
 		}
 	}
 

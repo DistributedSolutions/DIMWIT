@@ -131,12 +131,6 @@ func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 	}()
 
 	newData = data
-	if len(newData) < 4 {
-		newData = data
-		err = fmt.Errorf("Unmarshal error")
-		return
-	}
-
 	u, err := BytesToUint32(newData[:4])
 	if err != nil {
 		return data, err
@@ -144,11 +138,6 @@ func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 
 	newData = newData[4:]
 	tl.max = u
-
-	if len(newData) < 4 {
-		err = fmt.Errorf("Unmarshal error")
-		return data, err
-	}
 
 	l, err := BytesToUint32(newData[:4])
 	if err != nil {
@@ -187,7 +176,7 @@ func NewTag(tag string) (*Tag, error) {
 
 func (d *Tag) SetString(tag string) error {
 	if len(tag) > d.MaxLength() {
-		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
+		return fmt.Errorf("Tag name given is too long, length must be under %d, given length is %d",
 			d.MaxLength(), len(tag))
 	}
 
@@ -196,7 +185,7 @@ func (d *Tag) SetString(tag string) error {
 }
 
 func (d *Tag) String() string {
-	return string(*d)
+	return string(*d) //fmt.Sprint(*d)
 }
 
 func (d *Tag) MaxLength() int {
@@ -240,9 +229,12 @@ func (d *Tag) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 
 func RandomTag() *Tag {
 	l, _ := NewTag("")
-
-	i := random.RandomIntBetween(0, len(constants.ALLOWED_TAGS))
-	l.SetString(constants.ALLOWED_TAGS[i])
+	index := random.RandomIntBetween(0, len(constants.ALLOWED_TAGS))
+	str := constants.ALLOWED_TAGS[index]
+	if len(str) > l.MaxLength() {
+		str = str[:l.MaxLength()]
+	}
+	l.SetString(str)
 
 	return l
 }

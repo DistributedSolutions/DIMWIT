@@ -13,6 +13,7 @@ var _ = fmt.Sprintf("")
 func TestSingleTags(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		l := RandomTag()
+
 		data, err := l.MarshalBinary()
 		if err != nil {
 			t.Error(err)
@@ -34,7 +35,7 @@ func TestSingleTags(t *testing.T) {
 }
 
 func TestTagList(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10000; i++ {
 		l := RandomTagList(random.RandomUInt32Between(0, 100))
 		data, err := l.MarshalBinary()
 		if err != nil {
