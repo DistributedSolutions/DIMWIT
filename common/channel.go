@@ -29,6 +29,8 @@ type Channel struct {
 	Tags             primitives.TagList
 	SuggestedChannel primitives.HashList
 	Content          ContentList
+
+	Status byte
 }
 
 func RandomNewChannel() *Channel {
@@ -52,6 +54,7 @@ func RandomNewChannel() *Channel {
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
 	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))
 	c.Content = *RandomContentList(random.RandomUInt32Between(0, 10))
+	c.Status = random.RandByteSlice()[0]
 
 	return c
 }
@@ -118,6 +121,10 @@ func (a *Channel) IsSameAs(b *Channel) bool {
 	}
 
 	if !a.Content.IsSameAs(&b.Content) {
+		return false
+	}
+
+	if a.Status != b.Status {
 		return false
 	}
 
@@ -236,6 +243,8 @@ func (c *Channel) MarshalBinary() (data []byte, err error) {
 	}
 	buf.Write(data)
 
+	buf.Write([]byte{c.Status})
+
 	return buf.Next(buf.Len()), nil
 }
 
@@ -338,6 +347,9 @@ func (c *Channel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	if err != nil {
 		return data, err
 	}
+
+	c.Status = newData[0]
+	newData = newData[1:]
 
 	return newData, nil
 }
