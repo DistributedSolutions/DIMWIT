@@ -10,5 +10,12 @@ import (
 var _ = fmt.Sprintf("")
 
 func TestCreateDB(t *testing.T) {
-	CreateDB()
+	err := DeleteDB()
+	if err != nil {
+		t.Error(err)
+	}
+	err = CreateDB()
+	if err != nil {
+		t.Error(err)
+	}
 }
