@@ -1,8 +1,32 @@
-hash: 2bed206f52fd4b9109453e5dbe7098671b35677c7205467a35a95962bbf22d63
-updated: 2017-01-28T13:12:10.510260692-06:00
+hash: 1794806f854b69b2131fb57b2683b5bb3d8ebdab2c454855c16b5b67ba87d11b
+updated: 2017-01-30T21:53:30.920716019-06:00
 imports:
 - name: github.com/dustin/go-humanize
   version: 7a41df006ff9af79a29f0ffa9c5f21fbe6314a2d
+- name: github.com/FactomProject/basen
+  version: fe3947df716ebfda9847eb1b9a48f9592e06478c
+- name: github.com/FactomProject/btcutil
+  version: 43986820ccd50b2b02b83e575cb3a39c87457482
+  subpackages:
+  - base58
+- name: github.com/FactomProject/btcutilecc
+  version: d3a63a5752ecf3fbc06bd97365da752111c263df
+- name: github.com/FactomProject/ed25519
+  version: 38002c4fe7b609c2fa3144a3cc29b997b756bb4c
+  subpackages:
+  - edwards25519
+- name: github.com/FactomProject/factom
+  version: f641223f2d5e74d1bfaa6473dd920564646bbbc1
+- name: github.com/FactomProject/go-bip32
+  version: 3b593af1c415abc1017648e4eb24a88c32fee0f3
+- name: github.com/FactomProject/go-bip39
+  version: d1007fb78d9a7ec65314dad412973e63caf4c527
+- name: github.com/FactomProject/go-bip44
+  version: fd672f46ddc35bb381f497f7b64c9cf34f9e0703
+- name: github.com/FactomProject/go-simplejson
+  version: aabad6e819789e569bd6aabf444c935aa9ba1e44
+- name: github.com/FactomProject/netki-go-partner-client
+  version: 426acb535e66cc2f9e6226ae254555e3572fd142
 - name: github.com/mattn/go-sqlite3
   version: ce9149a3c941c30de51a01dbc5bc414ddaa52927
 - name: golang.org/x/crypto
@@ -10,6 +34,8 @@ imports:
   subpackages:
   - ed25519
   - ed25519/internal/edwards25519
+  - pbkdf2
+  - ripemd160
 - name: golang.org/x/net
   version: b7883d29650d340156352196ef5e434db117757b
   subpackages:
