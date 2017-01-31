@@ -54,7 +54,7 @@ func RandomNewChannel() *Channel {
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
 	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))
 	c.Content = *RandomContentList(random.RandomUInt32Between(0, 10))
-	c.Status = random.RandByteSlice()[0]
+	c.Status = random.RandByteSliceOfSize(1)[0]
 
 	return c
 }
