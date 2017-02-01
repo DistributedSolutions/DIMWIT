@@ -3,6 +3,7 @@ package util
 import (
 	"os"
 	"os/user"
+	"strings"
 )
 
 func GetHomeDir() string {
@@ -19,5 +20,11 @@ func GetHomeDir() string {
 	if err != nil || homeDir == "" {
 		homeDir = os.Getenv("HOME")
 	}
+
+	travisRun := strings.Contains(homeDir, "travis")
+	if travisRun {
+		homeDir = ""
+	}
+
 	return homeDir + "/"
 }
