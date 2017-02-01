@@ -49,7 +49,7 @@ const (
 )
 
 // Hidden File Directory
-var (
+const (
 	HIDDEN_DIR = ".DistroSols/"
 	SQL_DB     = "sql.db"
 )
@@ -108,3 +108,5 @@ const (
 
 // Constant Tags
 var ALLOWED_TAGS = []string{"DIMWIT", "CLIT", "FRUIT", "Jesse", "Steve", "Go", "Node", "PEEEEEENNNNNIIIIIISSSSSS"}
+
+var TRAVIS_RUN = false
