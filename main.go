@@ -1,9 +1,7 @@
 package main
 
-import (
-	"github.com/DistributedSolutions/DIMWIT/database"
-)
+import ()
 
 func main() {
-	database.CreateDB()
+
 }
