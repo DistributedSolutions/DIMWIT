@@ -12,12 +12,15 @@ var (
 // Primitive type constants
 // Byte length can be max length + 1 for strings
 const (
-	INFOHASH_BYTES_LENGTH        int = 20 // String is 40 in length
-	HASH_BYTES_LENGTH            int = 32 // String is 64 in length
+	// Bytes
+	INFOHASH_BYTES_LENGTH     int = 20 // String is 40 in length
+	HASH_BYTES_LENGTH         int = 32 // String is 64 in length
+	MD5_CHECKSUM_BYTES_LENGTH int = 16 // String is 32 in length
+
+	// Strings
 	LONG_DESCRIPTION_MAX_LENGTH  int = 100
 	SHORT_DESCRIPTION_MAX_LENGTH int = 20
 	FILE_NAME_MAX_LENGTH         int = 50
-	MD5_CHECKSUM_LENGTH          int = 16
 	TRACKER_URL_MAX_LENGTH       int = 100
 	TITLE_MAX_LENGTH             int = 30
 	URL_MAX_LENGTH               int = 20
