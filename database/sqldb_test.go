@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/util"
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/database"
@@ -12,6 +13,7 @@ import (
 var _ = fmt.Sprintf("")
 
 func TestCreateDB(t *testing.T) {
+	util.GetHomeDir() // See if travis build
 	if constants.TRAVIS_RUN {
 		return // Until this works for travis
 	}
