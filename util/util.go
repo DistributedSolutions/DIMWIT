@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/user"
 	"strings"
+
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 )
 
 func GetHomeDir() string {
@@ -26,6 +28,7 @@ func GetHomeDir() string {
 	travisRun := strings.Contains(homeDir, "travis")
 	if travisRun {
 		homeDir = ""
+		constants.HIDDEN_DIR = "Travis/"
 	}
 
 	return homeDir

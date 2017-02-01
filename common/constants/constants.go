@@ -49,7 +49,7 @@ const (
 )
 
 // Hidden File Directory
-const (
+var (
 	HIDDEN_DIR = ".DistroSols/"
 	SQL_DB     = "sql.db"
 )
