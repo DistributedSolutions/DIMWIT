@@ -11,137 +11,161 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
 
+// type SqlObj interface {
+// 	Santize() string
+// 	Type() int
+// }
+
+// type SqlString string
+
+// func (s *SqlString) SetString(st string) {
+// 	*s = SqlString(st)
+// }
+
+// func (s *SqlString) Sanitize() string {
+// 	return "'" + SQLSanitize(s) + "'"
+// }
+
+// func (s *SqlString) Type() int {
+// 	return constants.SQL_STRING
+// }
+
+// type SqlInt int
+
+// func (s *SqlString) SetInt(st string) {
+// 	*s = SqlInt(st)
+// }
+
+// func (s *SqlString) Sanitize() string {
+// 	return s
+// }
+
+// func (s *SqlString) Type() int {
+// 	return constants.SQL_OTHER
+// }
+
 var _ = sqlite3.ErrNoMask
 
 var gDB *sql.DB
 
-var TABLE_NAMES = [7]string{
-	"channel",
-	"channelTag",
-	"channelTagRel",
-	"playlist",
-	"content",
-	"contentTag",
-	"contentTagRel",
+var TABLE_NAMES = []string{
+	constants.SQL_CHANNEL,
+	constants.SQL_CHANNEL_TAG,
+	constants.SQL_CHANNEL_TAG_REL,
+	constants.SQL_PLAYLIST,
+	constants.SQL_CONTENT,
+	constants.SQL_CONTENT_TAG,
+	constants.SQL_CONTENT_TAG_REL,
 }
 
-var CREATE_TABLE = [7]string{
-	"channel(" +
-		"channelHash CHAR(20) PRIMARY KEY, " +
-		"tile VARCHAR(100) NOT NULL)",
-	"channelTag(" +
-		"id INTEGER PRIMARY KEY, " +
-		"name VARCHAR(100) NOT NULL UNIQUE)",
-	"channelTagRel(" +
-		"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-		"c_id INTEGER NOT NULL, " +
-		"ct_id INTEGER NOT NULL, " +
-		"FOREIGN KEY (c_id) REFERENCES channel(channelHash) ON DELETE CASCADE ON UPDATE CASCADE, " +
-		"FOREIGN KEY (ct_id) REFERENCES channelTag(id) ON DELETE CASCADE ON UPDATE CASCADE)",
-	"playlist(" +
-		"id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-		"playlistTitle VARCHAR(100) NOT NULL, " +
-		"channelId INTEGER REFERENCES channel(id))",
-	"content(" +
-		"contentHash CHAR(20) PRIMARY KEY, " +
-		"tile VARCHAR(100) NOT NULL, " +
-		"seriesName VARCHAR(100) NOT NULL, " +
-		"partName VARCHAR(100) NOT NULL, " +
-		"ch_id INTEGER NOT NULL, " +
-		"FOREIGN KEY (ch_id) REFERENCES channel(channelHash) ON DELETE CASCADE ON UPDATE CASCADE)",
-	"contentTag(" +
-		"id INTEGER PRIMARY KEY UNIQUE, " +
-		"name VARCHAR(100) NOT NULL UNIQUE)",
-	"contentTagRel(" +
-		"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-		"c_id INTEGER NOT NULL, " +
-		"ct_id INTEGER NOT NULL, " +
-		"FOREIGN KEY (c_id) REFERENCES content(contentHash) ON DELETE CASCADE ON UPDATE CASCADE, " +
-		"FOREIGN KEY (ct_id) REFERENCES contentTag(id) ON DELETE CASCADE ON UPDATE CASCADE)",
+var CREATE_TABLE = []string{
+	constants.SQL_CHANNEL + "(" +
+		constants.SQL_TABLE_CHANNEL__HASH + " CHAR(20) PRIMARY KEY, " +
+		constants.SQL_TABLE_CHANNEL__TITLE + " VARCHAR(100) NOT NULL)",
+	constants.SQL_CHANNEL_TAG + "(" +
+		constants.SQL_TABLE_CHANNEL_TAG__ID + " INTEGER PRIMARY KEY, " +
+		constants.SQL_TABLE_CHANNEL_TAG__NAME + " VARCHAR(100) NOT NULL UNIQUE)",
+	constants.SQL_CHANNEL_TAG_REL + "(" +
+		constants.SQL_TABLE_CHANNEL_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+		constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID + " INTEGER NOT NULL, " +
+		constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID + " INTEGER NOT NULL, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID + ") REFERENCES " + constants.SQL_CHANNEL +
+		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID + ") REFERENCES " + constants.SQL_CHANNEL_TAG +
+		"(" + constants.SQL_TABLE_CHANNEL_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+	constants.SQL_PLAYLIST + "(" +
+		constants.SQL_TABLE_PLAYLIST__ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE + " VARCHAR(100) NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID + " INTEGER REFERENCES channel(id))",
+	constants.SQL_CONTENT + "(" +
+		constants.SQL_TABLE_CONTENT__CONTENT_HASH + " CHAR(20) PRIMARY KEY, " +
+		constants.SQL_TABLE_CONTENT__TITLE + " VARCHAR(100) NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__SERIES_NAME + " VARCHAR(100) NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__PART_NAME + " VARCHAR(100) NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__CH_ID + " INTEGER NOT NULL, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT__CH_ID + ") REFERENCES " + constants.SQL_CHANNEL +
+		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+	constants.SQL_CONTENT_TAG + "(" +
+		constants.SQL_TABLE_CONTENT_TAG__ID + " INTEGER PRIMARY KEY UNIQUE, " +
+		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(100) NOT NULL UNIQUE)",
+	constants.SQL_CONTENT_TAG_REL + "(" +
+		constants.SQL_TABLE_CONTENT_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+		constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " INTEGER NOT NULL, " +
+		constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + " INTEGER NOT NULL, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + ") REFERENCES " + constants.SQL_CONTENT +
+		"(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + ") REFERENCES " + constants.SQL_CONTENT_TAG +
+		"(" + constants.SQL_TABLE_CONTENT_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE)",
 }
 
-func CreateDB() error {
+func CreateDB(dbName string, tableCreate []string) error {
 	dir := util.GetHomeDir() + constants.HIDDEN_DIR
 	_, err := os.Stat(dir)
 	// create directory if not exists
 	if os.IsNotExist(err) {
-		fmt.Println("SQL:CreateDB: Creating Dir [" + dir + "]")
 		os.MkdirAll(dir, 0666)
-	} else {
-		fmt.Println("SQL:CreateDB: Dir Already Exists")
 	}
 
-	_, err = os.Stat(dir + constants.SQL_DB)
+	dbPathName := dir + dbName
+	_, err = os.Stat(dbPathName)
 
+	//create db if not exists
 	if os.IsNotExist(err) {
-		fmt.Println("SQL:CreateDB: CREATING DB [" + dir + constants.SQL_DB + "]")
-		file, err := os.OpenFile(dir+constants.SQL_DB, os.O_CREATE|os.O_APPEND, 0666)
+		file, err := os.OpenFile(dbPathName, os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			return err
+			return fmt.Errorf("Error creating database: %s", err.Error())
 		}
 		file.Close()
-	} else {
-		fmt.Println("SQL:CreateDB: DB Already Exists")
 	}
 
-	db, err := sql.Open("sqlite3", dir+constants.SQL_DB)
+	db, err := sql.Open("sqlite3", dbPathName)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error opening database: %s", err.Error())
 	}
+
+	gDB = db
 
 	_, err = db.Exec("PRAGMA foreign_keys=ON;")
 	if err != nil {
-		return err
+		return fmt.Errorf("Error setting pragma: %s", err.Error())
 	}
 
 	//create all tables if they do not exist
-	err = createAllTables(db)
+	err = createAllTables(db, tableCreate)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error creating tables: %s", err.Error())
 	}
-
-	fmt.Println("SQL:CreateDB: DB CLOSE")
 
 	return err
 }
 
-func createAllTables(db *sql.DB) error {
-	fmt.Printf("SQL:CreateAllTables: Creating tables [%d]\n", len(TABLE_NAMES))
-
-	for _, element := range CREATE_TABLE {
+func createAllTables(db *sql.DB, tableCreate []string) error {
+	for _, element := range tableCreate {
 		//check if table exists
 		s := "CREATE TABLE IF NOT EXISTS " + element + ";"
-		fmt.Printf("SQL:CreateAllTables: [%s]\n", s)
 		_, err := db.Exec(s)
 		if err != nil {
-			fmt.Printf("SQL:CreateAllTables: [%s]\n", err)
-			return err
+			return fmt.Errorf("Error creating table with query [%s]: %s", s, err.Error())
 		}
 	}
-	fmt.Println("SQL:CreateAllTables: Finished Creating tables")
 	return nil
 }
 
-func DeleteDB() error {
+func DeleteDB(dbName string) error {
 	dir := util.GetHomeDir() + constants.HIDDEN_DIR
 	_, err := os.Stat(dir)
 	// create directory if not exists
 	if os.IsNotExist(err) {
-		fmt.Println("SQL:DELETE: Creating Dir [" + dir + "]")
 		os.MkdirAll(dir, 0666)
-	} else {
-		fmt.Println("SQL:DELETE: Dir Already Exists")
 	}
 
-	_, err = os.Stat(dir + constants.SQL_DB)
+	dbPathName := dir + dbName
+	_, err = os.Stat(dbPathName)
 
-	if os.IsNotExist(err) {
-		fmt.Println("SQL:DELETE: DB Already Deleted [" + dir + constants.SQL_DB + "]")
-	} else {
-		fmt.Println("SQL:DELETE: DELETING DB [" + dir + constants.SQL_DB + "]")
-		err = os.Remove(dir + constants.SQL_DB)
+	if !os.IsNotExist(err) {
+		err = os.Remove(dbPathName)
 		if err != nil {
-			return err
+			return fmt.Errorf("Error deleting db with path [%s]: %s", dbPathName, err.Error())
 		}
 	}
 	return nil
@@ -151,10 +175,7 @@ func getDBPath() (string, error) {
 	path := util.GetHomeDir() + constants.HIDDEN_DIR + constants.SQL_DB
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		fmt.Println("SQL:GetDB: DB DOES NOT Exists")
-		return "", fmt.Errorf("DB Does NOT Exists: %s", err.Error())
-	} else {
-		fmt.Println("SQL:GetDB: DB Path exists :)")
+		return "", fmt.Errorf("DB Does NOT Exists with dir [%s]: %s", path, err.Error())
 	}
 
 	return path, nil
@@ -174,21 +195,70 @@ func getDB() (*sql.DB, error) {
 	return gDB, nil
 }
 
+func DeleteTable(db *sql.DB, tableName string) error {
+	s := "DELETE FROM " + tableName
+	_, err := gDB.Exec(s)
+	if err != nil {
+		return fmt.Errorf("Error deleting from table %s: %s", tableName, err.Error())
+	}
+	return nil
+}
+
+func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertData []string) error {
+	icl := len(insertCols)
+	idl := len(insertData)
+	if idl != icl {
+		return fmt.Errorf("Error in argument lengths while inserting into %s (%d != %d)", tableName, icl, idl)
+	}
+
+	s := "INSERT INTO " + tableName + " ("
+	for i, e := range insertCols {
+		s += e
+		if i < icl-1 && icl > 1 {
+			s += ","
+		}
+	}
+	s += ") values("
+
+	for i := 0; i < idl; i++ {
+		s += "?"
+		if i < idl-1 && idl > 1 {
+			s += ","
+		}
+	}
+	s += ")"
+
+	stmt, err := db.Prepare(s)
+	if err != nil {
+		return fmt.Errorf("Error preparing inserting into table [%s] with query [%s]: %s", tableName, s, err.Error())
+	}
+	defer stmt.Close()
+
+	insertDataInterface := make([]interface{}, len(insertData))
+	for index, value := range insertData {
+		insertDataInterface[index] = value
+	}
+
+	_, err = stmt.Exec(insertDataInterface...)
+	if err != nil {
+		return fmt.Errorf("Error exec inserting into %s: %s", tableName, err.Error())
+	}
+	return nil
+}
+
 func AddTags() error {
 	gDB, err := getDB()
 	if err != nil {
 		return fmt.Errorf("Error adding tags: %s", err.Error())
 	}
 
-	s := ""
-	for _, t := range constants.ALLOWED_TAGS {
-		s += "INSERT INTO channelTag(name) VALUES('" + t + "');"
-	}
-
-	fmt.Println("SQL:AddTags: Tags[" + s + "]")
-	_, err = gDB.Exec(s)
-	if err != nil {
-		return fmt.Errorf("Error inserting tags: %s", err.Error())
+	insertCols := []string{"name"}
+	for _, e := range constants.ALLOWED_TAGS {
+		insertData := []string{e}
+		err = InsertIntoTable(gDB, "channelTag", insertCols, insertData)
+		if err != nil {
+			return fmt.Errorf("Error inserting tags: %s", err.Error())
+		}
 	}
 	return nil
 }
@@ -199,11 +269,7 @@ func DeleteTags() error {
 		return fmt.Errorf("Error updating tags: %s", err.Error())
 	}
 
-	_, err = gDB.Exec("DELETE FROM channelTag")
-	if err != nil {
-		return fmt.Errorf("Error deleting tags: %s", err.Error())
-	}
-	return nil
+	return DeleteTable(gDB, "channelTag")
 }
 
 //NOT GOING TO CHECK IF IN DB ALREADY
@@ -213,28 +279,36 @@ func AddChannel(channel *common.Channel) error {
 		return fmt.Errorf("Error adding channel: %s", err.Error())
 	}
 
-	_, err = gDB.Exec("INSERT INTO channel(channelHash,tile) VALUES(?,?)",
+	insertCols := []string{
+		constants.SQL_TABLE_CHANNEL__HASH,
+		constants.SQL_TABLE_CHANNEL__TITLE,
+	}
+	insertData := []string{
 		channel.RootChainID.String(),
-		channel.ChannelTitle.String())
+		channel.ChannelTitle.String(),
+	}
+	err = InsertIntoTable(gDB, constants.SQL_CHANNEL, insertCols, insertData)
 	if err != nil {
-		return fmt.Errorf("Error inserting channel: %s", err.Error())
+		return fmt.Errorf("Error adding channel: %s", err.Error())
 	}
 
 	tags := channel.Tags.GetTags()
-	fmt.Printf("SQL: Tags for channel len [%d]\n", len(tags))
 	for _, t := range tags {
 		tag, err := getTagID(gDB, t.String())
 		if err != nil {
-			return fmt.Errorf("Error retrieving tag: %s", err.Error())
+			return fmt.Errorf("Error retrieving tag id: %s", err.Error())
 		}
-		s := "INSERT INTO channelTagRel(c_id,ct_id) VALUES(" +
-			channel.RootChainID.String() +
-			"," +
-			tag +
-			")"
-		_, err = gDB.Exec(s)
+		insertCols = []string{
+			constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID,
+			constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID,
+		}
+		insertData = []string{
+			channel.RootChainID.String(),
+			tag,
+		}
+		err = InsertIntoTable(gDB, constants.SQL_CHANNEL_TAG_REL, insertCols, insertData)
 		if err != nil {
-			return fmt.Errorf("Error inserting tag for channel: %s", err.Error())
+			return fmt.Errorf("Error inserting channel tag %s: %s", tag, err.Error())
 		}
 	}
 
@@ -263,7 +337,7 @@ func UpdateChannel(channel *common.Channel) error {
 func getTagID(db *sql.DB, tagName string) (string, error) {
 	rows, err := gDB.Query("SELECT id FROM channelTag WHERE name = ? LIMIT 1", tagName)
 	if err != nil {
-		return "", fmt.Errorf("Error deleting channel: %s", err.Error())
+		return "", fmt.Errorf("Error retrieving tag id for [%s]: %s", tagName, err.Error())
 	}
 
 	defer rows.Close()
@@ -274,4 +348,8 @@ func getTagID(db *sql.DB, tagName string) (string, error) {
 	rows.Scan(&result)
 
 	return result, nil
+}
+
+func CloseDB() {
+	gDB.Close()
 }
