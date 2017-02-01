@@ -21,10 +21,12 @@ func GetHomeDir() string {
 		homeDir = os.Getenv("HOME")
 	}
 
+	homeDir = homeDir + "/"
+
 	travisRun := strings.Contains(homeDir, "travis")
 	if travisRun {
 		homeDir = ""
 	}
 
-	return homeDir + "/"
+	return homeDir
 }
