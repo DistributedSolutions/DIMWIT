@@ -27,7 +27,7 @@ func GetHomeDir() string {
 
 	travisRun := strings.Contains(homeDir, "travis")
 	if travisRun {
-		homeDir = ""
+		homeDir = "/home/travis/"
 		constants.HIDDEN_DIR = "Travis/"
 	}
 
