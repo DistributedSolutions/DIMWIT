@@ -60,11 +60,11 @@ var TABLE_NAMES = []string{
 
 var CREATE_TABLE = []string{
 	constants.SQL_CHANNEL + "(" +
-		constants.SQL_TABLE_CHANNEL__HASH + " CHAR(20) PRIMARY KEY, " +
-		constants.SQL_TABLE_CHANNEL__TITLE + " VARCHAR(100) NOT NULL)",
+		constants.SQL_TABLE_CHANNEL__HASH + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") PRIMARY KEY, " +
+		constants.SQL_TABLE_CHANNEL__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL)",
 	constants.SQL_CHANNEL_TAG + "(" +
 		constants.SQL_TABLE_CHANNEL_TAG__ID + " INTEGER PRIMARY KEY, " +
-		constants.SQL_TABLE_CHANNEL_TAG__NAME + " VARCHAR(100) NOT NULL UNIQUE)",
+		constants.SQL_TABLE_CHANNEL_TAG__NAME + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
 	constants.SQL_CHANNEL_TAG_REL + "(" +
 		constants.SQL_TABLE_CHANNEL_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID + " INTEGER NOT NULL, " +
@@ -75,19 +75,19 @@ var CREATE_TABLE = []string{
 		"(" + constants.SQL_TABLE_CHANNEL_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE)",
 	constants.SQL_PLAYLIST + "(" +
 		constants.SQL_TABLE_PLAYLIST__ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE + " VARCHAR(100) NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
 		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID + " INTEGER REFERENCES channel(id))",
 	constants.SQL_CONTENT + "(" +
-		constants.SQL_TABLE_CONTENT__CONTENT_HASH + " CHAR(20) PRIMARY KEY, " +
-		constants.SQL_TABLE_CONTENT__TITLE + " VARCHAR(100) NOT NULL, " +
-		constants.SQL_TABLE_CONTENT__SERIES_NAME + " VARCHAR(100) NOT NULL, " +
-		constants.SQL_TABLE_CONTENT__PART_NAME + " VARCHAR(100) NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__CONTENT_HASH + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") PRIMARY KEY, " +
+		constants.SQL_TABLE_CONTENT__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__SERIES_NAME + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__PART_NAME + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
 		constants.SQL_TABLE_CONTENT__CH_ID + " INTEGER NOT NULL, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT__CH_ID + ") REFERENCES " + constants.SQL_CHANNEL +
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
 	constants.SQL_CONTENT_TAG + "(" +
 		constants.SQL_TABLE_CONTENT_TAG__ID + " INTEGER PRIMARY KEY UNIQUE, " +
-		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(100) NOT NULL UNIQUE)",
+		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
 	constants.SQL_CONTENT_TAG_REL + "(" +
 		constants.SQL_TABLE_CONTENT_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " INTEGER NOT NULL, " +
@@ -308,7 +308,7 @@ func AddChannel(channel *common.Channel) error {
 		}
 		err = InsertIntoTable(gDB, constants.SQL_CHANNEL_TAG_REL, insertCols, insertData)
 		if err != nil {
-			return fmt.Errorf("Error inserting channel tag %s: %s", tag, err.Error())
+			return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
 		}
 	}
 
