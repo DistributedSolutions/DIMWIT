@@ -1,6 +1,7 @@
 package primitives_test
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 
@@ -30,6 +31,37 @@ func TestSingleTags(t *testing.T) {
 
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
+		}
+	}
+
+	var err error
+	for i := 0; i < 1000; i++ {
+		buf := new(bytes.Buffer)
+
+		ll := make([]Tag, 0)
+		ln := make([]Tag, 5)
+		for c := 0; c < 5; c++ {
+			l := RandomTag()
+			data, err := l.MarshalBinary()
+			if err != nil {
+				t.Error(err)
+			}
+			buf.Write(data)
+
+			ll = append(ll, *l)
+		}
+
+		newData := buf.Next(buf.Len())
+
+		for i := range ll {
+			newData, err = ln[i].UnmarshalBinaryData(newData)
+			if err != nil {
+				t.Error(err)
+			}
+
+			if !ln[i].IsSameAs(&ll[i]) {
+				t.Error("not same")
+			}
 		}
 	}
 }
