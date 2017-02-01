@@ -8,7 +8,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
-type MD5Checksum [constants.MD5_CHECKSUM_LENGTH]byte
+type MD5Checksum [constants.MD5_CHECKSUM_BYTES_LENGTH]byte
 
 func BytesToMD5Checksum(b []byte) (*MD5Checksum, error) {
 	m := new(MD5Checksum)
@@ -61,7 +61,7 @@ func RandomMD5() *MD5Checksum {
 }
 
 func (h *MD5Checksum) Length() int {
-	return constants.MD5_CHECKSUM_LENGTH
+	return constants.MD5_CHECKSUM_BYTES_LENGTH
 }
 
 func (h *MD5Checksum) MarshalBinary() ([]byte, error) {
