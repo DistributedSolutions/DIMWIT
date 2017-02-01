@@ -12,8 +12,8 @@ var (
 // Primitive type constants
 // Byte length can be max length + 1 for strings
 const (
-	INFOHASH_LENGTH              int = 20
-	HASH_LENGTH                  int = 32
+	INFOHASH_BYTES_LENGTH        int = 20 // String is 40 in length
+	HASH_BYTES_LENGTH            int = 32 // String is 64 in length
 	LONG_DESCRIPTION_MAX_LENGTH  int = 100
 	SHORT_DESCRIPTION_MAX_LENGTH int = 20
 	FILE_NAME_MAX_LENGTH         int = 50

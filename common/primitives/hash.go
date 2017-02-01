@@ -14,7 +14,7 @@ type HashList struct {
 	list   []Hash
 }
 
-type Hash [constants.HASH_LENGTH]byte
+type Hash [constants.HASH_BYTES_LENGTH]byte
 
 func RandomHashList(max uint32) *HashList {
 	h := NewHashList()
@@ -167,7 +167,7 @@ func RandomHash() *Hash {
 }
 
 func (h *Hash) Length() int {
-	return constants.HASH_LENGTH
+	return constants.HASH_BYTES_LENGTH
 }
 
 func (h *Hash) MarshalBinary() ([]byte, error) {

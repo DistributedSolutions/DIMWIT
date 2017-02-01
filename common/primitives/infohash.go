@@ -8,7 +8,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
 
-type InfoHash [constants.INFOHASH_LENGTH]byte
+type InfoHash [constants.INFOHASH_BYTES_LENGTH]byte
 
 func BytesToInfoHash(b []byte) (*InfoHash, error) {
 	i := new(InfoHash)
@@ -61,7 +61,7 @@ func RandomInfoHash() *InfoHash {
 }
 
 func (h *InfoHash) Length() int {
-	return constants.INFOHASH_LENGTH
+	return constants.INFOHASH_BYTES_LENGTH
 }
 
 func (h *InfoHash) MarshalBinary() ([]byte, error) {
