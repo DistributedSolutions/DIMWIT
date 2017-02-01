@@ -36,9 +36,6 @@ func TestAddTags(t *testing.T) {
 
 func TestAddChannel(t *testing.T) {
 	c := common.RandomNewChannel()
-	if len(c.Tags.GetTags()) < 1 {
-		t.Error(fmt.Printf("Error tags count for random is bad :( [%d]\n", len(c.Tags.GetTags())))
-	}
 	err := AddChannel(c)
 	if err != nil {
 		t.Error(err)

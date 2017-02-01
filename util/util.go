@@ -19,5 +19,5 @@ func GetHomeDir() string {
 	if err != nil || homeDir == "" {
 		homeDir = os.Getenv("HOME")
 	}
-	return homeDir + "\\"
+	return homeDir + "/"
 }

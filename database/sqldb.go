@@ -111,7 +111,7 @@ func CreateDB(dbName string, tableCreate []string) error {
 
 	//create db if not exists
 	if os.IsNotExist(err) {
-		file, err := os.OpenFile(dbPathName, os.O_CREATE|os.O_APPEND, 0666)
+		file, err := os.OpenFile(dbPathName, os.O_CREATE|os.O_RDWR, 0666)
 		if err != nil {
 			return fmt.Errorf("Error creating database: %s", err.Error())
 		}
