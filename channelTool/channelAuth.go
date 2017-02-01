@@ -2,6 +2,7 @@ package channelTool
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -66,12 +67,12 @@ func (a *AuthChannel) UnmarshalBinary(data []byte) error {
 }
 
 func (a *AuthChannel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
-	/*defer func() {
+	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
 			return
 		}
-	}()*/
+	}()
 
 	newData = data
 

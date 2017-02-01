@@ -3,7 +3,6 @@ package chain
 import (
 	"bytes"
 	"crypto/sha256"
-	"fmt"
 	"strconv"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -11,7 +10,6 @@ import (
 
 type generalChainCreate interface {
 	upToNonce() []byte
-	getNonce() []byte
 }
 
 func FindValidNonce(i generalChainCreate) []byte {
@@ -24,8 +22,6 @@ func FindValidNonce(i generalChainCreate) []byte {
 		exit = checkNonce(upToNonce, count)
 
 	}
-
-	fmt.Println(count)
 	return []byte(strconv.Itoa(count))
 }
 
@@ -46,4 +42,15 @@ func checkNonce(upToNonce []byte, nonceInt int) bool {
 		return true
 	}
 	return false
+}
+
+// upToNonce is exclusive
+func upToNonce(extIDs [][]byte, end int) []byte {
+	buf := new(bytes.Buffer)
+	for _, e := range extIDs {
+		result := sha256.Sum256(e)
+		buf.Write(result[:])
+	}
+
+	return buf.Next(buf.Len())
 }

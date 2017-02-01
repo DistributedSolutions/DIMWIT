@@ -10,6 +10,7 @@ import (
 
 type ManyPlayList struct {
 	length    uint32
+	title     primitives.Title
 	playlists []primitives.HashList
 }
 
@@ -24,6 +25,8 @@ func RandomManyPlayList(max uint32) *ManyPlayList {
 		p.playlists[i] = *primitives.RandomHashList(max)
 	}
 
+	p.title = *primitives.RandomTitle()
+
 	return p
 }
 
@@ -36,6 +39,10 @@ func (a *ManyPlayList) IsSameAs(b *ManyPlayList) bool {
 		if !a.playlists[i].IsSameAs(&b.playlists[i]) {
 			return false
 		}
+	}
+
+	if !a.title.IsSameAs(&b.title) {
+		return false
 	}
 
 	return true
@@ -57,6 +64,12 @@ func (p *ManyPlayList) MarshalBinary() ([]byte, error) {
 		}
 		buf.Write(data)
 	}
+
+	data, err = p.title.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
 
 	return buf.Next(buf.Len()), nil
 }
@@ -90,6 +103,11 @@ func (p *ManyPlayList) UnmarshalBinaryData(data []byte) (newData []byte, err err
 		if err != nil {
 			return data, err
 		}
+	}
+
+	newData, err = p.title.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
 	}
 
 	return
