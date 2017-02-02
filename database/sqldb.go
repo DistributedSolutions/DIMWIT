@@ -156,7 +156,7 @@ func DeleteDB(dbName string) error {
 	_, err := os.Stat(dir)
 	// create directory if not exists
 	if os.IsNotExist(err) {
-		os.MkdirAll(dir, 0666)
+		os.MkdirAll(dir, constants.DIRECTORY_PERMISSIONS)
 	}
 
 	dbPathName := dir + dbName

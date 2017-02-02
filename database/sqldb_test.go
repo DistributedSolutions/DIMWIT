@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
-	"github.com/DistributedSolutions/DIMWIT/util"
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/database"
@@ -13,10 +12,6 @@ import (
 var _ = fmt.Sprintf("")
 
 func TestCreateDB(t *testing.T) {
-	util.GetHomeDir() // See if travis build
-	if constants.TRAVIS_RUN {
-		return // Until this works for travis
-	}
 	err := DeleteDB(constants.SQL_DB)
 	if err != nil {
 		t.Error(err)
@@ -28,9 +23,6 @@ func TestCreateDB(t *testing.T) {
 }
 
 func TestAddTags(t *testing.T) {
-	if constants.TRAVIS_RUN {
-		return // Until this works for travis
-	}
 	err := DeleteTags()
 	if err != nil {
 		t.Error(err)
@@ -43,9 +35,6 @@ func TestAddTags(t *testing.T) {
 }
 
 func TestAddChannel(t *testing.T) {
-	if constants.TRAVIS_RUN {
-		return // Until this works for travis
-	}
 	c := common.RandomNewChannel()
 	err := AddChannel(c)
 	if err != nil {

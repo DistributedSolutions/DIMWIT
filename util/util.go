@@ -3,9 +3,6 @@ package util
 import (
 	"os"
 	"os/user"
-	"strings"
-
-	"github.com/DistributedSolutions/DIMWIT/common/constants"
 )
 
 func GetHomeDir() string {
@@ -23,12 +20,5 @@ func GetHomeDir() string {
 		homeDir = os.Getenv("HOME")
 	}
 
-	homeDir = homeDir + "/"
-
-	travisRun := strings.Contains(homeDir, "travis")
-	if travisRun {
-		constants.TRAVIS_RUN = true
-	}
-
-	return homeDir
+	return homeDir + "/"
 }
