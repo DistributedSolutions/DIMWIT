@@ -1,9 +1,6 @@
 package main
 
-import (
-	log "github.com/sirupsen/logrus"
-)
+import ()
 
 func main() {
-	log.Debug("SS")
 }
