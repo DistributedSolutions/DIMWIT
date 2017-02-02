@@ -139,9 +139,9 @@ Entries will also be made by the channel to register there 2 other chains
 |ExtID (0)|Version {1 byte}|
 |ExtID (1)|"Channel Management Chain" {24 bytes}|
 |ExtID (2)|Channel Root ChainID {32 bytes}|
-|ExtID (3)|nonce {8 bytes}|
-|ExtID (4)|Public Key (3) {32 bytes}|
-|ExtID (5)|Signature of ExtID(0-3) {64 bytes}|
+|ExtID (3)|Public Key (3) {32 bytes}|
+|ExtID (4)|Signature of ExtID(0-2) {64 bytes}|
+|ExtID (5)|nonce {8 bytes}|
 |Content | Channel Title|
 
 Entries unknown atm. All metadata changes.
@@ -152,9 +152,9 @@ Entries unknown atm. All metadata changes.
 |ExtID (0)|Version {1 byte}|
 |ExtID (1)|"Channel Content Chain" {21 bytes}|
 |ExtID (2)|Channel Root ChainID {32 bytes}|
-|ExtId (3)| nonce {8 bytes}|
-|ExtID (4)|Public Key (3) {32 bytes}|
-|ExtID (5)|Signature of ExtID(0-3) {64 bytes}|
+|ExtID (3)|Public Key (3) {32 bytes}|
+|ExtID (4)|Signature of ExtID(0-2) {64 bytes}|
+|ExtId (5)| nonce {8 bytes}|
 |Content | Unsure|
 
 Entries will point to individual content chains
@@ -187,9 +187,9 @@ A new chain will be made per piece of content. This allows us to add more functi
 |ExtID (5)|InfoHash {20 bytes}|
 |ExtID (6)|Timestamp {8 bytes}|
 |ExtID (7)|Shift Cipher Key {1 byte}|
-|ExtID (8)|nonce {8 bytes}|
-|ExtID (9)|Content Signing Key {32 bytes}|
-|ExtID (10)|Signature of ExtID(0-8) {64 bytes}|
+|ExtID (8)|Content Signing Key {32 bytes}|
+|ExtID (9)|Signature of ExtID(0-7) {64 bytes}|
+|ExtID (10)|nonce {8 bytes}|
 |Content|Shift Ciphered Content Metadata|
 
 This has quite a bit of data. The Channel Root ChainID is included to allow backwards traversing. So if someone links you to a video, the client can backwards traverse for the channel keys.

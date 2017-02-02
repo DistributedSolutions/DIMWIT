@@ -21,7 +21,7 @@ type RootChain struct {
 //		[32]byte	PublicKey(3)
 //		[]byte		Nonce
 func (r *RootChain) CreateRootChain(publicKeys []primitives.PublicKey) error {
-	r.endExtID = 5
+	r.Create.endExtID = 5
 
 	e := new(factom.Entry)
 

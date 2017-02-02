@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "github.com/DistributedSolutions/DIMWIT/channelTool/chain"
+	. "github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 )
