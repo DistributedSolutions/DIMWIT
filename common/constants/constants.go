@@ -71,13 +71,14 @@ const (
 
 // Sql Table Names
 const (
-	SQL_CHANNEL         = "channel"
-	SQL_CHANNEL_TAG     = "channelTag"
-	SQL_CHANNEL_TAG_REL = "channelTagRel"
-	SQL_PLAYLIST        = "playlist"
-	SQL_CONTENT         = "content"
-	SQL_CONTENT_TAG     = "contentTag"
-	SQL_CONTENT_TAG_REL = "contentTagRel"
+	SQL_CHANNEL              = "channel"
+	SQL_CHANNEL_TAG          = "channelTag"
+	SQL_CHANNEL_TAG_REL      = "channelTagRel"
+	SQL_CONTENT              = "content"
+	SQL_CONTENT_TAG          = "contentTag"
+	SQL_CONTENT_TAG_REL      = "contentTagRel"
+	SQL_PLAYLIST             = "playlist"
+	SQL_PLAYLIST_CONTENT_REL = "playlistContentRel"
 )
 
 // Sql Table Cols
@@ -92,10 +93,6 @@ const (
 	SQL_TABLE_CHANNEL_TAG_REL__C_ID  = "c_id"
 	SQL_TABLE_CHANNEL_TAG_REL__CT_ID = "ct_id"
 
-	SQL_TABLE_PLAYLIST__ID             = "id"
-	SQL_TABLE_PLAYLIST__PLAYLIST_TITLE = "playlistTitle"
-	SQL_TABLE_PLAYLIST__CHANNEL_ID     = "channelId"
-
 	SQL_TABLE_CONTENT__CONTENT_HASH = "contentHash"
 	SQL_TABLE_CONTENT__TITLE        = "tile"
 	SQL_TABLE_CONTENT__SERIES_NAME  = "seriesName"
@@ -108,6 +105,14 @@ const (
 	SQL_TABLE_CONTENT_TAG_REL__ID    = "id"
 	SQL_TABLE_CONTENT_TAG_REL__C_ID  = "c_id"
 	SQL_TABLE_CONTENT_TAG_REL__CT_ID = "ct_id"
+
+	SQL_TABLE_PLAYLIST__ID             = "id"
+	SQL_TABLE_PLAYLIST__PLAYLIST_TITLE = "title"
+	SQL_TABLE_PLAYLIST__CHANNEL_ID     = "channelId"
+
+	SQL_TABLE_PLAYLIST_CONTENT_REL__ID    = "id"
+	SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID  = "p_id"
+	SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID = "ct_id"
 )
 
 // For version bytes

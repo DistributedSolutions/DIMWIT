@@ -8,6 +8,7 @@ import (
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
 
@@ -52,19 +53,22 @@ var TABLE_NAMES = []string{
 	constants.SQL_CHANNEL,
 	constants.SQL_CHANNEL_TAG,
 	constants.SQL_CHANNEL_TAG_REL,
-	constants.SQL_PLAYLIST,
 	constants.SQL_CONTENT,
 	constants.SQL_CONTENT_TAG,
 	constants.SQL_CONTENT_TAG_REL,
+	constants.SQL_PLAYLIST,
+	constants.SQL_PLAYLIST_CONTENT_REL,
 }
 
 var CREATE_TABLE = []string{
 	constants.SQL_CHANNEL + "(" +
 		constants.SQL_TABLE_CHANNEL__HASH + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") PRIMARY KEY, " +
 		constants.SQL_TABLE_CHANNEL__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL)",
+
 	constants.SQL_CHANNEL_TAG + "(" +
 		constants.SQL_TABLE_CHANNEL_TAG__ID + " INTEGER PRIMARY KEY, " +
 		constants.SQL_TABLE_CHANNEL_TAG__NAME + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
+
 	constants.SQL_CHANNEL_TAG_REL + "(" +
 		constants.SQL_TABLE_CHANNEL_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID + " INTEGER NOT NULL, " +
@@ -73,21 +77,20 @@ var CREATE_TABLE = []string{
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID + ") REFERENCES " + constants.SQL_CHANNEL_TAG +
 		"(" + constants.SQL_TABLE_CHANNEL_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE)",
-	constants.SQL_PLAYLIST + "(" +
-		constants.SQL_TABLE_PLAYLIST__ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
-		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID + " INTEGER REFERENCES channel(id))",
+
 	constants.SQL_CONTENT + "(" +
 		constants.SQL_TABLE_CONTENT__CONTENT_HASH + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") PRIMARY KEY, " +
 		constants.SQL_TABLE_CONTENT__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
-		constants.SQL_TABLE_CONTENT__SERIES_NAME + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
-		constants.SQL_TABLE_CONTENT__PART_NAME + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__SERIES_NAME + " INTEGER NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__PART_NAME + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_CONTENT__CH_ID + " INTEGER NOT NULL, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT__CH_ID + ") REFERENCES " + constants.SQL_CHANNEL +
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+
 	constants.SQL_CONTENT_TAG + "(" +
 		constants.SQL_TABLE_CONTENT_TAG__ID + " INTEGER PRIMARY KEY UNIQUE, " +
 		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
+
 	constants.SQL_CONTENT_TAG_REL + "(" +
 		constants.SQL_TABLE_CONTENT_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " INTEGER NOT NULL, " +
@@ -96,6 +99,22 @@ var CREATE_TABLE = []string{
 		"(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + ") REFERENCES " + constants.SQL_CONTENT_TAG +
 		"(" + constants.SQL_TABLE_CONTENT_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+
+	constants.SQL_PLAYLIST + "(" +
+		constants.SQL_TABLE_PLAYLIST__ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_PLAYLIST__CHANNEL_ID + ") REFERENCES " + constants.SQL_CHANNEL +
+		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+
+	constants.SQL_PLAYLIST_CONTENT_REL + "(" +
+		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID + " INTEGER NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID + " INTEGER NOT NULL, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID + ") REFERENCES " + constants.SQL_PLAYLIST +
+		"(" + constants.SQL_TABLE_PLAYLIST__ID + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
+		"FOREIGN KEY (" + constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID + ") REFERENCES " + constants.SQL_CONTENT +
+		"(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
 }
 
 func CreateDB(dbName string, tableCreate []string) error {
@@ -155,17 +174,15 @@ func DeleteDB(dbName string) error {
 	dir := util.GetHomeDir() + constants.HIDDEN_DIR
 	_, err := os.Stat(dir)
 	// create directory if not exists
-	if os.IsNotExist(err) {
-		os.MkdirAll(dir, constants.DIRECTORY_PERMISSIONS)
-	}
-
-	dbPathName := dir + dbName
-	_, err = os.Stat(dbPathName)
-
 	if !os.IsNotExist(err) {
-		err = os.Remove(dbPathName)
-		if err != nil {
-			return fmt.Errorf("Error deleting db with path [%s]: %s", dbPathName, err.Error())
+		dbPathName := dir + dbName
+		_, err = os.Stat(dbPathName)
+
+		if !os.IsNotExist(err) {
+			err = os.Remove(dbPathName)
+			if err != nil {
+				return fmt.Errorf("Error deleting db with path [%s]: %s", dbPathName, err.Error())
+			}
 		}
 	}
 	return nil
@@ -204,11 +221,11 @@ func DeleteTable(db *sql.DB, tableName string) error {
 	return nil
 }
 
-func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertData []string) error {
+func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertData []string) (sql.Result, error) {
 	icl := len(insertCols)
 	idl := len(insertData)
 	if idl != icl {
-		return fmt.Errorf("Error in argument lengths while inserting into %s (%d != %d)", tableName, icl, idl)
+		return nil, fmt.Errorf("Error in argument lengths while inserting into %s (%d != %d)", tableName, icl, idl)
 	}
 
 	s := "INSERT INTO " + tableName + " ("
@@ -230,7 +247,7 @@ func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertDa
 
 	stmt, err := db.Prepare(s)
 	if err != nil {
-		return fmt.Errorf("Error preparing inserting into table [%s] with query [%s]: %s", tableName, s, err.Error())
+		return nil, fmt.Errorf("Error preparing inserting into table [%s] with query [%s]: %s", tableName, s, err.Error())
 	}
 	defer stmt.Close()
 
@@ -239,11 +256,11 @@ func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertDa
 		insertDataInterface[index] = value
 	}
 
-	_, err = stmt.Exec(insertDataInterface...)
+	res, err := stmt.Exec(insertDataInterface...)
 	if err != nil {
-		return fmt.Errorf("Error exec inserting into %s: %s", tableName, err.Error())
+		return nil, fmt.Errorf("Error exec inserting into %s: %s", tableName, err.Error())
 	}
-	return nil
+	return res, nil
 }
 
 func AddTags() error {
@@ -255,7 +272,7 @@ func AddTags() error {
 	insertCols := []string{"name"}
 	for _, e := range constants.ALLOWED_TAGS {
 		insertData := []string{e}
-		err = InsertIntoTable(gDB, "channelTag", insertCols, insertData)
+		_, err = InsertIntoTable(gDB, "channelTag", insertCols, insertData)
 		if err != nil {
 			return fmt.Errorf("Error inserting tags: %s", err.Error())
 		}
@@ -287,14 +304,15 @@ func AddChannel(channel *common.Channel) error {
 		channel.RootChainID.String(),
 		channel.ChannelTitle.String(),
 	}
-	err = InsertIntoTable(gDB, constants.SQL_CHANNEL, insertCols, insertData)
+	_, err = InsertIntoTable(gDB, constants.SQL_CHANNEL, insertCols, insertData)
 	if err != nil {
 		return fmt.Errorf("Error adding channel: %s", err.Error())
 	}
 
+	//Add channel tags for channel
 	tags := channel.Tags.GetTags()
 	for _, t := range tags {
-		tag, err := getTagID(gDB, t.String())
+		tag, err := getContentTagID(gDB, t.String())
 		if err != nil {
 			return fmt.Errorf("Error retrieving tag id: %s", err.Error())
 		}
@@ -306,11 +324,86 @@ func AddChannel(channel *common.Channel) error {
 			channel.RootChainID.String(),
 			tag,
 		}
-		err = InsertIntoTable(gDB, constants.SQL_CHANNEL_TAG_REL, insertCols, insertData)
+		_, err = InsertIntoTable(gDB, constants.SQL_CHANNEL_TAG_REL, insertCols, insertData)
 		if err != nil {
 			return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
 		}
 	}
+
+	//Add Content for Channel
+	contents := channel.Content.GetContents()
+	for _, c := range contents {
+		if err != nil {
+			return fmt.Errorf("Error retrieving tag id: %s", err.Error())
+		}
+		insertCols = []string{
+			constants.SQL_TABLE_CONTENT__CONTENT_HASH,
+			constants.SQL_TABLE_CONTENT__TITLE,
+			constants.SQL_TABLE_CONTENT__SERIES_NAME,
+			constants.SQL_TABLE_CONTENT__PART_NAME,
+			constants.SQL_TABLE_CONTENT__CH_ID,
+		}
+		s, err := primitives.BytesToUint32(append([]byte{0x00, 0x00, 0x00}, c.Series))
+		if err != nil {
+			return fmt.Errorf("FUCK YOUR BYTES s: %s", err.Error())
+		}
+		p, err := primitives.BytesToUint32(append([]byte{0x00, 0x00}, c.Part[:]...))
+		if err != nil {
+			return fmt.Errorf("FUCK YOUR BYTES p: %s", err.Error())
+		}
+
+		insertData = []string{
+			c.ContentID.String(),
+			c.ShortDescription.String(),
+			fmt.Sprintf("%d", s),
+			fmt.Sprintf("%d", p),
+			channel.RootChainID.String(),
+		}
+		_, err = InsertIntoTable(gDB, constants.SQL_CONTENT_TAG_REL, insertCols, insertData)
+		if err != nil {
+			return fmt.Errorf("Error inserting content with hash[%s]: %s", c.ContentID.String(), err.Error())
+		}
+
+		//Add Content Tags for content
+		tags := c.Tags.GetTags()
+		for _, t := range tags {
+			tag, err := getChannelTagID(gDB, t.String())
+			if err != nil {
+				return fmt.Errorf("Error retrieving tag id: %s", err.Error())
+			}
+			insertCols = []string{
+				constants.SQL_TABLE_CONTENT_TAG_REL__C_ID,
+				constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID,
+			}
+			insertData = []string{
+				c.ContentID.String(),
+				tag,
+			}
+			_, err = InsertIntoTable(gDB, constants.SQL_CONTENT_TAG_REL, insertCols, insertData)
+			if err != nil {
+				return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
+			}
+		}
+	}
+
+	//Add Playlists for Channel
+	// playlists := channel.Playlist.GetPlaylists()
+	// for _, p := range playlists {
+	// 	insertCols = []string{
+	// 		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE,
+	// 		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID,
+	// 	}
+	// 	insertData = []string{
+	// 		channel.Playlist.Title,
+	// 		channel.RootChainID.String(),
+	// 	}
+	// 	err = InsertIntoTable(gDB, constants.SQL_PLAYLIST, insertCols, insertData)
+	// 	if err != nil {
+	// 		return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
+	// 	}
+
+	// 	// Add playlist relationship to content
+	// }
 
 	return nil
 }
@@ -334,8 +427,24 @@ func UpdateChannel(channel *common.Channel) error {
 	return nil
 }
 
-func getTagID(db *sql.DB, tagName string) (string, error) {
+func getContentTagID(db *sql.DB, tagName string) (string, error) {
 	rows, err := gDB.Query("SELECT id FROM channelTag WHERE name = ? LIMIT 1", tagName)
+	if err != nil {
+		return "", fmt.Errorf("Error retrieving tag id for [%s]: %s", tagName, err.Error())
+	}
+
+	defer rows.Close()
+
+	rows.Next()
+
+	var result string
+	rows.Scan(&result)
+
+	return result, nil
+}
+
+func getChannelTagID(db *sql.DB, tagName string) (string, error) {
+	rows, err := gDB.Query("SELECT id FROM contentTag WHERE name = ? LIMIT 1", tagName)
 	if err != nil {
 		return "", fmt.Errorf("Error retrieving tag id for [%s]: %s", tagName, err.Error())
 	}
