@@ -1,4 +1,4 @@
-package chain
+package creation
 
 // Master chain. This is only called once, ever, but nice to use in testing.
 // Also a nice blank reference

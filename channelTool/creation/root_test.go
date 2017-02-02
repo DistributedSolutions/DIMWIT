@@ -1,4 +1,4 @@
-package chain_test
+package creation_test
 
 import (
 	"bytes"

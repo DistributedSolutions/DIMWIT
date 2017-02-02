@@ -1,4 +1,4 @@
-package chain
+package creation
 
 import (
 	"fmt"
@@ -8,38 +8,9 @@ import (
 	"github.com/FactomProject/factom"
 )
 
-var _ = constants.SQL_DB
-
 type RootChain struct {
 	Register RegisterStruct
 	Create   CreateStruct
-}
-
-type RegisterStruct struct {
-	Entry *factom.Entry
-}
-
-type CreateStruct struct {
-	Chain  *factom.Chain
-	ExtIDs [][]byte
-}
-
-// Factom entry
-//		byte		Version
-//		[13]byte	"Channel Chain"
-//		[32]byte	RootChainID
-//		[32]byte	PublicKey(3)
-//		[64]byte	Signature
-func (r *RootChain) RegisterRootChain(rootChain primitives.Hash, publicKey3 primitives.PublicKey, sig []byte) {
-	e := new(factom.Entry)
-
-	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION})
-	e.ExtIDs = append(e.ExtIDs, []byte("Channel Chain"))
-	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())
-	e.ExtIDs = append(e.ExtIDs, publicKey3.Bytes())
-	e.ExtIDs = append(e.ExtIDs, sig)
-
-	r.Register.Entry = e
 }
 
 // Factom Chain
@@ -50,6 +21,8 @@ func (r *RootChain) RegisterRootChain(rootChain primitives.Hash, publicKey3 prim
 //		[32]byte	PublicKey(3)
 //		[]byte		Nonce
 func (r *RootChain) CreateRootChain(publicKeys []primitives.PublicKey) error {
+	r.endExtID = 5
+
 	e := new(factom.Entry)
 
 	if len(publicKeys) != 3 {
@@ -72,6 +45,23 @@ func (r *RootChain) CreateRootChain(publicKeys []primitives.PublicKey) error {
 
 }
 
-func (c CreateStruct) upToNonce() []byte {
-	return upToNonce(c.ExtIDs, 5)
+// Factom entry
+//		byte		Version
+//		[13]byte	"Channel Chain"
+//		[32]byte	RootChainID
+//		[32]byte	PublicKey(3)
+//		[64]byte	Signature
+func (r *RootChain) RegisterRootEntry(rootChain primitives.Hash, publicKey3 primitives.PublicKey, sigKey primitives.PrivateKey) {
+	e := new(factom.Entry)
+
+	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION}) // 0
+	e.ExtIDs = append(e.ExtIDs, []byte("Channel Chain"))          // 1
+	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                // 2
+	e.ExtIDs = append(e.ExtIDs, publicKey3.Bytes())               // 3
+
+	msg := upToNonce(e.ExtIDs, 4)
+	sig := sigKey.Sign(msg)
+	e.ExtIDs = append(e.ExtIDs, sig)
+
+	r.Register.Entry = e
 }
