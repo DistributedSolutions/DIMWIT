@@ -66,6 +66,17 @@ func TestSingleTags(t *testing.T) {
 	}
 }
 
+func TestTagDiff(t *testing.T) {
+	a := RandomTag()
+	a.SetString("one")
+	b := RandomTag()
+	b.SetString("two")
+	if a.IsSameAs(b) {
+		t.Fail()
+	}
+
+}
+
 func TestTagList(t *testing.T) {
 	for i := 0; i < 10000; i++ {
 		l := RandomTagList(random.RandomUInt32Between(0, 100))
@@ -87,6 +98,47 @@ func TestTagList(t *testing.T) {
 			t.Error("Failed, should have no bytes left")
 		}
 	}
+}
+
+func TestTagListDiff(t *testing.T) {
+	a := RandomTagList(random.RandomUInt32Between(10, 100))
+	a.SetTagTo(5, "one")
+	b := RandomTagList(random.RandomUInt32Between(10, 100))
+	b.SetTagTo(5, "two")
+	if a.IsSameAs(b) {
+		t.Fail()
+	}
+
+	if a.GetTags()[5] != "one" {
+		t.Error("Should be 'one'")
+	}
+
+	if b.GetTags()[5] != "two" {
+		t.Error("Should be 'one'")
+	}
+
+	if i, h := b.Has("two"); i != 5 || h == false {
+		t.Error("Not found, but should")
+	}
+
+	err := b.AddTagByName("Another")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if _, h := b.Has("Another"); h == false {
+		t.Error("Not found, but should")
+	}
+
+	err = b.RemoveTagByName("Another")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if _, h := b.Has("Another"); h != false {
+		t.Error("Found, but shouldn't")
+	}
+
 }
 
 func TestBadUnmarshalTag(t *testing.T) {

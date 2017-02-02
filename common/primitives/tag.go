@@ -53,6 +53,14 @@ func (a *TagList) IsSameAs(b *TagList) bool {
 	return true
 }
 
+func (tl *TagList) AddTagByName(t string) error {
+	tag, err := NewTag(t)
+	if err != nil {
+		return err
+	}
+	return tl.AddTag(tag)
+}
+
 func (tl *TagList) AddTag(t *Tag) error {
 	if uint32(len(tl.tags)) >= tl.max {
 		return fmt.Errorf("Already at max tags, remove one to add another")
@@ -68,7 +76,15 @@ func (tl *TagList) GetTags() []Tag {
 	return tl.tags
 }
 
-func (tl *TagList) Has(t *Tag) (int, bool) {
+func (tl *TagList) Has(t string) (int, bool) {
+	tag, err := NewTag(t)
+	if err != nil {
+		return -1, false
+	}
+	return tl.HasTag(tag)
+}
+
+func (tl *TagList) HasTag(t *Tag) (int, bool) {
 	for i, tt := range tl.tags {
 		if t.IsSameAs(&tt) {
 			return i, true
@@ -78,8 +94,25 @@ func (tl *TagList) Has(t *Tag) (int, bool) {
 	return -1, false
 }
 
-func (tl *TagList) RemoveTagByName(t *Tag) error {
-	i, has := tl.Has(t)
+func (tl *TagList) SetTagTo(index int, tag string) error {
+	if len(tl.tags) <= index {
+		return fmt.Errorf("Tag not found")
+	}
+
+	tl.tags[index].SetString(tag)
+	return nil
+}
+
+func (tl *TagList) RemoveTagByName(t string) error {
+	tag, err := NewTag(t)
+	if err != nil {
+		return err
+	}
+	return tl.RemoveTag(tag)
+}
+
+func (tl *TagList) RemoveTag(t *Tag) error {
+	i, has := tl.HasTag(t)
 	if i == -1 || !has {
 		return fmt.Errorf("Tag not found")
 	}

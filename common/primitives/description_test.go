@@ -49,6 +49,27 @@ func TestDescriptions(t *testing.T) {
 	}
 }
 
+func TestDiffDescription(t *testing.T) {
+	a := RandomLongDescription()
+	data, err := a.MarshalBinary()
+	if err != nil {
+		t.Error(err)
+	}
+
+	b := new(LongDescription)
+	_, err = b.UnmarshalBinaryData(data)
+	if err != nil {
+		t.Error(err)
+	}
+
+	a.SetString("One")
+	b.SetString("Two")
+
+	if a.IsSameAs(b) {
+		t.Error("Should be different")
+	}
+}
+
 func TestBadUnmarshalDesc(t *testing.T) {
 	badData := []byte{}
 

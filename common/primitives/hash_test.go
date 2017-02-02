@@ -74,6 +74,20 @@ func TestHashList(t *testing.T) {
 	}
 }
 
+func TestDiffHashList(t *testing.T) {
+	same := 0
+	for i := 0; i < 1000; i++ {
+		a := RandomHashList(random.RandomUInt32Between(0, 1000))
+		b := RandomHashList(random.RandomUInt32Between(0, 1000))
+		if a.IsSameAs(b) {
+			same++
+		}
+	}
+	if same > 15 {
+		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
+	}
+}
+
 func TestBadUnmarshalHash(t *testing.T) {
 	badData := []byte{}
 

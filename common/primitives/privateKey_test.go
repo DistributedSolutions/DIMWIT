@@ -47,6 +47,20 @@ func TestPrivateKeyMarshal(t *testing.T) {
 	}
 }
 
+func TestPrivateKeyDiff(t *testing.T) {
+	same := 0
+	for i := 0; i < 1000; i++ {
+		a, _ := RandomPrivateKey()
+		b, _ := RandomPrivateKey()
+		if a.IsSameAs(b) {
+			same++
+		}
+	}
+	if same > 15 {
+		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
+	}
+}
+
 func TestBadUnmarshalPrK(t *testing.T) {
 	badData := []byte{}
 
