@@ -48,14 +48,11 @@ func (a *ManyPlayList) IsSameAs(b *ManyPlayList) bool {
 func (p *ManyPlayList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data, err := primitives.Uint32ToBytes(p.length)
-	if err != nil {
-		return nil, err
-	}
+	data := primitives.Uint32ToBytes(p.length)
 	buf.Write(data)
 
 	for i := range p.playlists {
-		data, err = p.playlists[i].MarshalBinary()
+		data, err := p.playlists[i].MarshalBinary()
 		if err != nil {
 			return nil, err
 		}

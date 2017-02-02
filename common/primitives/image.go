@@ -34,11 +34,7 @@ func (i *Image) MarshalBinary() ([]byte, error) {
 
 	buf.Write([]byte{i.imgType})
 
-	data, err := Uint32ToBytes(i.length)
-	if err != nil {
-		return nil, err
-	}
-
+	data := Uint32ToBytes(i.length)
 	buf.Write(data)
 
 	buf.Write(i.image)

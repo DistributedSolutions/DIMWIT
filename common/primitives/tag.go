@@ -92,17 +92,11 @@ func (tl *TagList) RemoveTagByName(t *Tag) error {
 func (tl *TagList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data, err := Uint32ToBytes(tl.max)
-	if err != nil {
-		return nil, err
-	}
+	data := Uint32ToBytes(tl.max)
 
 	buf.Write(data)
 
-	data, err = Uint32ToBytes(tl.length)
-	if err != nil {
-		return nil, err
-	}
+	data = Uint32ToBytes(tl.length)
 
 	buf.Write(data)
 

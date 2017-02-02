@@ -55,10 +55,7 @@ func (tl *TrackerList) AddNewTrackerURL(url string) error {
 func (tl *TrackerList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data, err := Uint32ToBytes(tl.length)
-	if err != nil {
-		return nil, err
-	}
+	data := Uint32ToBytes(tl.length)
 	buf.Write(data)
 
 	for _, t := range tl.trackers {

@@ -40,10 +40,7 @@ func TestUInt32Bytes(t *testing.T) {
 	var i uint32 = 0
 	for ; i < 2000; i++ {
 		a := i
-		data, err := Uint32ToBytes(a)
-		if err != nil {
-			t.Error(err)
-		}
+		data := Uint32ToBytes(a)
 
 		b, err := BytesToUint32(data)
 		if err != nil {

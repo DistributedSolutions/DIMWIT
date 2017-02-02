@@ -67,11 +67,7 @@ func (a *FileList) IsSameAs(b *FileList) bool {
 func (fl *FileList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data, err := Uint32ToBytes(fl.length)
-	if err != nil {
-		return nil, err
-	}
-
+	data := Uint32ToBytes(fl.length)
 	buf.Write(data)
 
 	for _, f := range fl.fileList {

@@ -60,11 +60,11 @@ func UnmarshalStringFromBytesData(data []byte, maxlength int) (resp string, newD
 	return
 }
 
-func Uint32ToBytes(val uint32) ([]byte, error) {
+func Uint32ToBytes(val uint32) []byte {
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, val)
 
-	return b, nil
+	return b
 }
 
 func BytesToUint32(data []byte) (ret uint32, err error) {

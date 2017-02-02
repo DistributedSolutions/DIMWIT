@@ -328,14 +328,11 @@ func (a *ContentList) IsSameAs(b *ContentList) bool {
 func (p *ContentList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data, err := primitives.Uint32ToBytes(p.length)
-	if err != nil {
-		return nil, err
-	}
+	data := primitives.Uint32ToBytes(p.length)
 	buf.Write(data)
 
 	for i := range p.contentList {
-		data, err = p.contentList[i].MarshalBinary()
+		data, err := p.contentList[i].MarshalBinary()
 		if err != nil {
 			return nil, err
 		}

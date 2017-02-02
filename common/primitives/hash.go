@@ -63,15 +63,12 @@ func (h *HashList) AddHash(hash *Hash) {
 func (h *HashList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data, err := Uint32ToBytes(h.length)
-	if err != nil {
-		return nil, err
-	}
+	data := Uint32ToBytes(h.length)
 
 	buf.Write(data)
 
 	for i := range h.list {
-		data, err = h.list[i].MarshalBinary()
+		data, err := h.list[i].MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
