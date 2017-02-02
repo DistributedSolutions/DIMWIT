@@ -109,6 +109,15 @@ func TestTagListDiff(t *testing.T) {
 		t.Fail()
 	}
 
+	for i := 0; i < 10; i++ {
+		a.AddTagByName(fmt.Sprintf("%d", i))
+	}
+
+	if len(a.GetTags()) < 6 {
+		t.Error("Length not long enough")
+		t.Fail()
+	}
+
 	if a.GetTags()[5] != "one" {
 		t.Error("Should be 'one'")
 	}
