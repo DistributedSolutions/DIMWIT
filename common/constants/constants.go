@@ -1,5 +1,9 @@
 package constants
 
+import (
+	"os"
+)
+
 var (
 	MASTER_CHAIN_STRING string = "dcf089fc510ed0f6bdece3cb106665a9a581b85d1a6a7e8db1e2ac0b62aaa16e"
 	MASTER_CHAIN_BYTES  []byte = []byte{0xdc, 0xf0, 0x89, 0xfc,
@@ -52,6 +56,11 @@ const (
 const (
 	HIDDEN_DIR = ".DistroSols/"
 	SQL_DB     = "sql.db"
+)
+
+const (
+	DIRECTORY_PERMISSIONS os.FileMode = 0777
+	FILE_PERMISSIONS      os.FileMode = 0777
 )
 
 // Sql types
@@ -113,5 +122,3 @@ const (
 
 // Constant Tags
 var ALLOWED_TAGS = []string{"DIMWIT", "CLIT", "FRUIT", "Jesse", "Steve", "Go", "Node", "PEEEEEENNNNNIIIIIISSSSSS"}
-
-var TRAVIS_RUN = false

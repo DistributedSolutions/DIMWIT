@@ -14,6 +14,7 @@ type Content struct {
 	Type             byte
 	ContentID        primitives.Hash
 	RootChainID      primitives.Hash
+	ContentTitle     primitives.Title
 	InfoHash         primitives.InfoHash
 	LongDescription  primitives.LongDescription
 	ShortDescription primitives.ShortDescription
@@ -38,6 +39,7 @@ func RandomNewContent() *Content {
 
 	c.ContentID = *primitives.RandomHash()
 	c.RootChainID = *primitives.RandomHash()
+	c.ContentTitle = *primitives.RandomTitle()
 	c.InfoHash = *primitives.RandomInfoHash()
 	c.LongDescription = *primitives.RandomLongDescription()
 	c.ShortDescription = *primitives.RandomShortDescription()
@@ -60,6 +62,10 @@ func (a *Content) IsSameAs(b *Content) bool {
 	}
 
 	if !a.RootChainID.IsSameAs(&b.RootChainID) {
+		return false
+	}
+
+	if !a.ContentTitle.IsSameAs(&b.ContentTitle) {
 		return false
 	}
 
@@ -125,6 +131,12 @@ func (c *Content) MarshalBinary() (data []byte, err error) {
 	buf.Write(data)
 
 	data, err = c.RootChainID.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.ContentTitle.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
@@ -211,6 +223,12 @@ func (c *Content) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 
 	// c.RootChainID = new(primitives.Hash)
 	newData, err = c.RootChainID.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
+	// c.ContentTitle = new(primitives.Hash)
+	newData, err = c.ContentTitle.UnmarshalBinaryData(newData)
 	if err != nil {
 		return data, err
 	}
