@@ -29,6 +29,10 @@ type Content struct {
 	FileList primitives.FileList
 }
 
+func (cl *ContentList) GetContents() []Content {
+	return cl.contentList
+}
+
 func RandomNewContent() *Content {
 	c := new(Content)
 

@@ -54,6 +54,24 @@ func TestUInt32Bytes(t *testing.T) {
 			t.Error("Failed, should be same")
 		}
 	}
+
+	//jesse testing for parts an series
+	c := append([]byte{0x00, 0x00, 0x00}, []byte{0x01}...)
+	data, err := BytesToUint32(c)
+	if err != nil {
+		t.Error(err)
+	}
+	if data != 1 {
+		t.Errorf("1 != %d", data)
+	}
+	c = append([]byte{0x00, 0x00}, []byte{0x01, 0x00}...)
+	data, err = BytesToUint32(c)
+	if err != nil {
+		t.Error(err)
+	}
+	if data != 256 {
+		t.Errorf("256 != %d", data)
+	}
 }
 
 func TestUInt64Bytes(t *testing.T) {

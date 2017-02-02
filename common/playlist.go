@@ -14,6 +14,10 @@ type ManyPlayList struct {
 	playlists []primitives.HashList
 }
 
+func (pl *ManyPlayList) GetPlaylists() []primitives.HashList {
+	return pl.playlists
+}
+
 func RandomManyPlayList(max uint32) *ManyPlayList {
 	p := new(ManyPlayList)
 	u := random.RandomUInt32Between(0, max)
