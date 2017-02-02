@@ -29,6 +29,27 @@ func RandomImage() *Image {
 	return i
 }
 
+func (i *Image) SetImage(data []byte) {
+	i.image = data
+	i.length = uint32(len(i.image))
+}
+
+func (i *Image) SetImageType(t byte) {
+	i.imgType = t
+}
+
+func (i *Image) GetImageType() byte {
+	return i.imgType
+}
+
+func (i *Image) GetImage() []byte {
+	return i.image
+}
+
+func (i *Image) GetImageSize() uint32 {
+	return i.length
+}
+
 func (i *Image) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
