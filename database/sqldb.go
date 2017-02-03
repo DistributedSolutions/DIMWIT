@@ -469,7 +469,7 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		}
 		res, err := InsertIntoTable(gDB, constants.SQL_PLAYLIST, insertCols, insertData)
 		if err != nil {
-			return fmt.Errorf("Error adding channel: %s", err.Error())
+			return fmt.Errorf("Error adding channel: %s\n", err.Error())
 		}
 
 		//retrieve id
@@ -489,7 +489,7 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		}
 		_, err = InsertIntoTable(gDB, constants.SQL_PLAYLIST_CONTENT_REL, insertCols, insertData)
 		if err != nil {
-			fmt.Printf("WARNING inserting into playlist rel table with title[%s] and channelId[%s] and contentID[%s] ERROR [%s]\n", title, channelId, contentId, err.Error())
+			fmt.Printf("WARNING 'MOST LIKELY FOREIGN KEY CONSTRAINT FAIL' inserting into playlist rel table with title[%s] and channelId[%s] and contentID[%s] error message is [%s]\n", title, channelId, contentId, err.Error())
 		}
 
 		deleteQuery += fmt.Sprintf("%d", id) + ","
