@@ -12,38 +12,12 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
 
-// type SqlObj interface {
-// 	Santize() string
-// 	Type() int
-// }
-
-// type SqlString string
-
-// func (s *SqlString) SetString(st string) {
-// 	*s = SqlString(st)
-// }
-
-// func (s *SqlString) Sanitize() string {
-// 	return "'" + SQLSanitize(s) + "'"
-// }
-
-// func (s *SqlString) Type() int {
-// 	return constants.SQL_STRING
-// }
-
-// type SqlInt int
-
-// func (s *SqlString) SetInt(st string) {
-// 	*s = SqlInt(st)
-// }
-
-// func (s *SqlString) Sanitize() string {
-// 	return s
-// }
-
-// func (s *SqlString) Type() int {
-// 	return constants.SQL_OTHER
-// }
+type PlayListTempStoreEntry struct {
+	Title     string
+	ChannelId string
+	ContentId string
+	Id        string
+}
 
 var _ = sqlite3.ErrNoMask
 
@@ -80,7 +54,7 @@ var CREATE_TABLE = []string{
 
 	constants.SQL_CONTENT + "(" +
 		constants.SQL_TABLE_CONTENT__CONTENT_HASH + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") PRIMARY KEY, " +
-		constants.SQL_TABLE_CONTENT__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TITLE_MAX_LENGTH) + ") NOT NULL, " +
 		constants.SQL_TABLE_CONTENT__SERIES_NAME + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_CONTENT__PART_NAME + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_CONTENT__CH_ID + " INTEGER NOT NULL, " +
@@ -102,7 +76,7 @@ var CREATE_TABLE = []string{
 
 	constants.SQL_PLAYLIST + "(" +
 		constants.SQL_TABLE_PLAYLIST__ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TITLE_MAX_LENGTH) + ") NOT NULL, " +
 		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_PLAYLIST__CHANNEL_ID + ") REFERENCES " + constants.SQL_CHANNEL +
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
@@ -115,6 +89,13 @@ var CREATE_TABLE = []string{
 		"(" + constants.SQL_TABLE_PLAYLIST__ID + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID + ") REFERENCES " + constants.SQL_CONTENT +
 		"(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+
+	constants.SQL_PLAYLIST_TEMP + "(" +
+		constants.SQL_TABLE_PLAYLIST_TEMP__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+		constants.SQL_TABLE_PLAYLIST_TEMP__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TITLE_MAX_LENGTH) + ") NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " INTEGER NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST_TEMP__CHANNEL_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL, " +
+		constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL)",
 }
 
 func CreateDB(dbName string, tableCreate []string) error {
@@ -198,7 +179,7 @@ func getDBPath() (string, error) {
 	return path, nil
 }
 
-func getDB() (*sql.DB, error) {
+func GetDB() (*sql.DB, error) {
 	if gDB == nil {
 		dbPath, err := getDBPath()
 		if err != nil {
@@ -264,7 +245,7 @@ func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertDa
 }
 
 func AddTags() error {
-	gDB, err := getDB()
+	gDB, err := GetDB()
 	if err != nil {
 		return fmt.Errorf("Error adding tags: %s", err.Error())
 	}
@@ -286,7 +267,7 @@ func AddTags() error {
 }
 
 func DeleteTags() error {
-	gDB, err := getDB()
+	gDB, err := GetDB()
 	if err != nil {
 		return fmt.Errorf("Error updating tags: %s", err.Error())
 	}
@@ -295,8 +276,8 @@ func DeleteTags() error {
 }
 
 //NOT GOING TO CHECK IF IN DB ALREADY
-func AddChannel(channel *common.Channel) error {
-	gDB, err := getDB()
+func AddChannel(channel *common.Channel, height int) error {
+	gDB, err := GetDB()
 	if err != nil {
 		return fmt.Errorf("Error adding channel: %s", err.Error())
 	}
@@ -317,7 +298,7 @@ func AddChannel(channel *common.Channel) error {
 	//Add channel tags for channel
 	tags := channel.Tags.GetTags()
 	for _, t := range tags {
-		tag, err := SelectFromTable(gDB,
+		tag, err := SelectSingleFromTable(gDB,
 			constants.SQL_TABLE_CHANNEL_TAG__ID,
 			constants.SQL_CHANNEL_TAG,
 			constants.SQL_TABLE_CHANNEL_TAG__NAME,
@@ -376,7 +357,7 @@ func AddChannel(channel *common.Channel) error {
 		//Add Content Tags for content
 		tags := c.Tags.GetTags()
 		for _, t := range tags {
-			tag, err := SelectFromTable(gDB,
+			tag, err := SelectSingleFromTable(gDB,
 				constants.SQL_TABLE_CONTENT_TAG__ID,
 				constants.SQL_CONTENT_TAG,
 				constants.SQL_TABLE_CONTENT_TAG__NAME,
@@ -399,70 +380,154 @@ func AddChannel(channel *common.Channel) error {
 		}
 	}
 
-	//Add Playlists for Channel
-	// playlists := channel.Playlist.GetPlaylists()
-	// for _, p := range playlists {
-	// 	insertCols = []string{
-	// 		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE,
-	// 		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID,
-	// 	}
-	// 	insertData = []string{
-	// 		p.Title.String(),
-	// 		channel.RootChainID.String(),
-	// 	}
-	// 	res, err := InsertIntoTable(gDB, constants.SQL_PLAYLIST, insertCols, insertData)
-	// 	if err != nil {
-	// 		return fmt.Errorf("Error inserting playlist name and chain tag [%s]: %s", p.Title.String(), err.Error())
-	// 	}
+	//Add PlaylistsTemp for Channel
+	playlists := channel.Playlist.GetPlaylists()
+	for _, p := range playlists {
+		//go through the content hash list for each playlist
+		for _, ph := range p.Playlist.GetHashes() {
 
-	// 	// Add playlist relationship to content
-	// 	for _, contentHash := range p.Playlist.GetHashes() {
-	// 		insertCols = []string{
-	// 			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID,
-	// 			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID,
-	// 		}
-	// 		id, err := res.LastInsertId()
-	// 		if err != nil {
-	// 			return fmt.Errorf("Error retrieving insert id for playlist channel hash: %s", err.Error())
-	// 		}
-	// 		insertData = []string{
-	// 			fmt.Sprintf("%s", id),
-	// 			contentHash.String(),
-	// 		}
-	// 		_, err = InsertIntoTable(gDB, constants.SQL_PLAYLIST_CONTENT_REL, insertCols, insertData)
-	// 		if err != nil {
-	// 			fmt.Printf("Playlist does not exist. Error inserting playlist content rel with id [%d] content hash [%s]: %s\n", id, contentHash.String(), err.Error())
-	// 		}
-	// 	}
-	// }
+			insertCols = []string{
+				constants.SQL_TABLE_PLAYLIST_TEMP__TITLE,
+				constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT,
+				constants.SQL_TABLE_PLAYLIST_TEMP__CHANNEL_ID,
+				constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID,
+			}
+			insertData = []string{
+				p.Title.String(),
+				fmt.Sprintf("%d", height),
+				channel.RootChainID.String(),
+				ph.String(),
+			}
+			_, err := InsertIntoTable(gDB, constants.SQL_PLAYLIST_TEMP, insertCols, insertData)
+			if err != nil {
+				return fmt.Errorf("Error inserting playlistTemp title [%s]: %s", p.Title.String(), err.Error())
+			}
+		}
+	}
+
+	return nil
+}
+
+func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
+	rowQuery := "SELECT COUNT(" + constants.SQL_TABLE_PLAYLIST_TEMP__ID + ") " +
+		" FROM " + constants.SQL_PLAYLIST_TEMP
+	var rowCount int
+	err := db.QueryRow(rowQuery).Scan(&rowCount)
+	if err != nil {
+		return fmt.Errorf("Error retrieving row count for flush playlist [%s]: %s", rowQuery, err.Error())
+	}
+
+	s := "SELECT " + constants.SQL_TABLE_PLAYLIST_TEMP__TITLE + ", " +
+		constants.SQL_TABLE_PLAYLIST_TEMP__CHANNEL_ID + ", " +
+		constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID + ", " +
+		constants.SQL_TABLE_PLAYLIST_TEMP__ID +
+		" FROM " + constants.SQL_PLAYLIST_TEMP
+	rows, err := db.Query(s)
+	if err != nil {
+		return fmt.Errorf("Error select all from playlistTemp with query [%s]: %s", s, err.Error())
+	}
+
+	nRows := 0
+	var title string
+	var channelId string
+	var contentId string
+	var id string
+
+	tableEntries := make([]PlayListTempStoreEntry, rowCount)
+
+	//for each row attempt to insert into the playlist table
+	for rows.Next() {
+		err := rows.Scan(&title, &channelId, &contentId, &id)
+		if err != nil {
+			return fmt.Errorf("Error reading from playlistTemp: %s", err.Error())
+		}
+		tE := PlayListTempStoreEntry{title, channelId, contentId, id}
+		// tE.Title = title
+		// tE.ChannelId = channelId
+		// tE.ContentId = contentId
+		// tE.Id = id
+		tableEntries[nRows] = tE
+		nRows++
+	}
+	if err := rows.Err(); err != nil {
+		fmt.Printf("ERROR when retrieving rows from playlistTemp\n")
+	} else {
+		fmt.Printf("TempPlaylist rows went through [%d]\n", nRows)
+	}
+	rows.Close()
+	deleteQuery := "DELETE FROM " + constants.SQL_PLAYLIST_TEMP + " WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__ID + " IN("
+
+	for i := 0; i < nRows; i++ {
+		//Insert into playlist table
+		insertCols := []string{
+			constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE,
+			constants.SQL_TABLE_PLAYLIST__CHANNEL_ID,
+		}
+		insertData := []string{
+			tableEntries[i].Title,
+			tableEntries[i].ChannelId,
+		}
+		res, err := InsertIntoTable(gDB, constants.SQL_PLAYLIST, insertCols, insertData)
+		if err != nil {
+			return fmt.Errorf("Error adding channel: %s", err.Error())
+		}
+
+		//retrieve id
+		id, err := res.LastInsertId()
+		if err != nil {
+			fmt.Printf("WARNING retrieving returned id from temp playlist with title[%s] and channelId[%s] and contentID[%s]\n", title, channelId, contentId)
+		}
+
+		//Insert into playlistRel table
+		insertCols = []string{
+			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID,
+			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID,
+		}
+		insertData = []string{
+			fmt.Sprintf("%d", id),
+			tableEntries[i].ContentId,
+		}
+		_, err = InsertIntoTable(gDB, constants.SQL_PLAYLIST_CONTENT_REL, insertCols, insertData)
+		if err != nil {
+			fmt.Printf("WARNING inserting into playlist rel table with title[%s] and channelId[%s] and contentID[%s] ERROR [%s]\n", title, channelId, contentId, err.Error())
+		}
+
+		deleteQuery += fmt.Sprintf("%d", id) + ","
+	}
+
+	deleteQuery = deleteQuery[0:(len(deleteQuery)-1)] + ")"
+	_, err = db.Exec(deleteQuery)
+	if err != nil {
+		fmt.Printf("ERROR!! CRUCIAL problems deleting index's with query [%s]: Error [%s]\n", deleteQuery, err.Error())
+	}
 
 	return nil
 }
 
 //NOT GOING TO CHECK IF IN DB ALREADY
-func UpdateChannel(channel *common.Channel) error {
-	gDB, err := getDB()
+func UpdateChannel(db *sql.DB, channel *common.Channel) error {
+	db, err := GetDB()
 	if err != nil {
 		return fmt.Errorf("Error adding channel: %s", err.Error())
 	}
 
-	_, err = gDB.Exec("DELETE FROM channel WHERE channelHash = ?",
+	_, err = db.Exec("DELETE FROM channel WHERE channelHash = ?",
 		channel.RootChainID.String())
 	if err != nil {
 		return fmt.Errorf("Error deleting channel: %s", err.Error())
 	}
-	err = AddChannel(channel)
+	err = AddChannel(channel, -1)
 	if err != nil {
 		return fmt.Errorf("Error inserting channel after deleting: %s", err.Error())
 	}
 	return nil
 }
 
-func SelectFromTable(db *sql.DB, colReturn string, tableName string, columnOn string, singleLookup string) (string, error) {
-	s := "SELECT " + colReturn + " FROM " + tableName + " WHERE " + columnOn + " = ? LIMIT 1"
+func SelectSingleFromTable(db *sql.DB, colReturn string, tableName string, columnOn string, singleLookup string) (string, error) {
+	s := "SELECT " + colReturn + " FROM " + tableName + " WHERE " + columnOn + " = (?) LIMIT 1"
 	rows, err := gDB.Query(s, singleLookup)
 	if err != nil {
-		return "", fmt.Errorf("Error SINGLE select from table with query [%s]: %s", s, err.Error())
+		return "", fmt.Errorf("Error SINGLE select single from table with query [%s]: %s", s, err.Error())
 	}
 
 	rows.Next()
