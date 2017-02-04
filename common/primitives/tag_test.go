@@ -120,12 +120,12 @@ func TestTagListDiff(t *testing.T) {
 	}
 	a.SetTagTo(5, "one")
 	if a.GetTags()[5].String() != "one" {
-		t.Error("Should be 'one', found %s", a.GetTags()[5].String())
+		t.Errorf("Should be 'one', found %s", a.GetTags()[5].String())
 	}
 
 	b.SetTagTo(5, "two")
 	if b.GetTags()[5].String() != "two" {
-		t.Error("Should be 'two', found %s", b.GetTags()[5].String())
+		t.Errorf("Should be 'two', found %s", b.GetTags()[5].String())
 	}
 
 	if i, h := b.Has("two"); i != 5 || h == false {
