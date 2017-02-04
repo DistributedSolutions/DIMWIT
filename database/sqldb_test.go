@@ -36,9 +36,20 @@ func TestAddTags(t *testing.T) {
 
 func TestAddChannel(t *testing.T) {
 	c := common.RandomNewChannel()
-	err := AddChannel(c)
+	err := AddChannel(c, -1) //HEIGHT PLACEHOLDER IN SECONd VALUE CURRENT IS TEMPORARY
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestFlushPlaylistTemp(t *testing.T) {
+	db, _ := GetDB()
+	err := FlushPlaylistTempTable(db, -1) //HEIGHT PLACEHOLDER IN SECONd VALUE CURRENT IS TEMPORARY
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestCloseDB(t *testing.T) {
 	CloseDB()
 }
