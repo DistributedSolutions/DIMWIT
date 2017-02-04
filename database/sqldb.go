@@ -442,10 +442,6 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 			return fmt.Errorf("Error reading from playlistTemp: %s", err.Error())
 		}
 		tE := PlayListTempStoreEntry{title, channelId, contentId, id}
-		// tE.Title = title
-		// tE.ChannelId = channelId
-		// tE.ContentId = contentId
-		// tE.Id = id
 		tableEntries[nRows] = tE
 		nRows++
 	}
