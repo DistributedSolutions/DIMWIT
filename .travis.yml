@@ -8,8 +8,6 @@ install:
         - cd $GOPATH/src/github.com/Masterminds/glide && git checkout tags/v0.12.3 && go install && cd -
         - glide install
 before_script:
-        - go fmt ./...
-        - go vet $(glide nv)
 script:
         - go build -v
         - go test -v $(glide nv)

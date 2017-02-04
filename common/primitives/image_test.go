@@ -47,7 +47,11 @@ func TestDiffImage(t *testing.T) {
 	a := RandomImage()
 	b := RandomImage()
 
-	b.SetImage(a.GetImage()[1:])
+	if len(a.GetImage()) < 1 {
+		a.SetImage([]byte("Random"))
+	}
+
+	b.SetImage(a.GetImage()[1:]) // Failed here
 	if a.IsSameAs(b) {
 		t.Error("Not same")
 	}
