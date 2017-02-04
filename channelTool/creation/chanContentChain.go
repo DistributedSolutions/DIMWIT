@@ -15,10 +15,11 @@ type ChanContentChain struct {
 //		byte		Version
 //		[24]byte	"Channel Content Chain"
 //		[32]byte	RootChainID
+//		[]byte		Title
 //		[32]byte	PublicKey(3)
 //		[64]byte	Signature
 //		[]byte		nonce
-func (r *ChanContentChain) CreateContentChain(rootChain primitives.Hash, title primitives.Title, sigKey primitives.PrivateKey) error {
+func (r *ChanContentChain) CreateContentChain(rootChain primitives.Hash, sigKey primitives.PrivateKey) error {
 	r.Create.endExtID = 5
 
 	e := new(factom.Entry)
@@ -26,15 +27,15 @@ func (r *ChanContentChain) CreateContentChain(rootChain primitives.Hash, title p
 	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION})   // 0
 	e.ExtIDs = append(e.ExtIDs, []byte("Channel Management Chain")) // 1
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                  // 2
-	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())              // 4
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())              // 3
 
-	msg := upToNonce(e.ExtIDs, 3)
+	msg := upToNonce(e.ExtIDs, 4)
 	sig := sigKey.Sign(msg)
-	e.ExtIDs = append(e.ExtIDs, sig) // 5
+	e.ExtIDs = append(e.ExtIDs, sig) // 4
 
 	r.Create.ExtIDs = e.ExtIDs
 	nonce := FindValidNonce(r.Create)
-	e.ExtIDs = append(e.ExtIDs, nonce) // 6
+	e.ExtIDs = append(e.ExtIDs, nonce) // 5
 	r.Create.ExtIDs = e.ExtIDs
 
 	c := factom.NewChain(e)

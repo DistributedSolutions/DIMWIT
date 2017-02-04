@@ -68,9 +68,10 @@ func (pk *PrivateKey) SetBytes(sec []byte) error {
 }
 
 func (pk *PrivateKey) Sign(msg []byte) []byte {
-	var p ed.PrivateKey
+	//var p ed.PrivateKey
+	p := make([]byte, 64)
 	copy(p[:ed.PrivateKeySize], pk.Secret[:ed.PrivateKeySize])
-	sig := ed.Sign(p, msg)
+	sig := ed.Sign(ed.PrivateKey(p), msg)
 	return sig
 }
 

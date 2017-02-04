@@ -16,12 +16,18 @@ type RootChain struct {
 // Factom Chain
 //		byte		Version
 //		[18]byte	"Channel Root Chain"
+//		[]byte		Title
 //		[32]byte	PublicKey(1)
 //		[32]byte	PublicKey(2)
 //		[32]byte	PublicKey(3)
 //		[]byte		Nonce
-func (r *RootChain) CreateRootChain(publicKeys []primitives.PublicKey) error {
-	r.Create.endExtID = 5
+func (r *RootChain) CreateRootChain(publicKeys []primitives.PublicKey, title primitives.Title) error {
+	r.Create.endExtID = 6
+
+	titleData, err := title.MarshalBinary()
+	if err != nil {
+		return err
+	}
 
 	e := new(factom.Entry)
 
@@ -31,12 +37,13 @@ func (r *RootChain) CreateRootChain(publicKeys []primitives.PublicKey) error {
 
 	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION}) // 0
 	e.ExtIDs = append(e.ExtIDs, []byte("Channel Root Chain"))     // 1
-	e.ExtIDs = append(e.ExtIDs, publicKeys[0].Bytes())            // 2
-	e.ExtIDs = append(e.ExtIDs, publicKeys[1].Bytes())            // 3
-	e.ExtIDs = append(e.ExtIDs, publicKeys[2].Bytes())            // 4
+	e.ExtIDs = append(e.ExtIDs, titleData)                        // 2
+	e.ExtIDs = append(e.ExtIDs, publicKeys[0].Bytes())            // 3
+	e.ExtIDs = append(e.ExtIDs, publicKeys[1].Bytes())            // 4
+	e.ExtIDs = append(e.ExtIDs, publicKeys[2].Bytes())            // 5
 	r.Create.ExtIDs = e.ExtIDs
 	nonce := FindValidNonce(r.Create)
-	e.ExtIDs = append(e.ExtIDs, nonce) // 5
+	e.ExtIDs = append(e.ExtIDs, nonce) // 6
 	r.Create.ExtIDs = e.ExtIDs
 
 	c := factom.NewChain(e)

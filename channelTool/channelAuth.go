@@ -6,6 +6,7 @@ import (
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/FactomProject/factom"
 )
 
 const PRIV_KEY_AMT int = 3
@@ -15,6 +16,8 @@ type AuthChannel struct {
 
 	PrivateKeys    [PRIV_KEY_AMT]primitives.PrivateKey
 	ContentSigning primitives.PrivateKey
+
+	EntryCreditKey *factom.ECAddress
 }
 
 func RandomAuthChannel() (*AuthChannel, error) {
@@ -36,10 +39,12 @@ func RandomAuthChannel() (*AuthChannel, error) {
 	}
 	c.ContentSigning = *sec
 
+	c.EntryCreditKey = factom.NewECAddress()
+
 	return c, nil
 }
 
-func (a *AuthChannel) Sign(msg []byte) []byte {
+func (a *AuthChannel) SignContent(msg []byte) []byte {
 	return a.ContentSigning.Sign(msg)
 }
 
@@ -93,6 +98,15 @@ func (a *AuthChannel) UnmarshalBinaryData(data []byte) (newData []byte, err erro
 		return data, err
 	}
 
+	if a.EntryCreditKey == nil {
+		a.EntryCreditKey = new(factom.ECAddress)
+	}
+
+	newData, err = a.EntryCreditKey.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
 	return
 }
 
@@ -117,6 +131,9 @@ func (a *AuthChannel) MarshalBinary() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	buf.Write(data)
+
+	data = a.EntryCreditKey.SecBytes()[:32]
 	buf.Write(data)
 
 	return buf.Next(buf.Len()), nil

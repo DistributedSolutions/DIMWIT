@@ -34,6 +34,23 @@ func TestMarshal(t *testing.T) {
 			t.Error("Unmarshal Return Data")
 		}
 	}
+
+	str := "123456"
+
+	data, err := MarshalStringToBytes(str, 2)
+	if err == nil {
+		t.Error("Should error")
+	}
+
+	data, err = MarshalStringToBytes(str, 10)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, _, err = UnmarshalStringFromBytesData(data, 2)
+	if err == nil {
+		t.Error("should error")
+	}
 }
 
 func TestUInt32Bytes(t *testing.T) {

@@ -13,16 +13,19 @@ import (
 
 var _ = fmt.Sprintf("")
 
-func TestRoot(t *testing.T) {
+func TestContentChain(t *testing.T) {
 	p := make([]primitives.PublicKey, 3)
 	for i := range p {
 		p[i] = *primitives.RandomPublicKey()
 	}
 
-	rc := new(RootChain)
-	rc.CreateRootChain(p, *primitives.RandomTitle())
+	rc := primitives.RandomHash()
 
-	data, err := hex.DecodeString(rc.Create.Chain.FirstEntry.ChainID)
+	cc := new(ManageChain)
+	sec, _ := primitives.RandomPrivateKey()
+	cc.CreateManagementChain(*rc, *sec)
+
+	data, err := hex.DecodeString(cc.Create.Chain.FirstEntry.ChainID)
 	if err != nil {
 		t.Error(err)
 		t.Fail()

@@ -92,6 +92,7 @@ The reason for 3 keys, is if the level 3 key is compromised, the level 2 key can
 |---|---|
 |ExtID (0)|Version {1 byte}|
 |ExtID (1)|"Channel Root Chain" {18 bytes}|
+|ExtID (1)|Channel Title {?? bytes}|
 |ExtID (2)|PublicKey 1 {32 bytes}|
 |ExtID (3)|PublicKey 2 {32 bytes}|
 |ExtID (4)|PublicKey 3 {32 bytes}|
@@ -142,7 +143,7 @@ Entries will also be made by the channel to register there 2 other chains
 |ExtID (3)|Public Key (3) {32 bytes}|
 |ExtID (4)|Signature of ExtID(0-2) {64 bytes}|
 |ExtID (5)|nonce {8 bytes}|
-|Content | Channel Title|
+|Content | |
 
 Entries unknown atm. All metadata changes.
 
@@ -152,9 +153,9 @@ Entries unknown atm. All metadata changes.
 |ExtID (0)|Version {1 byte}|
 |ExtID (1)|"Channel Content Chain" {21 bytes}|
 |ExtID (2)|Channel Root ChainID {32 bytes}|
-|ExtID (3)|Public Key (3) {32 bytes}|
-|ExtID (4)|Signature of ExtID(0-2) {64 bytes}|
-|ExtId (5)| nonce {8 bytes}|
+|ExtID (4)|Public Key (3) {32 bytes}|
+|ExtID (5)|Signature of ExtID(0-2) {64 bytes}|
+|ExtId (6)| nonce {8 bytes}|
 |Content | Unsure|
 
 Entries will point to individual content chains

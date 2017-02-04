@@ -15,28 +15,21 @@ type ManageChain struct {
 //		byte		Version
 //		[24]byte	"Channel Management Chain"
 //		[32]byte	RootChainID
-//		[]byte		Title
 //		[32]byte	PublicKey(3)
 //		[64]byte	Signature
 //		[]byte		nonce
-func (r *ManageChain) CreateManagementChain(rootChain primitives.Hash, title primitives.Title, sigKey primitives.PrivateKey) error {
+func (r *ManageChain) CreateManagementChain(rootChain primitives.Hash, sigKey primitives.PrivateKey) error {
 	r.Create.endExtID = 5
-
-	data, err := title.MarshalBinary()
-	if err != nil {
-		return err
-	}
 
 	e := new(factom.Entry)
 
 	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION})   // 0
 	e.ExtIDs = append(e.ExtIDs, []byte("Channel Management Chain")) // 1
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                  // 2
-	e.ExtIDs = append(e.ExtIDs, data)                               // 3
 
-	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 4
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
 
-	msg := upToNonce(e.ExtIDs, 5)
+	msg := upToNonce(e.ExtIDs, 3)
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 5
 
@@ -72,3 +65,5 @@ func (r *ManageChain) RegisterChannelManagementChain(rootChain primitives.Hash, 
 	e.ChainID = rootChain.String()
 	r.Register.Entry = e
 }
+
+// TODO: Entries
