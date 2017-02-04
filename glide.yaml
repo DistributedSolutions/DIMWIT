@@ -3,6 +3,7 @@ import:
 - package: github.com/dustin/go-humanize
 - package: github.com/mattn/go-sqlite3
 - package: github.com/FactomProject/factom
+- package: github.com/leanovate/gopter
 - package: golang.org/x/crypto
   subpackages:
   - ed25519
