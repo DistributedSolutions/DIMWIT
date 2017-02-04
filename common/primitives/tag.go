@@ -157,6 +157,10 @@ func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 		}
 	}()
 
+	if tl == nil {
+		tl = new(TagList)
+	}
+
 	newData = data
 	u, err := BytesToUint32(newData[:4])
 	if err != nil {
@@ -178,11 +182,13 @@ func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 
 	var i uint32 = 0
 	for ; i < tl.length; i++ {
-		newData, err = tl.tags[i].UnmarshalBinaryData(newData)
+		t := new(Tag)
+		newData, err = t.UnmarshalBinaryData(newData)
 		if err != nil {
 			return data, err
 		}
 
+		tl.tags[i] = *t
 	}
 
 	return
@@ -239,6 +245,10 @@ func (d *Tag) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 			return
 		}
 	}()
+
+	if d == nil {
+		d = new(Tag)
+	}
 
 	newData = data
 	str, newData, err := UnmarshalStringFromBytesData(newData, d.MaxLength())

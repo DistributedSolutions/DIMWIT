@@ -89,6 +89,7 @@ func TestTagList(t *testing.T) {
 		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(i, err)
+			t.Fail()
 		}
 
 		if !n.IsSameAs(l) {
@@ -118,11 +119,11 @@ func TestTagListDiff(t *testing.T) {
 		t.Fail()
 	}
 
-	if a.GetTags()[5] != "one" {
+	if a.GetTags()[5].String() != "one" {
 		t.Error("Should be 'one'")
 	}
 
-	if b.GetTags()[5] != "two" {
+	if b.GetTags()[5].String() != "two" {
 		t.Error("Should be 'one'")
 	}
 
