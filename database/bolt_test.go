@@ -147,9 +147,9 @@ func TestBolt(t *testing.T) {
 	}
 
 	if len(bucDatas) != amt/2 {
-		t.Error("Bad length")
+		t.Error("Bad length, length should be %d, it is %d".amt/2, len(bucDatas))
 	}
 	if len(bucKeys) != amt/2 {
-		t.Error("Bad length")
+		t.Error("Bad length, length should be %d, it is %d".amt/2, len(bucKeys))
 	}
 }
