@@ -46,12 +46,13 @@ func RandomNewChannel() *Channel {
 	c.Website = *primitives.RandomSiteURL()
 	c.LongDescription = *primitives.RandomLongDescription()
 	c.ShortDescription = *primitives.RandomShortDescription()
-	c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
+	c.Content = *RandomContentList(random.RandomUInt32Between(0, 30))
+	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
+	c.Playlist = *SmartRandomManyPlayList(random.RandomUInt32Between(0, 100), c.Content)
 	c.Thumbnail = *primitives.RandomImage()
 	c.Banner = *primitives.RandomImage()
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
 	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))
-	c.Content = *RandomContentList(random.RandomUInt32Between(0, 10))
 
 	return c
 }

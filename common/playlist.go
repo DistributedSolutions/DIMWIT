@@ -31,6 +31,20 @@ func RandomManyPlayList(max uint32) *ManyPlayList {
 	return p
 }
 
+func SmartRandomManyPlayList(max uint32, conts ContentList) *ManyPlayList {
+	p := new(ManyPlayList)
+	u := random.RandomUInt32Between(0, max)
+
+	p.length = u
+	p.playlists = make([]SinglePlayList, u)
+
+	for i := range p.playlists {
+		p.playlists[i] = *SmartRandomSinglePlayList(max, conts)
+	}
+
+	return p
+}
+
 func (a *ManyPlayList) IsSameAs(b *ManyPlayList) bool {
 	if a.length != b.length {
 		return false
@@ -100,6 +114,26 @@ func (p *ManyPlayList) UnmarshalBinaryData(data []byte) (newData []byte, err err
 type SinglePlayList struct {
 	Title    primitives.Title
 	Playlist primitives.HashList
+}
+
+func SmartRandomSinglePlayList(max uint32, contList ContentList) *SinglePlayList {
+	p := new(SinglePlayList)
+
+	conts := contList.GetContents()
+	p.Playlist = *primitives.NewHashList()
+	var i uint32
+	for i = 0; i < max; i++ {
+		if i >= uint32(len(conts)) {
+			break
+		}
+		r := random.RandomIntBetween(0, 99)
+		if r%2 == 0 {
+			p.Playlist.AddHash(&conts[i].ContentID)
+		}
+	}
+	p.Title = *primitives.RandomTitle()
+
+	return p
 }
 
 func RandomSinglePlayList(max uint32) *SinglePlayList {
