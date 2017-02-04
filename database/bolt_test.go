@@ -21,7 +21,7 @@ func TestBolt(t *testing.T) {
 	defer os.Remove(fullDir)
 	defer os.RemoveAll(dir)
 
-	amt := 1000
+	var amt int = 1000
 	keys := make([][]byte, amt)
 	datas := make([][]byte, amt)
 	for i := 0; i < amt; i++ {
@@ -147,9 +147,9 @@ func TestBolt(t *testing.T) {
 	}
 
 	if len(bucDatas) != amt/2 {
-		t.Error("Bad length, length should be %d, it is %d".amt/2, len(bucDatas))
+		t.Errorf("Bad length, length should be %d, it is %d", amt/2, len(bucDatas))
 	}
 	if len(bucKeys) != amt/2 {
-		t.Error("Bad length, length should be %d, it is %d".amt/2, len(bucKeys))
+		t.Errorf("Bad length, length should be %d, it is %d", amt/2, len(bucKeys))
 	}
 }
