@@ -19,6 +19,11 @@ type PlayListTempStoreEntry struct {
 	Id        string
 }
 
+type DB struct {
+	DB   *sql.DB
+	Name string
+}
+
 var _ = sqlite3.ErrNoMask
 
 var gDB *sql.DB
@@ -32,6 +37,7 @@ var TABLE_NAMES = []string{
 	constants.SQL_CONTENT_TAG_REL,
 	constants.SQL_PLAYLIST,
 	constants.SQL_PLAYLIST_CONTENT_REL,
+	constants.SQL_PLAYLIST_TEMP,
 }
 
 var CREATE_TABLE = []string{
@@ -98,7 +104,7 @@ var CREATE_TABLE = []string{
 		constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL)",
 }
 
-func CreateDB(dbName string, tableCreate []string) error {
+func CreateDB(dbName string, tableCreate []string) (*DB, error) {
 	dir := util.GetHomeDir() + constants.HIDDEN_DIR
 	_, err := os.Stat(dir)
 	// create directory if not exists
@@ -113,30 +119,29 @@ func CreateDB(dbName string, tableCreate []string) error {
 	if os.IsNotExist(err) {
 		file, err := os.OpenFile(dbPathName, os.O_CREATE|os.O_RDWR, constants.FILE_PERMISSIONS)
 		if err != nil {
-			return fmt.Errorf("Error creating database: %s", err.Error())
+			return nil, fmt.Errorf("Error creating database: %s", err.Error())
 		}
 		file.Close()
 	}
 
 	db, err := sql.Open("sqlite3", dbPathName)
 	if err != nil {
-		return fmt.Errorf("Error opening database: %s", err.Error())
+		return nil, fmt.Errorf("Error opening database: %s", err.Error())
 	}
-
-	gDB = db
 
 	_, err = db.Exec("PRAGMA foreign_keys=ON;")
 	if err != nil {
-		return fmt.Errorf("Error setting pragma: %s", err.Error())
+		return nil, fmt.Errorf("Error setting pragma: %s", err.Error())
 	}
 
 	//create all tables if they do not exist
 	err = createAllTables(db, tableCreate)
 	if err != nil {
-		return fmt.Errorf("Error creating tables: %s", err.Error())
+		return nil, fmt.Errorf("Error creating tables: %s", err.Error())
 	}
 
-	return err
+	dbStruct := DB{db, dbName}
+	return &dbStruct, nil
 }
 
 func createAllTables(db *sql.DB, tableCreate []string) error {
@@ -169,33 +174,33 @@ func DeleteDB(dbName string) error {
 	return nil
 }
 
-func getDBPath() (string, error) {
-	path := util.GetHomeDir() + constants.HIDDEN_DIR + constants.SQL_DB
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return "", fmt.Errorf("DB Does NOT Exists with dir [%s]: %s", path, err.Error())
-	}
+// func getDBPath() (string, error) {
+// 	path := util.GetHomeDir() + constants.HIDDEN_DIR + constants.SQL_DB
+// 	_, err := os.Stat(path)
+// 	if os.IsNotExist(err) {
+// 		return "", fmt.Errorf("DB Does NOT Exists with dir [%s]: %s", path, err.Error())
+// 	}
 
-	return path, nil
-}
+// 	return path, nil
+// }
 
-func GetDB() (*sql.DB, error) {
-	if gDB == nil {
-		dbPath, err := getDBPath()
-		if err != nil {
-			return nil, fmt.Errorf("Error retrieving path: %s", err.Error())
-		}
-		gDB, err = sql.Open("sqlite3", dbPath)
-		if err != nil {
-			return nil, fmt.Errorf("Error opening DB: %s", err.Error())
-		}
-	}
-	return gDB, nil
-}
+// func GetDB() (*sql.DB, error) {
+// 	if gDB == nil {
+// 		dbPath, err := getDBPath()
+// 		if err != nil {
+// 			return nil, fmt.Errorf("Error retrieving path: %s", err.Error())
+// 		}
+// 		gDB, err = sql.Open("sqlite3", dbPath)
+// 		if err != nil {
+// 			return nil, fmt.Errorf("Error opening DB: %s", err.Error())
+// 		}
+// 	}
+// 	return gDB, nil
+// }
 
 func DeleteTable(db *sql.DB, tableName string) error {
 	s := "DELETE FROM " + tableName
-	_, err := gDB.Exec(s)
+	_, err := db.Exec(s)
 	if err != nil {
 		return fmt.Errorf("Error deleting from table %s: %s", tableName, err.Error())
 	}
@@ -244,21 +249,16 @@ func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertDa
 	return res, nil
 }
 
-func AddTags() error {
-	gDB, err := GetDB()
-	if err != nil {
-		return fmt.Errorf("Error adding tags: %s", err.Error())
-	}
-
+func AddTags(db *sql.DB) error {
 	insertColsChannel := []string{constants.SQL_TABLE_CHANNEL_TAG__NAME}
 	insertColsContent := []string{constants.SQL_TABLE_CONTENT_TAG__NAME}
 	for _, e := range constants.ALLOWED_TAGS {
 		insertData := []string{e}
-		_, err = InsertIntoTable(gDB, constants.SQL_CHANNEL_TAG, insertColsChannel, insertData)
+		_, err := InsertIntoTable(db, constants.SQL_CHANNEL_TAG, insertColsChannel, insertData)
 		if err != nil {
 			return fmt.Errorf("Error inserting tags: %s", err.Error())
 		}
-		_, err = InsertIntoTable(gDB, constants.SQL_CONTENT_TAG, insertColsContent, insertData)
+		_, err = InsertIntoTable(db, constants.SQL_CONTENT_TAG, insertColsContent, insertData)
 		if err != nil {
 			return fmt.Errorf("Error inserting tags: %s", err.Error())
 		}
@@ -266,22 +266,12 @@ func AddTags() error {
 	return nil
 }
 
-func DeleteTags() error {
-	gDB, err := GetDB()
-	if err != nil {
-		return fmt.Errorf("Error updating tags: %s", err.Error())
-	}
-
-	return DeleteTable(gDB, "channelTag")
+func DeleteTags(db *sql.DB) error {
+	return DeleteTable(db, "channelTag")
 }
 
 //NOT GOING TO CHECK IF IN DB ALREADY
-func AddChannel(channel *common.Channel, height int) error {
-	gDB, err := GetDB()
-	if err != nil {
-		return fmt.Errorf("Error adding channel: %s", err.Error())
-	}
-
+func AddChannel(db *sql.DB, channel *common.Channel, height int) error {
 	insertCols := []string{
 		constants.SQL_TABLE_CHANNEL__HASH,
 		constants.SQL_TABLE_CHANNEL__TITLE,
@@ -290,7 +280,7 @@ func AddChannel(channel *common.Channel, height int) error {
 		channel.RootChainID.String(),
 		channel.ChannelTitle.String(),
 	}
-	_, err = InsertIntoTable(gDB, constants.SQL_CHANNEL, insertCols, insertData)
+	_, err := InsertIntoTable(db, constants.SQL_CHANNEL, insertCols, insertData)
 	if err != nil {
 		return fmt.Errorf("Error adding channel: %s", err.Error())
 	}
@@ -298,7 +288,7 @@ func AddChannel(channel *common.Channel, height int) error {
 	//Add channel tags for channel
 	tags := channel.Tags.GetTags()
 	for _, t := range tags {
-		tag, err := SelectSingleFromTable(gDB,
+		tag, err := SelectSingleFromTable(db,
 			constants.SQL_TABLE_CHANNEL_TAG__ID,
 			constants.SQL_CHANNEL_TAG,
 			constants.SQL_TABLE_CHANNEL_TAG__NAME,
@@ -314,7 +304,7 @@ func AddChannel(channel *common.Channel, height int) error {
 			channel.RootChainID.String(),
 			tag,
 		}
-		_, err = InsertIntoTable(gDB, constants.SQL_CHANNEL_TAG_REL, insertCols, insertData)
+		_, err = InsertIntoTable(db, constants.SQL_CHANNEL_TAG_REL, insertCols, insertData)
 		if err != nil {
 			return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
 		}
@@ -349,7 +339,7 @@ func AddChannel(channel *common.Channel, height int) error {
 			fmt.Sprintf("%d", p),
 			channel.RootChainID.String(),
 		}
-		_, err = InsertIntoTable(gDB, constants.SQL_CONTENT, insertCols, insertData)
+		_, err = InsertIntoTable(db, constants.SQL_CONTENT, insertCols, insertData)
 		if err != nil {
 			return fmt.Errorf("Error inserting content with hash[%s]: %s", c.ContentID.String(), err.Error())
 		}
@@ -357,7 +347,7 @@ func AddChannel(channel *common.Channel, height int) error {
 		//Add Content Tags for content
 		tags := c.Tags.GetTags()
 		for _, t := range tags {
-			tag, err := SelectSingleFromTable(gDB,
+			tag, err := SelectSingleFromTable(db,
 				constants.SQL_TABLE_CONTENT_TAG__ID,
 				constants.SQL_CONTENT_TAG,
 				constants.SQL_TABLE_CONTENT_TAG__NAME,
@@ -373,7 +363,7 @@ func AddChannel(channel *common.Channel, height int) error {
 				c.ContentID.String(),
 				tag,
 			}
-			_, err = InsertIntoTable(gDB, constants.SQL_CONTENT_TAG_REL, insertCols, insertData)
+			_, err = InsertIntoTable(db, constants.SQL_CONTENT_TAG_REL, insertCols, insertData)
 			if err != nil {
 				return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
 			}
@@ -398,7 +388,7 @@ func AddChannel(channel *common.Channel, height int) error {
 				channel.RootChainID.String(),
 				ph.String(),
 			}
-			_, err := InsertIntoTable(gDB, constants.SQL_PLAYLIST_TEMP, insertCols, insertData)
+			_, err := InsertIntoTable(db, constants.SQL_PLAYLIST_TEMP, insertCols, insertData)
 			if err != nil {
 				return fmt.Errorf("Error inserting playlistTemp title [%s]: %s", p.Title.String(), err.Error())
 			}
@@ -463,7 +453,7 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 			tableEntries[i].Title,
 			tableEntries[i].ChannelId,
 		}
-		res, err := InsertIntoTable(gDB, constants.SQL_PLAYLIST, insertCols, insertData)
+		res, err := InsertIntoTable(db, constants.SQL_PLAYLIST, insertCols, insertData)
 		if err != nil {
 			return fmt.Errorf("Error adding channel: %s\n", err.Error())
 		}
@@ -483,14 +473,13 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 			fmt.Sprintf("%d", id),
 			tableEntries[i].ContentId,
 		}
-		_, err = InsertIntoTable(gDB, constants.SQL_PLAYLIST_CONTENT_REL, insertCols, insertData)
+		_, err = InsertIntoTable(db, constants.SQL_PLAYLIST_CONTENT_REL, insertCols, insertData)
 		if err != nil {
 			fmt.Printf("WARNING 'MOST LIKELY FOREIGN KEY CONSTRAINT FAIL' inserting into playlist rel table with title[%s] and channelId[%s] and contentID[%s] error message is [%s]\n", title, channelId, contentId, err.Error())
 		}
 
 		deleteQuery += fmt.Sprintf("%d", id) + ","
 	}
-
 	deleteQuery = deleteQuery[0:(len(deleteQuery)-1)] + ")"
 	_, err = db.Exec(deleteQuery)
 	if err != nil {
@@ -502,17 +491,13 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 
 //NOT GOING TO CHECK IF IN DB ALREADY
 func UpdateChannel(db *sql.DB, channel *common.Channel) error {
-	db, err := GetDB()
-	if err != nil {
-		return fmt.Errorf("Error adding channel: %s", err.Error())
-	}
 
-	_, err = db.Exec("DELETE FROM channel WHERE channelHash = ?",
+	_, err := db.Exec("DELETE FROM channel WHERE channelHash = ?",
 		channel.RootChainID.String())
 	if err != nil {
 		return fmt.Errorf("Error deleting channel: %s", err.Error())
 	}
-	err = AddChannel(channel, -1)
+	err = AddChannel(db, channel, -1)
 	if err != nil {
 		return fmt.Errorf("Error inserting channel after deleting: %s", err.Error())
 	}
@@ -521,7 +506,7 @@ func UpdateChannel(db *sql.DB, channel *common.Channel) error {
 
 func SelectSingleFromTable(db *sql.DB, colReturn string, tableName string, columnOn string, singleLookup string) (string, error) {
 	s := "SELECT " + colReturn + " FROM " + tableName + " WHERE " + columnOn + " = (?) LIMIT 1"
-	rows, err := gDB.Query(s, singleLookup)
+	rows, err := db.Query(s, singleLookup)
 	if err != nil {
 		return "", fmt.Errorf("Error SINGLE select single from table with query [%s]: %s", s, err.Error())
 	}
@@ -536,8 +521,8 @@ func SelectSingleFromTable(db *sql.DB, colReturn string, tableName string, colum
 	return result, nil
 }
 
-func CloseDB() {
-	if gDB != nil {
-		gDB.Close()
+func CloseDB(db *sql.DB) {
+	if db != nil {
+		db.Close()
 	}
 }
