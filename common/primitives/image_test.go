@@ -13,6 +13,9 @@ var _ = fmt.Sprintf("")
 func TestImage(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		h := RandomImage()
+		if i%100 == 0 {
+			h = RandomHugeImage()
+		}
 		data, _ := h.MarshalBinary()
 
 		n := new(Image)

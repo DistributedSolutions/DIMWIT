@@ -187,11 +187,11 @@ A new chain will be made per piece of content. This allows us to add more functi
 |ExtID (4)|Channel Root ChainID {32 bytes}|
 |ExtID (5)|InfoHash {20 bytes}|
 |ExtID (6)|Timestamp {8 bytes}|
-|ExtID (7)|Shift Cipher Key {1 byte}|
+|ExtID (7)|XOR Cipher Key {1 byte}|
 |ExtID (8)|Content Signing Key {32 bytes}|
 |ExtID (9)|Signature of ExtID(0-7) {64 bytes}|
 |ExtID (10)|nonce {8 bytes}|
-|Content|Shift Ciphered Content Metadata|
+|Content|XOR Ciphered Content Metadata|
 
 This has quite a bit of data. The Channel Root ChainID is included to allow backwards traversing. So if someone links you to a video, the client can backwards traverse for the channel keys.
 

@@ -19,7 +19,7 @@ type ChanContentChain struct {
 //		[32]byte	PublicKey(3)
 //		[64]byte	Signature
 //		[]byte		nonce
-func (r *ChanContentChain) CreateContentChain(rootChain primitives.Hash, sigKey primitives.PrivateKey) error {
+func (r *ChanContentChain) CreateChanContentChain(rootChain primitives.Hash, sigKey primitives.PrivateKey) error {
 	r.Create.endExtID = 5
 
 	e := new(factom.Entry)

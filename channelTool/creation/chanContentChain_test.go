@@ -13,7 +13,7 @@ import (
 
 var _ = fmt.Sprintf("")
 
-func TestContentChain(t *testing.T) {
+func TestChanContentChain(t *testing.T) {
 	p := make([]primitives.PublicKey, 3)
 	for i := range p {
 		p[i] = *primitives.RandomPublicKey()
@@ -21,9 +21,9 @@ func TestContentChain(t *testing.T) {
 
 	rc := primitives.RandomHash()
 
-	cc := new(ManageChain)
+	cc := new(ChanContentChain)
 	sec, _ := primitives.RandomPrivateKey()
-	cc.CreateManagementChain(*rc, *sec)
+	cc.CreateChanContentChain(*rc, *sec)
 
 	data, err := hex.DecodeString(cc.Create.Chain.FirstEntry.ChainID)
 	if err != nil {

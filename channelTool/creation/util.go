@@ -2,10 +2,11 @@ package creation
 
 import (
 	"bytes"
+	"crypto/rand"
 	"crypto/sha256"
-	"strconv"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 )
 
 type generalChainCreate interface {
@@ -14,22 +15,25 @@ type generalChainCreate interface {
 
 func FindValidNonce(i generalChainCreate) []byte {
 	upToNonce := i.upToNonce()
-	var count int
-	count = 000
+	var count uint64
+	count = 0
 	exit := false
 	for exit == false {
 		count++
 		exit = checkNonce(upToNonce, count)
 
 	}
-	return []byte(strconv.Itoa(count))
+
+	data, _ := primitives.Uint64ToBytes(count)
+	return data
 }
 
-func checkNonce(upToNonce []byte, nonceInt int) bool {
+func checkNonce(upToNonce []byte, nonceInt uint64) bool {
 	buf := new(bytes.Buffer)
 	buf.Write(upToNonce)
 
-	nonce := []byte(strconv.Itoa(nonceInt))
+	nonce, _ := primitives.Uint64ToBytes(nonceInt)
+	//nonce := []byte(strconv.Itoa(nonceInt))
 	result := sha256.Sum256(nonce)
 	buf.Write(result[:])
 
@@ -53,4 +57,34 @@ func upToNonce(extIDs [][]byte, end int) []byte {
 	}
 
 	return buf.Next(buf.Len())
+}
+
+func RandXORKey() byte {
+	xorCipher := make([]byte, 1)
+	rand.Read(xorCipher)
+	if xorCipher[0] == 0x00 {
+		return RandXORKey()
+	} else {
+		return xorCipher[0]
+	}
+}
+
+func XORCipher(key byte, data []byte) []byte {
+	buf := new(bytes.Buffer)
+
+	for _, d := range data {
+		buf.Write([]byte{d ^ key})
+	}
+
+	return buf.Next(buf.Len())
+}
+
+func ExIDLength(exid [][]byte) int {
+	length := 2
+	for _, e := range exid {
+		length += 2
+		length += len(e)
+	}
+
+	return length
 }

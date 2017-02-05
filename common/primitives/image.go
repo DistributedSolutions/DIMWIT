@@ -29,6 +29,12 @@ func RandomImage() *Image {
 	return i
 }
 
+func RandomHugeImage() *Image {
+	data := random.RandByteSliceOfSize(random.RandomIntBetween(10000, 30000))
+	i := NewImage(data, constants.IMAGE_JPEG)
+	return i
+}
+
 func (i *Image) SetImage(data []byte) {
 	i.image = data
 	i.length = uint32(len(i.image))
