@@ -77,7 +77,7 @@ func (tl *TrackerList) UnmarshalBinary(data []byte) error {
 func (tl *TrackerList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[TrackerList] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()
@@ -164,7 +164,7 @@ func (t *Tracker) UnmarshalBinary(data []byte) error {
 func (d *Tracker) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[Tracker] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

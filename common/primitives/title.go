@@ -29,7 +29,7 @@ func NewTitle(title string) (*Title, error) {
 
 func (d *Title) SetString(title string) error {
 	if len(title) > d.MaxLength() {
-		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
+		return fmt.Errorf("Title given is too long, length must be under %d, given length is %d",
 			d.MaxLength(), len(title))
 	}
 
@@ -61,7 +61,7 @@ func (t *Title) UnmarshalBinary(data []byte) error {
 func (t *Title) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[Title] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

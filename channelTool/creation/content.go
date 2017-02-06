@@ -69,7 +69,7 @@ func RandomHugeContentChainContent() *ContentChainContent {
 func (c *ContentChainContent) MarshalBinary() (data []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while marshaling: %s", r)
+			err = fmt.Errorf("[Content] A panic has occurred while marshaling: %s", r)
 			return
 		}
 	}()
@@ -317,8 +317,8 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 	contentLength := len(data)
 	totalSize := contentLength + headerLength
 	var entryCount int = 0
-	if totalSize > 1024 {
-		entryCount = howManyEntries(headerLength, contentLength)
+	if totalSize > constants.ENTRY_MAX_SIZE {
+		entryCount = howManyEntries(headerLength, contentLength, 142)
 	}
 	e.ExtIDs[2] = primitives.Uint32ToBytes(uint32(entryCount))
 
@@ -329,7 +329,7 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 	nonce := FindValidNonce(c)
 	e.ExtIDs[10] = nonce // 10
 
-	firstEntContent := 1024 - headerLength
+	firstEntContent := constants.ENTRY_MAX_SIZE - headerLength
 
 	if entryCount > 0 {
 		e.Content = XORCipher(xorKey, data[:firstEntContent])
@@ -341,7 +341,7 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 
 	r.FirstEntry = factom.NewChain(e)
 
-	// Stich Entries :: 140bytes
+	// Stich Entries :: 142bytes
 	//		[4]byte		Sequence
 	//		[32]byte	Sha256Hash of PreXOR
 	//		[32]byte	ContentSignKey
@@ -350,7 +350,7 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 	// data is the bytes to be stitched
 
 	r.Entries = make([]*factom.Entry, entryCount)
-	bytesPerEntry := 1024 - 142
+	bytesPerEntry := constants.ENTRY_MAX_SIZE - 142
 	var seq uint32 = 1
 	for len(data) > 0 {
 		entry := new(factom.Entry)
@@ -417,9 +417,9 @@ func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, conten
 	return nil
 }
 
-func howManyEntries(headerLength int, contentLength int) int {
-	contentLength -= (1024 - headerLength)
-	bytesPerEntry := 1024 - 142
+func howManyEntries(headerLength int, contentLength int, contentHeaderLength int) int {
+	contentLength -= (constants.ENTRY_MAX_SIZE - headerLength)
+	bytesPerEntry := constants.ENTRY_MAX_SIZE - contentHeaderLength
 	count := 0
 	for contentLength > 0 {
 		contentLength -= bytesPerEntry

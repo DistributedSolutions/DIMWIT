@@ -20,11 +20,6 @@ func init() {
 
 func TestContentChain(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		p := make([]primitives.PublicKey, 3)
-		for i := range p {
-			p[i] = *primitives.RandomPublicKey()
-		}
-
 		rc := primitives.RandomHash()
 
 		cc := new(ContentChain)
@@ -52,7 +47,7 @@ func TestContentChain(t *testing.T) {
 
 		chainID := cc.FirstEntry.ChainID
 		for _, e := range cc.Entries {
-			if len(e.Content) > 1024 || len(e.Content) == 0 {
+			if len(e.Content) > constants.ENTRY_MAX_SIZE || len(e.Content) == 0 {
 				t.Errorf("Entry content length is bad. It is %d", len(e.Content))
 			}
 
@@ -60,18 +55,18 @@ func TestContentChain(t *testing.T) {
 				t.Errorf("ChainID of entry is bad. Found %s, should be %s", e.ChainID, chainID)
 			}
 
-			if ExIDLength(e.ExtIDs)+len(e.Content) > 1024 {
+			if ExIDLength(e.ExtIDs)+len(e.Content) > constants.ENTRY_MAX_SIZE {
 				t.Errorf("Entry length is too large. Entry length is %d", ExIDLength(e.ExtIDs)+len(e.Content))
 			}
 		}
 
-		if len(conData) > 1024 && len(cc.Entries) < 1 {
+		if len(conData) > constants.ENTRY_MAX_SIZE && len(cc.Entries) < 1 {
 			t.Errorf("Should have more supporting entries. ConData length is %d, entrycount is %d", len(conData), len(cc.Entries))
 		}
 
 		if len(cc.Entries) > 0 {
-			if ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs)+len(cc.FirstEntry.FirstEntry.Content) != 1024 {
-				t.Errorf("Fist entry length is not 1024 bytes. It has more entries, and it's length is %d", ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs)+len(cc.FirstEntry.FirstEntry.Content))
+			if ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs)+len(cc.FirstEntry.FirstEntry.Content) != constants.ENTRY_MAX_SIZE {
+				t.Errorf("Fist entry length is not %d bytes. It has more entries, and it's length is %d", constants.ENTRY_MAX_SIZE, ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs)+len(cc.FirstEntry.FirstEntry.Content))
 			}
 		}
 

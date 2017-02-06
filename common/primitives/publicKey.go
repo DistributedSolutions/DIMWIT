@@ -82,7 +82,7 @@ func (h *PublicKey) UnmarshalBinary(data []byte) error {
 func (h *PublicKey) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[PubKey] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

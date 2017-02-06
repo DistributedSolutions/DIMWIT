@@ -86,7 +86,7 @@ func (h *HashList) UnmarshalBinary(data []byte) error {
 func (h *HashList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[HashList] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()
@@ -179,7 +179,7 @@ func (h *Hash) UnmarshalBinary(data []byte) error {
 func (h *Hash) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[Hash] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

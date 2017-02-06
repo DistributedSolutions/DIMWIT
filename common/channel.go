@@ -128,7 +128,7 @@ func (a *Channel) IsSameAs(b *Channel) bool {
 func (c *Channel) MarshalBinary() (data []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while marshaling: %s", r)
+			err = fmt.Errorf("[Channel] A panic has occurred while marshaling: %s", r)
 			return
 		}
 	}()
@@ -248,7 +248,7 @@ func (c *Channel) UnmarshalBinary(data []byte) (err error) {
 func (c *Channel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while marshaling: %s", r)
+			err = fmt.Errorf("[channel] A panic has occurred while marshaling: %s", r)
 			return
 		}
 	}()

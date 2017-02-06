@@ -76,7 +76,7 @@ func (h *MD5Checksum) UnmarshalBinary(data []byte) error {
 func (h *MD5Checksum) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[Md5] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

@@ -34,6 +34,8 @@ const (
 var (
 	CHAIN_PREFIX              []byte = []byte{0xDC, 0xF0, 0x00}
 	CHAIN_PREFIX_LENGTH_CHECK int    = 2
+	// How large can an entry be in factom in bytes
+	ENTRY_MAX_SIZE int = 10240
 )
 
 // Common type constants

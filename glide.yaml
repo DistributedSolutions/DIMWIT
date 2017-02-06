@@ -1,14 +1,22 @@
 package: github.com/DistributedSolutions/DIMWIT
 import:
 - package: github.com/FactomProject/factom
+  version: develop
 - package: github.com/boltdb/bolt
+  version: v1.3.0
 - package: github.com/dustin/go-humanize
 - package: github.com/mattn/go-sqlite3
+  version: v1.2.0
+- package: github.com/tinylib/msgp
+  version: v1.0
+  subpackages:
+  - msgp
 - package: golang.org/x/crypto
   subpackages:
   - ed25519
 testImport:
 - package: github.com/leanovate/gopter
+  version: v0.1
   subpackages:
   - gen
   - prop

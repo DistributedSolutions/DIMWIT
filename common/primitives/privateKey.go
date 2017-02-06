@@ -95,7 +95,7 @@ func (pk *PrivateKey) UnmarshalBinary(data []byte) (err error) {
 func (pk *PrivateKey) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[PrivKey] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

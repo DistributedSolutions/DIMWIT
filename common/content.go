@@ -115,7 +115,7 @@ func (a *Content) IsSameAs(b *Content) bool {
 func (c *Content) MarshalBinary() (data []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while marshaling: %s", r)
+			err = fmt.Errorf("[Content] A panic has occurred while marshaling: %s", r)
 			return
 		}
 	}()
