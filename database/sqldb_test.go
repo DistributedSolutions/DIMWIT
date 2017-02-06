@@ -77,18 +77,111 @@ func TestAddTags(t *testing.T) {
 		t.Error(err)
 	}
 
+	//check if tables were created right
+	var count int
+	s := "SELECT COUNT(" + constants.SQL_TABLE_CONTENT_TAG__ID + ") FROM " + constants.SQL_CONTENT_TAG
+	err = testDB.DB.QueryRow(s).Scan(&count)
+	if err != nil {
+		t.Error(fmt.Errorf("Error deleting content tags [%s]: [%s]\n", s, err))
+	} else if count != 0 {
+		t.Error(fmt.Errorf("All content tags not deleted with query [%s] and count [%d]\n", s, count))
+	}
+
+	s = "SELECT COUNT(" + constants.SQL_TABLE_CHANNEL_TAG__ID + ") FROM " + constants.SQL_CHANNEL_TAG
+	err = testDB.DB.QueryRow(s).Scan(&count)
+	if err != nil {
+		t.Error(fmt.Errorf("Error deleting channel tags [%s]: [%s]\n", s, err))
+	} else if count != 0 {
+		t.Error(fmt.Errorf("All channel tags not deleted with query [%s] and count [%d]\n", s, count))
+	}
+
 	err = AddTags(testDB.DB)
 	if err != nil {
 		t.Error(err)
 	}
+
+	//check that the tags were created for both tables
+	q := "SELECT " + constants.SQL_TABLE_CONTENT_TAG__ID + " FROM " + constants.SQL_CONTENT_TAG +
+		" WHERE " + constants.SQL_TABLE_CONTENT_TAG__NAME + " NOT IN (" + CommaDelimiterArray(constants.ALLOWED_TAGS, true) + ")"
+	rows, err := testDB.DB.Query(q)
+	if err != nil {
+		t.Error(fmt.Errorf("Error retrieving tables with query[%s]: %s\n", q, err))
+	}
+	for rows.Next() {
+		t.Error(fmt.Errorf("Error extra content rows\n"))
+	}
+	rows.Close()
+
+	q = "SELECT " + constants.SQL_TABLE_CHANNEL_TAG__ID + " FROM " + constants.SQL_CHANNEL_TAG + " " +
+		" WHERE " + constants.SQL_TABLE_CHANNEL_TAG__NAME + " NOT IN (" + CommaDelimiterArray(constants.ALLOWED_TAGS, true) + ")"
+	rows, err = testDB.DB.Query(q)
+	if err != nil {
+		t.Error(fmt.Errorf("Error retrieving tables[%s]: [%s]\n", q, err))
+	}
+	for rows.Next() {
+		t.Error(fmt.Errorf("Error extra content rows\n"))
+	}
+	rows.Close()
 }
 
 func TestAddChannel(t *testing.T) {
+
+	//////////ADD 3 RANDOM CHANNELS/////////////////
 	c := common.RandomNewChannel()
 	err := AddChannel(testDB.DB, c, -1) //HEIGHT PLACEHOLDER IN SECONd VALUE CURRENT IS TEMPORARY
 	if err != nil {
 		t.Error(err)
 	}
+
+	//check if channel tags were added
+	tags := c.Tags.GetTagsAsStringArr()
+	q := "SELECT " + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID +
+		" FROM " + constants.SQL_CHANNEL_TAG_REL +
+		" WHERE " + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + " NOT IN(" +
+		testSubQueryGetTags(constants.SQL_CHANNEL_TAG, constants.SQL_TABLE_CHANNEL_TAG__ID, constants.SQL_TABLE_CHANNEL_TAG__NAME, tags) +
+		") AND " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " = '" + c.ContentChainID.String() + "'"
+	rows, err := testDB.DB.Query(q)
+	if err != nil {
+		t.Error(fmt.Errorf("Error retrieving tables with query[%s]: %s\n", q, err.Error()))
+	}
+	for rows.Next() {
+		t.Error(fmt.Errorf("Error extra channel tag rows with query[%s]\n", q))
+	}
+	rows.Close()
+
+	//check if content was added
+	contents := c.Content.GetContents()
+	for _, content := range contents {
+		var count int
+		//check if content was added
+		q = "SELECT COUNT(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") FROM " + constants.SQL_CONTENT +
+			" WHERE " + constants.SQL_TABLE_CONTENT__CONTENT_HASH + " = " + content.ContentID.String()
+		err := testDB.DB.QueryRow(q).Scan(&count)
+		if err != nil {
+			t.Error(fmt.Errorf("Error retrieving tables with query[%s]: [%s]\n", q, err))
+		}
+		if count != 0 {
+			t.Error(fmt.Errorf("Error content not found with query [%s] and count [%d]\n", q, count))
+		}
+
+		//check if content tags were set
+		tags = content.Tags.GetTagsAsStringArr()
+		q = "SELECT " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " FROM " + constants.SQL_CONTENT_TAG_REL +
+			" WHERE " + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + " NOT IN(" +
+			testSubQueryGetTags(constants.SQL_CONTENT_TAG, constants.SQL_TABLE_CONTENT_TAG__ID,
+				constants.SQL_TABLE_CONTENT_TAG__NAME, tags) +
+			") AND " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " = '" + content.ContentID.String() + "'"
+		rows, err := testDB.DB.Query(q)
+		if err != nil {
+			t.Error(fmt.Errorf("Error retrieving tables with query[%s]: [%s]\n", q, err))
+		}
+		for rows.Next() {
+			t.Error(fmt.Errorf("Error extra content tag rows with query[%s]\n", q))
+		}
+		rows.Close()
+	}
+
+	//NO need to check if the playlist was inserted, would have thrown an error if it was not inserted correctly
 }
 
 func TestFlushPlaylistTemp(t *testing.T) {
@@ -96,8 +189,25 @@ func TestFlushPlaylistTemp(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	//*************WILL HAVE TO CHANGE IN FUTURE WHEN HEIGHT MANEGEMENT IS CHANGED******************
+	q := "SELECT " + constants.SQL_TABLE_PLAYLIST__ID + " FROM " + constants.SQL_PLAYLIST_TEMP
+	rows, err := testDB.DB.Query(q)
+	if err != nil {
+		t.Error(fmt.Errorf("Error retrieving playlist temp with query[%s]: %s\n", q, err))
+	}
+	for rows.Next() {
+		t.Error(fmt.Errorf("Error extra content rows\n"))
+	}
+	rows.Close()
 }
 
 func TestCloseDB(t *testing.T) {
 	CloseDB(testDB.DB)
+}
+
+func testSubQueryGetTags(tableName string, colOn string, colWhere string, tags []string) string {
+	q := "SELECT " + colOn +
+		" FROM " + tableName +
+		" WHERE " + colWhere + " IN (" + CommaDelimiterArray(tags, true) + ")"
+	return q
 }

@@ -27,11 +27,17 @@ func RandomTagList(max uint32) *TagList {
 	l := random.RandomUInt32Between(0, max)
 	tl.tags = make([]Tag, l)
 
-	for i := range tl.tags {
-		tl.tags[i] = *(RandomTag())
+	c := uint32(0)
+	for i := uint32(0); i < l; i++ {
+		tempTag := RandomTag()
+		_, b := tl.HasTag(tempTag)
+		if !b {
+			tl.tags[c] = *tempTag
+			c++
+		}
 	}
-
-	tl.length = l
+	tl.tags = tl.tags[:c]
+	tl.length = c
 	return tl
 }
 
@@ -74,6 +80,14 @@ func (tl *TagList) AddTag(t *Tag) error {
 
 func (tl *TagList) GetTags() []Tag {
 	return tl.tags
+}
+
+func (tl *TagList) GetTagsAsStringArr() []string {
+	arr := make([]string, len(tl.tags))
+	for i := 0; i < len(tl.tags); i++ {
+		arr[i] = tl.tags[i].String()
+	}
+	return arr
 }
 
 func (tl *TagList) Has(t string) (int, bool) {

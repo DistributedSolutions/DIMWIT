@@ -50,13 +50,13 @@ var CREATE_TABLE = []string{
 		constants.SQL_TABLE_CHANNEL_TAG__NAME + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
 
 	constants.SQL_CHANNEL_TAG_REL + "(" +
-		constants.SQL_TABLE_CHANNEL_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID + ") REFERENCES " + constants.SQL_CHANNEL +
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID + ") REFERENCES " + constants.SQL_CHANNEL_TAG +
-		"(" + constants.SQL_TABLE_CHANNEL_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+		"(" + constants.SQL_TABLE_CHANNEL_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
+		"PRIMARY KEY (" + constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID + "," + constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID + "))",
 
 	constants.SQL_CONTENT + "(" +
 		constants.SQL_TABLE_CONTENT__CONTENT_HASH + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") PRIMARY KEY, " +
@@ -68,17 +68,17 @@ var CREATE_TABLE = []string{
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
 
 	constants.SQL_CONTENT_TAG + "(" +
-		constants.SQL_TABLE_CONTENT_TAG__ID + " INTEGER PRIMARY KEY UNIQUE, " +
+		constants.SQL_TABLE_CONTENT_TAG__ID + " INTEGER PRIMARY KEY, " +
 		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
 
 	constants.SQL_CONTENT_TAG_REL + "(" +
-		constants.SQL_TABLE_CONTENT_TAG_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + ") REFERENCES " + constants.SQL_CONTENT +
 		"(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + ") REFERENCES " + constants.SQL_CONTENT_TAG +
-		"(" + constants.SQL_TABLE_CONTENT_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+		"(" + constants.SQL_TABLE_CONTENT_TAG__ID + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
+		"PRIMARY KEY (" + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + "," + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + "))",
 
 	constants.SQL_PLAYLIST + "(" +
 		constants.SQL_TABLE_PLAYLIST__ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
@@ -267,7 +267,11 @@ func AddTags(db *sql.DB) error {
 }
 
 func DeleteTags(db *sql.DB) error {
-	return DeleteTable(db, "channelTag")
+	err := DeleteTable(db, constants.SQL_CHANNEL_TAG)
+	if err != nil {
+		return nil
+	}
+	return DeleteTable(db, constants.SQL_CONTENT_TAG)
 }
 
 //NOT GOING TO CHECK IF IN DB ALREADY
@@ -365,7 +369,11 @@ func AddChannel(db *sql.DB, channel *common.Channel, height int) error {
 			}
 			_, err = InsertIntoTable(db, constants.SQL_CONTENT_TAG_REL, insertCols, insertData)
 			if err != nil {
-				return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
+				if err == sqlite3.ErrConstraintUnique {
+					fmt.Printf("WARNING attempted to insert duplicate tag for content: %s\n", err.Error())
+				} else {
+					return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
+				}
 			}
 		}
 	}
@@ -441,7 +449,8 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		fmt.Printf("TempPlaylist rows went through [%d]\n", nRows)
 	}
 	rows.Close()
-	deleteQuery := "DELETE FROM " + constants.SQL_PLAYLIST_TEMP + " WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__ID + " IN("
+	deleteQuery := "DELETE FROM " + constants.SQL_PLAYLIST_TEMP +
+		" WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__ID + " IN("
 
 	for i := 0; i < nRows; i++ {
 		//Insert into playlist table
@@ -480,7 +489,11 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 
 		deleteQuery += fmt.Sprintf("%d", id) + ","
 	}
-	deleteQuery = deleteQuery[0:(len(deleteQuery)-1)] + ")"
+	if nRows > 0 {
+		deleteQuery = deleteQuery[0:(len(deleteQuery) - 1)]
+	}
+
+	deleteQuery += ")"
 	_, err = db.Exec(deleteQuery)
 	if err != nil {
 		fmt.Printf("ERROR!! CRUCIAL problems deleting index's with query [%s]: Error [%s]\n", deleteQuery, err.Error())
@@ -525,4 +538,20 @@ func CloseDB(db *sql.DB) {
 	if db != nil {
 		db.Close()
 	}
+}
+
+func CommaDelimiterArray(arr []string, isString bool) string {
+	s := ""
+	l := len(arr)
+	for i := 0; i < l; i++ {
+		if isString {
+			s += "'" + arr[i] + "'"
+		} else {
+			s += arr[i]
+		}
+		if i < l-1 && l > 1 {
+			s += ","
+		}
+	}
+	return s
 }
