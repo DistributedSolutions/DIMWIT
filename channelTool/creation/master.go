@@ -31,6 +31,7 @@ func NewMasterChain() *MasterChain {
 	return m
 }
 
+/*
 func (m *MasterChain) upToNonce() []byte {
 	buf := new(bytes.Buffer)
 
@@ -46,3 +47,4 @@ func (m *MasterChain) upToNonce() []byte {
 func (m *MasterChain) getNonce() []byte {
 	return m.Chain.FirstEntry.ExtIDs[2]
 }
+*/
