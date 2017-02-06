@@ -89,7 +89,7 @@ func (fl *FileList) UnmarshalBinary(data []byte) error {
 func (fl *FileList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[FileName] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

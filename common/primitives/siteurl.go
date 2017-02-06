@@ -61,7 +61,7 @@ func (s *SiteURL) UnmarshalBinary(data []byte) error {
 func (s *SiteURL) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[SiteURL] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()

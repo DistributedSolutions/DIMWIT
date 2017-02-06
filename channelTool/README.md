@@ -106,7 +106,7 @@ Entry to designate a Content signing key. This can be changed by the (3) public 
 |ExtID (0)|Version {1 byte}|
 |ExtID (1)|"Content Signing Key" {19 byte}|
 |ExtID (2)|Content Signing Key {32 bytes}|
-|ExtID (3)|Timestamp {8 bytes}|
+|ExtID (3)|Timestamp {15 bytes}|
 |ExtID (4)|Signature of ExtID(0-3) {64 bytes}|
 |Content|Unsure|
 
@@ -166,7 +166,7 @@ Entries will point to individual content chains
 |ExtID (1)|Content Type {1 byte}|
 |ExtID (2)|"Content Link" {12 bytes}|
 |ExtID (3)|Channel Root ChainID {32 bytes}|
-|ExtID (4)|Timestamp {8 bytes}|
+|ExtID (4)|Timestamp {15 bytes}|
 |ExtID (5)|Content Signing Key {32 bytes}|
 |ExtID (6)|Signature of ExtID(0-4) {64 bytes}|
 |Content|Unsure|
@@ -186,12 +186,21 @@ A new chain will be made per piece of content. This allows us to add more functi
 |ExtID (3)|"Content Chain" {13 bytes}|
 |ExtID (4)|Channel Root ChainID {32 bytes}|
 |ExtID (5)|InfoHash {20 bytes}|
-|ExtID (6)|Timestamp {8 bytes}|
+|ExtID (6)|Timestamp {15 bytes}|
 |ExtID (7)|XOR Cipher Key {1 byte}|
 |ExtID (8)|Content Signing Key {32 bytes}|
 |ExtID (9)|Signature of ExtID(0-7) {64 bytes}|
 |ExtID (10)|nonce {8 bytes}|
 |Content|XOR Ciphered Content Metadata|
+
+When content goes over the 10240 bytes allowed, it uses stich entries
+
+|Stich Entries||
+|---|---|
+|ExtID (0)|Sequence {4 bytes}|
+|ExtID (1)|Sha256Hash of PreXOR {32 bytes}|
+|ExtID (2)|Content Signing Key {32 bytes}|
+|ExtID (3)|Signature of Hash {64 bytes}|
 
 This has quite a bit of data. The Channel Root ChainID is included to allow backwards traversing. So if someone links you to a video, the client can backwards traverse for the channel keys.
 
@@ -199,7 +208,7 @@ The infohash is the Torrent infohash. It will be redeclared in the body, but thi
 
 The timestamp is not to prevent replays, we don't care about chain replays. The reason why it is there, is because if someone links you to a video, they are linking straight to a chain, and instead of having to do a lookup, we can just take the timestamp from the entry. !NOTE!: If possible, do not trust the timestamp for anything regarding which content signing key is the current valid. Use the entryblock timestamp if we have it. TBH, might remove the timestamp, still thinking about how well it can be trusted...
 
-Encrypted Binary Block: **Might remove, depending on encoding** We don't want to upload plaintext data, so we encrypt the metadata with a quick encryption (have not decided which, honestly anything will work) to prevent anyone not using the system to immediately recognize the data and it's purpose. All data entered into Factom is public, and it can't hurt to obfuscate the torrent data.
+Encrypted Binary Block: **Might remove, depending on encoding** We don't want to upload plaintext data, so we encrypt the metadata with a quick XOR cipher to prevent anyone not using the system to immediately recognize the data and it's purpose. All data entered into Factom is public, and it can't hurt to obfuscate the torrent data.
 
 All torrent metadata is in the content. Have not totally decided what we need here
 

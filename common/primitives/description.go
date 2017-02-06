@@ -54,7 +54,7 @@ func (d *LongDescription) UnmarshalBinary(data []byte) error {
 func (d *LongDescription) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[LongDesc] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()
@@ -124,8 +124,15 @@ func (d *ShortDescription) UnmarshalBinary(data []byte) error {
 	return err
 }
 
-func (d *ShortDescription) UnmarshalBinaryData(data []byte) ([]byte, error) {
-	newData := data
+func (d *ShortDescription) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("[ShortDesc] A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
 	str, newData, err := UnmarshalStringFromBytesData(newData, d.MaxLength())
 	if err != nil {
 		return data, err

@@ -30,7 +30,7 @@ func RandomImage() *Image {
 }
 
 func RandomHugeImage() *Image {
-	data := random.RandByteSliceOfSize(random.RandomIntBetween(10000, 30000))
+	data := random.RandByteSliceOfSize(random.RandomIntBetween(100000, 300000))
 	i := NewImage(data, constants.IMAGE_JPEG)
 	return i
 }
@@ -77,7 +77,7 @@ func (i *Image) UnmarshalBinary(data []byte) error {
 func (i *Image) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			err = fmt.Errorf("[Image] A panic has occurred while unmarshaling: %s", r)
 			return
 		}
 	}()
