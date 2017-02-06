@@ -199,8 +199,6 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 		msg := upToNonce(entry.ExtIDs, 7)
 		sig := sigKey.Sign(msg)
 		entry.ExtIDs = append(entry.ExtIDs, sig) // 8
-		fmt.Println(ExIDLength(entry.ExtIDs))
-		fmt.Println(entry.ExtIDs)
 		entry.ChainID = manage.String()
 		entry.Content = contentData
 
