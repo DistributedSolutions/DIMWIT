@@ -1,12 +1,15 @@
 package channelTool_test
 
 import (
+	"fmt"
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/channelTool"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/FactomProject/factom"
 )
+
+var _ = fmt.Sprint("...")
 
 func TestAuthChannel(t *testing.T) {
 	for i := 0; i < 100; i++ {
@@ -36,13 +39,28 @@ func TestAuthChannel(t *testing.T) {
 }
 
 func TestCompleteAuthChannel(t *testing.T) {
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10; i++ {
 		c := common.RandomNewChannel()
 		ec := factom.NewECAddress()
-
-		_, err := NewAuthChannel(c, ec)
+		a, err := NewAuthChannel(c, ec)
 		if err != nil {
 			t.Error(err)
+		}
+
+		chs, err := a.ReturnFactomChains()
+		if err != nil {
+			t.Error(err)
+		}
+		if len(chs) != 3 {
+			t.Error("Should be 3 chains")
+		}
+
+		es, err := a.ReturnFactomEntries()
+		if err != nil {
+			t.Error(err)
+		}
+		if len(es) == 0 {
+			t.Error("Should be more than 1 entry")
 		}
 	}
 }

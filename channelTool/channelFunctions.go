@@ -9,8 +9,35 @@ import (
 )
 
 // Order:
-// 	Register channel
-//
+// 	MakeChannel
+//  MakeManagerChain
+//  MakeContentChain
+
+func (a *AuthChannel) ReturnFactomChains() ([]*factom.Chain, error) {
+	if a.RootChain == nil || a.ManageChain == nil || a.ContentChain == nil {
+		return nil, fmt.Errorf("Missing chains with true: \nRoot - %t\nManage - %t\nContent - %t\n",
+			a.RootChain == nil, a.ManageChain == nil, a.ContentChain == nil)
+	}
+
+	c := make([]*factom.Chain, 0)
+	c = append(c, a.RootChain.ReturnChains()...)
+	c = append(c, a.ManageChain.ReturnChains()...)
+	c = append(c, a.ContentChain.ReturnChains()...)
+	return c, nil
+}
+
+func (a *AuthChannel) ReturnFactomEntries() ([]*factom.Entry, error) {
+	if a.RootChain == nil || a.ManageChain == nil || a.ContentChain == nil {
+		return nil, fmt.Errorf("Missing chains with true: \nRoot - %t\nManage - %t\nContent - %t\n",
+			a.RootChain == nil, a.ManageChain == nil, a.ContentChain == nil)
+	}
+
+	c := make([]*factom.Entry, 0)
+	c = append(c, a.RootChain.ReturnEntries()...)
+	c = append(c, a.ManageChain.ReturnEntries()...)
+	c = append(c, a.ContentChain.ReturnEntries()...)
+	return c, nil
+}
 
 // Makes the root chain and registers into the master
 func (a *AuthChannel) MakeChannel() error {
@@ -36,22 +63,6 @@ func (a *AuthChannel) MakeChannel() error {
 
 	a.RootChain = rc
 	return nil
-}
-
-func (a *AuthChannel) ReturnFactomChains() []*factom.Chain {
-	c := make([]*factom.Chain, 0)
-	c = append(c, a.RootChain.ReturnChains()...)
-	c = append(c, a.ManageChain.ReturnChains()...)
-	c = append(c, a.ContentChain.ReturnChains()...)
-	return c
-}
-
-func (a *AuthChannel) ReturnFactomEntries() []*factom.Entry {
-	c := make([]*factom.Entry, 0)
-	c = append(c, a.RootChain.ReturnEntries()...)
-	c = append(c, a.ManageChain.ReturnEntries()...)
-	c = append(c, a.ContentChain.ReturnEntries()...)
-	return c
 }
 
 func (a *AuthChannel) MakeManagerChain() error {
@@ -87,7 +98,7 @@ func (a *AuthChannel) MakeManagerChain() error {
 	}
 
 	mc.RegisterChannelManagementChain(a.Channel.RootChainID, a.Channel.ManagementChainID, a.PrivateKeys[2])
-
+	a.ManageChain = mc
 	return nil
 }
 
@@ -107,6 +118,5 @@ func (a *AuthChannel) MakeContentChain() error {
 	cc.RegisterChannelContentChain(a.Channel.RootChainID, *h, a.PrivateKeys[2])
 
 	a.ContentChain = cc
-
 	return nil
 }
