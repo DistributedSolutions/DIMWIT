@@ -12,6 +12,8 @@ type DumbLite struct {
 func NewDumbLite() *DumbLite {
 	d := new(DumbLite)
 	d.FactomdLocation = "localhost:8088"
+
+	return d
 }
 
 func (d *DumbLite) SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId string, eHash string, err error) {
@@ -20,15 +22,15 @@ func (d *DumbLite) SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId strin
 		return "", "", err
 	}
 
-	ehash, err = factom.RevealEntry(e)
+	eHash, err = factom.RevealEntry(&e)
 	return
 }
 func (d *DumbLite) SubmitChain(c factom.Chain, ec factom.ECAddress) (comId string, chainID string, err error) {
-	comId, err = factom.CommitChain(c, ec)
+	comId, err = factom.CommitChain(&c, &ec)
 	if err != nil {
 		return "", "", err
 	}
 
-	chainID, err = factom.RevealChain(c)
+	chainID, err = factom.RevealChain(&c)
 	return
 }
