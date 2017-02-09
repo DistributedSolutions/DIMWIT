@@ -46,8 +46,8 @@ func (a *AuthChannel) ReturnFactomChains() []*factom.Chain {
 	return c
 }
 
-func (a *AuthChannel) ReturnFactomEntries() []*factom.Chain {
-	c := make([]*factom.Chain, 0)
+func (a *AuthChannel) ReturnFactomEntries() []*factom.Entry {
+	c := make([]*factom.Entry, 0)
 	c = append(c, a.RootChain.ReturnEntries()...)
 	c = append(c, a.ManageChain.ReturnEntries()...)
 	c = append(c, a.ContentChain.ReturnEntries()...)
