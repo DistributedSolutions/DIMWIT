@@ -13,6 +13,20 @@ type RootChain struct {
 	Create   CreateStruct
 }
 
+func (r *RootChain) ReturnChains() []*factom.Chain {
+	c := make([]*factom.Chain, 0)
+	c = append(c, r.Create.Chain)
+
+	return c
+}
+
+func (r *RootChain) ReturnEntries() []*factom.Entry {
+	c := make([]*factom.Entry, 0)
+	c = append(c, r.Register.Entry)
+
+	return c
+}
+
 // Factom Chain
 //		byte		Version
 //		[18]byte	"Channel Root Chain"

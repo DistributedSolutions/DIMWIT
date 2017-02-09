@@ -11,6 +11,20 @@ type ChanContentChain struct {
 	Create   CreateStruct
 }
 
+func (r *ChanContentChain) ReturnChains() []*factom.Chain {
+	c := make([]*factom.Chain, 0)
+	c = append(c, r.Create.Chain)
+
+	return c
+}
+
+func (r *ChanContentChain) ReturnEntries() []*factom.Entry {
+	c := make([]*factom.Entry, 0)
+	c = append(c, r.Register.Entry)
+
+	return c
+}
+
 // Factom Chain
 //		byte		Version
 //		[24]byte	"Channel Content Chain"

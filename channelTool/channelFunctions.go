@@ -32,13 +32,26 @@ func (a *AuthChannel) MakeChannel() error {
 	}
 	a.Channel.RootChainID = *h
 
-	err = rc.RegisterRootEntry(a.Channel.RootChainID, a.PrivateKeys[2])
-	if err != nil {
-		return err
-	}
+	rc.RegisterRootEntry(a.Channel.RootChainID, a.PrivateKeys[2])
 
 	a.RootChain = rc
 	return nil
+}
+
+func (a *AuthChannel) ReturnFactomChains() []*factom.Chain {
+	c := make([]*factom.Chain, 0)
+	c = append(c, a.RootChain.ReturnChains()...)
+	c = append(c, a.ManageChain.ReturnChains()...)
+	c = append(c, a.ContentChain.ReturnChains()...)
+	return c
+}
+
+func (a *AuthChannel) ReturnFactomEntries() []*factom.Chain {
+	c := make([]*factom.Chain, 0)
+	c = append(c, a.RootChain.ReturnEntries()...)
+	c = append(c, a.ManageChain.ReturnEntries()...)
+	c = append(c, a.ContentChain.ReturnEntries()...)
+	return c
 }
 
 func (a *AuthChannel) MakeManagerChain() error {
@@ -56,29 +69,26 @@ func (a *AuthChannel) MakeManagerChain() error {
 	if err != nil {
 		return err
 	}
-	a.Channel.ManagementChainID = h
+	a.Channel.ManagementChainID = *h
 
 	meta := creation.NewManageChainMetaData()
-	meta.Website = a.Channel.Website
-	meta.LongDescription = a.Channel.LongDescription
-	meta.ShortDescription = a.Channel.ShortDescription
-	meta.Playlist = a.Channel.Playlist
-	meta.Thumbnail = a.Channel.Thumbnail
-	meta.Banner = a.Channel.Banner
-	meta.ChannelTags = a.Channel.Tags
-	meta.SuggestedChannels = a.Channel.SuggestedChannel
+	meta.Website = &a.Channel.Website
+	meta.LongDescription = &a.Channel.LongDescription
+	meta.ShortDescription = &a.Channel.ShortDescription
+	meta.Playlist = &a.Channel.Playlist
+	meta.Thumbnail = &a.Channel.Thumbnail
+	meta.Banner = &a.Channel.Banner
+	meta.ChannelTags = &a.Channel.Tags
+	meta.SuggestedChannels = &a.Channel.SuggestedChannel
 
-	err = mc.CreateMetadata(meta, Channel.RootChainID, a.Channel.ManagementChainID, a.PrivateKeys[2])
+	err = mc.CreateMetadata(meta, a.Channel.RootChainID, a.Channel.ManagementChainID, a.PrivateKeys[2])
 	if err != nil {
 		return err
 	}
 
-	err = mc.RegisterChannelManagementChain(a.Channel.RootChainID, a.Channel.ManagementChainID, a.PrivateKeys[2])
-	if err != nil {
-		return err
-	}
+	mc.RegisterChannelManagementChain(a.Channel.RootChainID, a.Channel.ManagementChainID, a.PrivateKeys[2])
 
-	return nl
+	return nil
 }
 
 func (a *AuthChannel) MakeContentChain() error {
@@ -92,12 +102,9 @@ func (a *AuthChannel) MakeContentChain() error {
 	if err != nil {
 		return err
 	}
-	a.Channel.ContentChainID = h
+	a.Channel.ContentChainID = *h
 
-	err = cc.RegisterChannelContentChain(a.Channel.RootChainID, h, a.PrivateKeys[2])
-	if err != nil {
-		return err
-	}
+	cc.RegisterChannelContentChain(a.Channel.RootChainID, *h, a.PrivateKeys[2])
 
 	a.ContentChain = cc
 

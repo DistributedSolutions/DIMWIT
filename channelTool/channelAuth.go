@@ -6,6 +6,7 @@ import (
 
 	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/FactomProject/factom"
 )
@@ -40,7 +41,6 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 	a := new(AuthChannel)
 	a.Channel = *ch
 
-	a.PrivateKeys = make([]primitives.PrivateKey, PRIV_KEY_AMT)
 	for i := 0; i < PRIV_KEY_AMT; i++ {
 		pk, err := primitives.GeneratePrivateKey()
 		if err != nil {

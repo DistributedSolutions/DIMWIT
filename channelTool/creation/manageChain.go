@@ -24,6 +24,22 @@ type ManageChain struct {
 	MetaData *ChanMetaDataEntries
 }
 
+func (r *ManageChain) ReturnChains() []*factom.Chain {
+	c := make([]*factom.Chain, 0)
+	c = append(c, r.Create.Chain)
+
+	return c
+}
+
+func (r *ManageChain) ReturnEntries() []*factom.Entry {
+	c := make([]*factom.Entry, 0)
+	c = append(c, r.Register.Entry)
+	c = append(c, r.MetaData.MainEntry)
+	c = append(c, r.MetaData.Entries...)
+
+	return c
+}
+
 // Factom Chain
 //		byte		Version
 //		[24]byte	"Channel Management Chain"
@@ -219,7 +235,7 @@ type ManageChainMetaData struct {
 	Website           *primitives.SiteURL
 	LongDescription   *primitives.LongDescription
 	ShortDescription  *primitives.ShortDescription
-	Playlist          *common.SinglePlayList
+	Playlist          *common.ManyPlayList
 	Thumbnail         *primitives.Image
 	Banner            *primitives.Image
 	ChannelTags       *primitives.TagList
@@ -231,7 +247,7 @@ func NewManageChainMetaData() *ManageChainMetaData {
 	m.Website = new(primitives.SiteURL)
 	m.LongDescription = new(primitives.LongDescription)
 	m.ShortDescription = new(primitives.ShortDescription)
-	m.Playlist = new(common.SinglePlayList)
+	m.Playlist = new(common.ManyPlayList)
 	m.Thumbnail = new(primitives.Image)
 	m.Banner = new(primitives.Image)
 	m.ChannelTags = new(primitives.TagList)
@@ -246,7 +262,7 @@ func RandomManageChainMetaData() *ManageChainMetaData {
 	m.Website = primitives.RandomSiteURL()
 	m.LongDescription = primitives.RandomLongDescription()
 	m.ShortDescription = primitives.RandomShortDescription()
-	m.Playlist = common.RandomSinglePlayList(10)
+	m.Playlist = common.RandomManyPlayList(10)
 	m.Thumbnail = primitives.RandomImage()
 	m.Banner = primitives.RandomImage()
 	m.ChannelTags = primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
@@ -260,7 +276,7 @@ func RandomHugeManageChainMetaData() *ManageChainMetaData {
 	m.Website = primitives.RandomSiteURL()
 	m.LongDescription = primitives.RandomLongDescription()
 	m.ShortDescription = primitives.RandomShortDescription()
-	m.Playlist = common.RandomSinglePlayList(10)
+	m.Playlist = common.RandomManyPlayList(10)
 	m.Thumbnail = primitives.RandomHugeImage()
 	m.Banner = primitives.RandomHugeImage()
 	m.ChannelTags = primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
