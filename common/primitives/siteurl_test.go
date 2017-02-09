@@ -46,6 +46,13 @@ func TestPSiteURLDiff(t *testing.T) {
 	}
 }
 
+func TestEmptySiteURL(t *testing.T) {
+	s := new(SiteURL)
+	if !s.Empty() {
+		t.Error("Should be empty")
+	}
+}
+
 func TestBadUnmarshalSURL(t *testing.T) {
 	badData := []byte{}
 

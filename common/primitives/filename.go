@@ -35,6 +35,14 @@ func RandomFileList(max uint32) *FileList {
 	return fl
 }
 
+func (af *FileList) Empty() bool {
+	if af.length == 0 {
+		return true
+	}
+
+	return false
+}
+
 func (af *FileList) AddFile(filename string, size int64) error {
 	f, err := NewFile(filename, size)
 	if err != nil {
@@ -144,6 +152,14 @@ func RandomFile() *File {
 	f.SetSize(s)
 	return f
 
+}
+
+func (af *File) Empty() bool {
+	if af.fileName == "" || af.checksum.Empty() {
+		return true
+	}
+
+	return false
 }
 
 /*func (f *File) GetFileName() string {

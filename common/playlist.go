@@ -9,7 +9,6 @@ import (
 )
 
 type ManyPlayList struct {
-	length    uint32
 	playlists []SinglePlayList
 }
 
@@ -17,11 +16,14 @@ func (pl *ManyPlayList) GetPlaylists() []SinglePlayList {
 	return pl.playlists
 }
 
+func (pl *ManyPlayList) Empty() bool {
+	return len(pl.playlists) == 0
+}
+
 func RandomManyPlayList(max uint32) *ManyPlayList {
 	p := new(ManyPlayList)
 	u := random.RandomUInt32Between(0, max)
 
-	p.length = u
 	p.playlists = make([]SinglePlayList, u)
 
 	for i := range p.playlists {
@@ -35,7 +37,6 @@ func SmartRandomManyPlayList(max uint32, conts ContentList) *ManyPlayList {
 	p := new(ManyPlayList)
 	u := random.RandomUInt32Between(0, max)
 
-	p.length = u
 	p.playlists = make([]SinglePlayList, u)
 
 	for i := range p.playlists {
@@ -46,7 +47,7 @@ func SmartRandomManyPlayList(max uint32, conts ContentList) *ManyPlayList {
 }
 
 func (a *ManyPlayList) IsSameAs(b *ManyPlayList) bool {
-	if a.length != b.length {
+	if len(a.playlists) != len(b.playlists) {
 		return false
 	}
 
@@ -62,7 +63,7 @@ func (a *ManyPlayList) IsSameAs(b *ManyPlayList) bool {
 func (p *ManyPlayList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data := primitives.Uint32ToBytes(p.length)
+	data := primitives.Uint32ToBytes(uint32(len(p.playlists)))
 	buf.Write(data)
 
 	for i := range p.playlists {
@@ -95,7 +96,6 @@ func (p *ManyPlayList) UnmarshalBinaryData(data []byte) (newData []byte, err err
 	if err != nil {
 		return data, err
 	}
-	p.length = u
 	newData = newData[4:]
 
 	p.playlists = make([]SinglePlayList, u)

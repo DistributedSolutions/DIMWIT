@@ -20,6 +20,13 @@ func NewLongDescription(description string) (*LongDescription, error) {
 	return d, nil
 }
 
+func (d *LongDescription) Empty() bool {
+	if d.String() == "" {
+		return true
+	}
+	return false
+}
+
 func (d *LongDescription) SetString(description string) error {
 	if len(description) > d.MaxLength() {
 		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",
@@ -91,6 +98,13 @@ func NewShortDescription(description string) (*ShortDescription, error) {
 	}
 
 	return s, nil
+}
+
+func (d *ShortDescription) Empty() bool {
+	if d.String() == "" {
+		return true
+	}
+	return false
 }
 
 func (d *ShortDescription) SetString(description string) error {

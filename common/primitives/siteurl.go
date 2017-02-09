@@ -27,6 +27,13 @@ func RandomSiteURL() *SiteURL {
 	return l
 }
 
+func (d *SiteURL) Empty() bool {
+	if d.String() == "" {
+		return true
+	}
+	return false
+}
+
 func (d *SiteURL) SetString(url string) error {
 	if len(url) > d.MaxLength() {
 		return fmt.Errorf("Description given is too long, length must be under %d, given length is %d",

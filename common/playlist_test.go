@@ -31,6 +31,10 @@ func TestManyPlayList(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if l.Empty() && len(l.GetPlaylists()) != 0 {
+			t.Error("Should not be empty")
+		}
 	}
 }
 

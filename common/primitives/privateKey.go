@@ -43,6 +43,15 @@ func GeneratePrivateKeyFromBytes(data []byte) (*PrivateKey, error) {
 	return pk, err
 }
 
+func (pk *PrivateKey) Empty() bool {
+	for _, b := range pk.Secret[:] {
+		if b != 0x00 {
+			return false
+		}
+	}
+	return true
+}
+
 func (pk *PrivateKey) generatePrivateKey(r io.Reader) error {
 	pub, priv, err := ed.GenerateKey(r)
 	if err != nil {

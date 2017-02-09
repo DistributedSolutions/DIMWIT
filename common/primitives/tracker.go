@@ -33,6 +33,13 @@ func RandomTrackerList(max uint32) *TrackerList {
 	return tl
 }
 
+func (d *TrackerList) Empty() bool {
+	if d.length == 0 {
+		return true
+	}
+	return false
+}
+
 func (tl *TrackerList) AddNewTracker(tracker *Tracker) error {
 	tl.length++
 	tl.trackers = append(tl.trackers, *tracker)
@@ -128,6 +135,13 @@ func NewTracker(url string) (*Tracker, error) {
 	}
 
 	return d, nil
+}
+
+func (d *Tracker) Empty() bool {
+	if d.String() == "" {
+		return true
+	}
+	return false
 }
 
 func (t *Tracker) SetString(url string) error {

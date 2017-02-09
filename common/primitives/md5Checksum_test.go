@@ -28,6 +28,10 @@ func TestMd5(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if h.Empty() {
+			t.Error("Should not be empty")
+		}
 	}
 
 	m := new(MD5Checksum)
@@ -59,6 +63,13 @@ func TestMd5Diff(t *testing.T) {
 	}
 	if same > 15 {
 		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
+	}
+}
+
+func TestEmptyMD(t *testing.T) {
+	ih := new(MD5Checksum)
+	if !ih.Empty() {
+		t.Error("Should be empty")
 	}
 }
 

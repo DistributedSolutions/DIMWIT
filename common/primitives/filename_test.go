@@ -30,6 +30,7 @@ func TestSingleFile(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
 	}
 }
 
@@ -53,6 +54,10 @@ func TestFileList(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if l.Empty() && len(l.GetFiles()) != 0 {
+			t.Error("Should not be empty")
+		}
 	}
 }
 
@@ -67,6 +72,19 @@ func TestDiffFileList(t *testing.T) {
 	}
 	if same > 15 {
 		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
+	}
+
+}
+
+func TestEmptyFiles(t *testing.T) {
+	af := new(FileList)
+	if !af.Empty() {
+		t.Error("Should be empty")
+	}
+
+	f := new(File)
+	if !f.Empty() {
+		t.Error("Should be empty")
 	}
 
 }

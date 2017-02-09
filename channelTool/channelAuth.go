@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/FactomProject/factom"
@@ -18,6 +19,60 @@ type AuthChannel struct {
 	ContentSigning primitives.PrivateKey
 
 	EntryCreditKey *factom.ECAddress
+
+	// Not marshaled, timestamps in these.
+	// Have all factom entries
+	RootChain    *creation.RootChain
+	ManageChain  *creation.ManageChain
+	ContentChain *creation.ChanContentChain
+}
+
+// Makes the authority channel and builds all factom components
+func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, error) {
+	if ch.Status() < constants.CHANNEL_READY {
+		return nil, fmt.Errorf("Channel given is not ready, it is missing elements")
+	}
+
+	if !factom.IsValidAddress(ec.String()) {
+		return nil, fmt.Errorf("Entry credit address is invalid")
+	}
+
+	a := new(AuthChannel)
+	a.Channel = *ch
+
+	a.PrivateKeys = make([]primitives.PrivateKey, PRIV_KEY_AMT)
+	for i := 0; i < PRIV_KEY_AMT; i++ {
+		pk, err := primitives.GeneratePrivateKey()
+		if err != nil {
+			return nil, err
+		}
+		a.PrivateKeys[i] = *pk
+	}
+
+	pk, err := primitives.GeneratePrivateKey()
+	if err != nil {
+		return nil, err
+	}
+
+	a.ContentSigning = *pk
+	a.EntryCreditKey = ec
+
+	err = a.MakeChannel()
+	if err != nil {
+		return nil, err
+	}
+
+	err = a.MakeManagerChain()
+	if err != nil {
+		return nil, err
+	}
+
+	err = a.MakeContentChain()
+	if err != nil {
+		return nil, err
+	}
+
+	return a, nil
 }
 
 func RandomAuthChannel() (*AuthChannel, error) {

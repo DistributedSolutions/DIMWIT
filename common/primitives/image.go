@@ -35,6 +35,13 @@ func RandomHugeImage() *Image {
 	return i
 }
 
+func (i *Image) Empty() bool {
+	if len(i.image) == 0 {
+		return true
+	}
+	return false
+}
+
 func (i *Image) SetImage(data []byte) {
 	i.image = data
 	i.length = uint32(len(i.image))

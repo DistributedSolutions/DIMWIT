@@ -29,6 +29,7 @@ func TestDescriptions(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
 	}
 
 	for i := 0; i < 1000; i++ {
@@ -46,6 +47,7 @@ func TestDescriptions(t *testing.T) {
 		if !n.IsSameAs(s) {
 			t.Error("Should match.")
 		}
+
 	}
 }
 
@@ -67,6 +69,18 @@ func TestDiffDescription(t *testing.T) {
 
 	if a.IsSameAs(b) {
 		t.Error("Should be different")
+	}
+}
+
+func TestEmptyDescs(t *testing.T) {
+	d := new(LongDescription)
+	if !d.Empty() {
+		t.Error("Should be empty")
+	}
+
+	s := new(ShortDescription)
+	if !s.Empty() {
+		t.Error("Should be empty")
 	}
 }
 

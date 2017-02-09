@@ -44,6 +44,10 @@ func TestPrivateKeyMarshal(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if h.Empty() {
+			t.Error("Should not be empty")
+		}
 	}
 }
 
@@ -58,6 +62,13 @@ func TestPrivateKeyDiff(t *testing.T) {
 	}
 	if same > 15 {
 		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
+	}
+}
+
+func TestEmptyPK(t *testing.T) {
+	pk := new(PrivateKey)
+	if !pk.Empty() {
+		t.Error("Should be empty")
 	}
 }
 

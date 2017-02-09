@@ -4,8 +4,8 @@ package creation
 // Also a nice blank reference
 
 import (
-	"bytes"
-	"crypto/sha256"
+	//"bytes"
+	//"crypto/sha256"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/FactomProject/factom"

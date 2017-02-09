@@ -180,6 +180,18 @@ func TestTagListDiff(t *testing.T) {
 
 }
 
+func TestEmptyTag(t *testing.T) {
+	s := new(Tag)
+	if !s.Empty() {
+		t.Error("Should be empty")
+	}
+
+	tl := new(TagList)
+	if !tl.Empty() {
+		t.Error("Should be empty")
+	}
+}
+
 func TestBadUnmarshalTag(t *testing.T) {
 	badData := []byte{}
 

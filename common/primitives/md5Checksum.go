@@ -35,6 +35,15 @@ func HexToMD5Checksum(he string) (*MD5Checksum, error) {
 	return m, nil
 }
 
+func (m *MD5Checksum) Empty() bool {
+	for _, b := range m.Bytes() {
+		if b != 0x00 {
+			return false
+		}
+	}
+	return true
+}
+
 func (m *MD5Checksum) Bytes() []byte {
 	ni := make([]byte, m.Length())
 	copy(ni, m[:])

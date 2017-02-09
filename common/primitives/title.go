@@ -37,6 +37,13 @@ func (d *Title) SetString(title string) error {
 	return nil
 }
 
+func (d *Title) Empty() bool {
+	if d.String() == "" {
+		return true
+	}
+	return false
+}
+
 func (d *Title) String() string {
 	return string(*d)
 }

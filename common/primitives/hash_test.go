@@ -28,6 +28,10 @@ func TestHash(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if h.Empty() {
+			t.Error("Should not be empty")
+		}
 	}
 
 	m := new(Hash)
@@ -71,6 +75,10 @@ func TestHashList(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if l.Empty() && len(l.GetHashes()) != 0 {
+			t.Error("Should not be empty")
+		}
 	}
 }
 
@@ -85,6 +93,18 @@ func TestDiffHashList(t *testing.T) {
 	}
 	if same > 15 {
 		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
+	}
+}
+
+func TestEmptyHash(t *testing.T) {
+	hl := new(HashList)
+	if !hl.Empty() {
+		t.Error("Hashlist Should be empty")
+	}
+
+	h := new(Hash)
+	if !h.Empty() {
+		t.Error("Hash Should be empty")
 	}
 }
 

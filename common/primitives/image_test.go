@@ -31,6 +31,10 @@ func TestImage(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if h.Empty() && h.GetImageSize() != 0 {
+			t.Error("Should not be empty")
+		}
 	}
 }
 
@@ -72,6 +76,13 @@ func TestDiffImage(t *testing.T) {
 		t.Error("Not same")
 	}
 
+}
+
+func TestEmptyImage(t *testing.T) {
+	i := new(Image)
+	if !i.Empty() {
+		t.Error("Should be empty")
+	}
 }
 
 func TestBadUnmarshalImage(t *testing.T) {

@@ -32,6 +32,14 @@ func TestTitle(t *testing.T) {
 	}
 }
 
+func TestEmptyTitle(t *testing.T) {
+	s := new(Title)
+	if !s.Empty() {
+		t.Error("Should be empty")
+	}
+
+}
+
 func TestBadUnmarshalTitle(t *testing.T) {
 	badData := []byte{}
 

@@ -35,6 +35,15 @@ func HexToInfoHash(h string) (*InfoHash, error) {
 	return i, nil
 }
 
+func (i *InfoHash) Empty() bool {
+	for _, b := range i.Bytes() {
+		if b != 0x00 {
+			return false
+		}
+	}
+	return true
+}
+
 func (i *InfoHash) Bytes() []byte {
 	ni := make([]byte, i.Length())
 	copy(ni, i[:])

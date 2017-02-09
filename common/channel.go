@@ -14,21 +14,21 @@ type Channel struct {
 	ManagementChainID primitives.Hash
 	ContentChainID    primitives.Hash
 	// They are not an array, because they are never referenced as an array
-	LV1PublicKey      primitives.PublicKey
-	LV2PublicKey      primitives.PublicKey
-	LV3PublicKey      primitives.PublicKey
-	ContentSingingKey primitives.PublicKey
+	LV1PublicKey      primitives.PublicKey // Critical
+	LV2PublicKey      primitives.PublicKey // Critical
+	LV3PublicKey      primitives.PublicKey // Critical
+	ContentSingingKey primitives.PublicKey // Critical
+	ChannelTitle      primitives.Title     // Critical
 
-	ChannelTitle     primitives.Title
-	Website          primitives.SiteURL
-	LongDescription  primitives.LongDescription
-	ShortDescription primitives.ShortDescription
-	Playlist         ManyPlayList
-	Thumbnail        primitives.Image
-	Banner           primitives.Image
-	Tags             primitives.TagList
-	SuggestedChannel primitives.HashList
-	Content          ContentList
+	Website          primitives.SiteURL          // Not-Critical
+	LongDescription  primitives.LongDescription  // Not-Critical
+	ShortDescription primitives.ShortDescription // Not-Critical
+	Playlist         ManyPlayList                // Not-Critical
+	Thumbnail        primitives.Image            // Not-Critical
+	Banner           primitives.Image            // Not-Critical
+	Tags             primitives.TagList          // Not-Critical
+	SuggestedChannel primitives.HashList         // Not-Critical
+	Content          ContentList                 // Not-Critical
 }
 
 func RandomNewChannel() *Channel {
@@ -55,6 +55,78 @@ func RandomNewChannel() *Channel {
 	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))
 
 	return c
+}
+
+func (a *Channel) Status() int {
+	if a.full() {
+		return constants.CHANNEL_FULL
+	}
+
+	if a.ready() {
+		return constants.CHANNEL_READY
+	}
+
+	return constants.CHANNEL_NOT_READY
+}
+
+func (a *Channel) full() bool {
+	if !a.ready() {
+		return false
+	}
+
+	if a.Website.Empty() {
+		return false
+	}
+
+	if a.LongDescription.Empty() {
+		return false
+	}
+
+	if a.ShortDescription.Empty() {
+		return false
+	}
+
+	if a.Thumbnail.Empty() {
+		return false
+	}
+
+	if a.Banner.Empty() {
+		return false
+	}
+
+	if a.Tags.Empty() {
+		return false
+	}
+
+	return true
+}
+
+func (a *Channel) ready() bool {
+	if a.LV1PublicKey.Empty() {
+		return false
+	}
+
+	if a.LV1PublicKey.Empty() {
+		return false
+	}
+
+	if a.LV2PublicKey.Empty() {
+		return false
+	}
+
+	if a.LV3PublicKey.Empty() {
+		return false
+	}
+
+	if a.ContentSingingKey.Empty() {
+		return false
+	}
+
+	if a.ChannelTitle.Empty() {
+		return false
+	}
+
+	return true
 }
 
 func (a *Channel) IsSameAs(b *Channel) bool {

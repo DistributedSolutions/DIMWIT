@@ -27,6 +27,10 @@ func TestInfoHash(t *testing.T) {
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
 		}
+
+		if h.Empty() {
+			t.Error("Should not be empty")
+		}
 	}
 
 	i, err := HexToInfoHash("")
@@ -57,6 +61,13 @@ func TestInfoHashDiff(t *testing.T) {
 		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
 	}
 
+}
+
+func TestEmptyIH(t *testing.T) {
+	ih := new(InfoHash)
+	if !ih.Empty() {
+		t.Error("Should be empty")
+	}
 }
 
 func TestBadUnmarshalInfoHash(t *testing.T) {

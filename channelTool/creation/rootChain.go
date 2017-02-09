@@ -69,6 +69,7 @@ func (r *RootChain) RegisterRootEntry(rootChain primitives.Hash, sigKey primitiv
 	msg := upToNonce(e.ExtIDs, 4)
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig)
+	e.ChainID = constants.MASTER_CHAIN_STRING
 
 	r.Register.Entry = e
 }

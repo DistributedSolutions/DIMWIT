@@ -35,6 +35,15 @@ func PublicKeyFromHex(he string) (*PublicKey, error) {
 	return p, nil
 }
 
+func (p *PublicKey) Empty() bool {
+	for _, b := range p.Bytes() {
+		if b != 0x00 {
+			return false
+		}
+	}
+	return true
+}
+
 func (p *PublicKey) Bytes() []byte {
 	b := make([]byte, p.Length())
 	copy(b, p[:])

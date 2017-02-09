@@ -41,6 +41,13 @@ func RandomTagList(max uint32) *TagList {
 	return tl
 }
 
+func (d *TagList) Empty() bool {
+	if d.length == 0 {
+		return true
+	}
+	return false
+}
+
 func (a *TagList) IsSameAs(b *TagList) bool {
 	if a.max != b.max {
 		return false
@@ -215,6 +222,13 @@ func NewTag(tag string) (*Tag, error) {
 	}
 
 	return d, nil
+}
+
+func (d *Tag) Empty() bool {
+	if d.String() == "" {
+		return true
+	}
+	return false
 }
 
 func (d *Tag) SetString(tag string) error {

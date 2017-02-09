@@ -70,6 +70,18 @@ func TestDiffTrackerList(t *testing.T) {
 	}
 }
 
+func TestEmptyTracker(t *testing.T) {
+	s := new(TrackerList)
+	if !s.Empty() {
+		t.Error("Should be empty")
+	}
+
+	tl := new(Tracker)
+	if !tl.Empty() {
+		t.Error("Should be empty")
+	}
+}
+
 func TestBadUnmarshalTracker(t *testing.T) {
 	badData := []byte{}
 

@@ -44,6 +44,13 @@ const (
 	MAX_CHANNEL_TAGS int = 4
 )
 
+// Channel Status Values
+const (
+	CHANNEL_NOT_READY int = iota // Missing critcal items to be in blockchain
+	CHANNEL_READY                // Can be put in blockchain
+	CHANNEL_FULL                 // Has all elements
+)
+
 // Content Types
 const (
 	CONTENT_TYPE_VIDEO byte = iota

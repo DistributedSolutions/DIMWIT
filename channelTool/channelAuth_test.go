@@ -4,10 +4,12 @@ import (
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/channelTool"
+	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/FactomProject/factom"
 )
 
 func TestAuthChannel(t *testing.T) {
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 100; i++ {
 		a, err := RandomAuthChannel()
 		if err != nil {
 			t.Error(err)
@@ -29,6 +31,18 @@ func TestAuthChannel(t *testing.T) {
 
 		if !b.IsSameAs(a) {
 			t.Error("Should be same")
+		}
+	}
+}
+
+func TestCompleteAuthChannel(t *testing.T) {
+	for i := 0; i < 1000; i++ {
+		c := common.RandomNewChannel()
+		ec := factom.NewECAddress()
+
+		_, err := NewAuthChannel(c, ec)
+		if err != nil {
+			t.Error(err)
 		}
 	}
 }

@@ -29,12 +29,24 @@ func RandomHashList(max uint32) *HashList {
 	return h
 }
 
+func NewZeroHash() *Hash {
+	h, _ := HexToHash("0000000000000000000000000000000000000000000000000000000000000000")
+	return h
+}
+
 func NewHashList() *HashList {
 	h := new(HashList)
 	h.length = 0
 	h.list = make([]Hash, 0)
 
 	return h
+}
+
+func (a *HashList) Empty() bool {
+	if a.length == 0 {
+		return true
+	}
+	return false
 }
 
 func (a *HashList) IsSameAs(b *HashList) bool {
@@ -136,6 +148,13 @@ func HexToHash(he string) (*Hash, error) {
 	}
 
 	return h, nil
+}
+
+func (a *Hash) Empty() bool {
+	if NewZeroHash().IsSameAs(a) {
+		return true
+	}
+	return false
 }
 
 func (h *Hash) Bytes() []byte {
