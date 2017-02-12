@@ -155,12 +155,12 @@ func TestAddChannel(t *testing.T) {
 		var count int
 		//check if content was added
 		q = "SELECT COUNT(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") FROM " + constants.SQL_CONTENT +
-			" WHERE " + constants.SQL_TABLE_CONTENT__CONTENT_HASH + " = " + content.ContentID.String()
+			" WHERE " + constants.SQL_TABLE_CONTENT__CONTENT_HASH + " = '" + content.ContentID.String() + "'"
 		err := testDB.DB.QueryRow(q).Scan(&count)
 		if err != nil {
 			t.Error(fmt.Errorf("Error retrieving tables with query[%s]: [%s]\n", q, err))
 		}
-		if count != 0 {
+		if count != 1 {
 			t.Error(fmt.Errorf("Error content not found with query [%s] and count [%d]\n", q, count))
 		}
 
