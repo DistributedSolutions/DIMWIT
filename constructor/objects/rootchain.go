@@ -77,9 +77,13 @@ func (r *RootChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		return nil, false
 	}
 
+	// Instantiate Channel
 	cw.Channel.RootChainID = *chainID
 	cw.RMadeHeight = r.Entry.Height
-	// TODO: FINISH
+	cw.Channel.ChannelTitle = r.Title
+	cw.Channel.LV1PublicKey = r.PubKeys[0]
+	cw.Channel.LV2PublicKey = r.PubKeys[1]
+	cw.Channel.LV3PublicKey = r.PubKeys[2]
 
 	return cw, false
 }

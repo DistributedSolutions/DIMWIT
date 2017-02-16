@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/DistributedSolutions/DIMWIT/common"
+	//"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
@@ -18,8 +18,9 @@ var (
 
 // Constructor builds the level 2 cache using factom-lite
 type Constructor struct {
-	Level2Cache  database.IDatabase
-	ChannelCache map[string]common.Channel
+	Level2Cache database.IDatabase
+	// Used per block
+	ChannelCache map[string]objects.ChannelWrapper
 
 	// State
 	CompletedHeight uint32 // Height channels/content is updated to
@@ -73,7 +74,13 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	ents = fixOrder(ents)
 
-	// Make a map
+	// Fresh map per block. This is not very efficient, but
+	// optimization can come later
+	c.ChannelCache = make(map[string]objects.ChannelWrapper)
+	// Make a channel map, and get a batch apply map
+	for _, e := range ents {
+		c.ApplyEntryToCache(e)
+	}
 
 	var _ = ents
 	return nil
@@ -81,9 +88,44 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 // ApplyEntryToCache will take an entry, and apply it to the channels we have in our cache. If
 // true is returned, this signals to the caller, we should also save the channel to the database.
-func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) bool {
+func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
+	iae, err := objects.ParseFactomEntry(e)
+	if err != nil {
+		return false, err
+	}
 
-	return false
+	// Almost all will request.
+	chain, req := iae.RequestChannel()
+	if req {
+		cw, err := c.retrieveChannel(chain)
+		if err != nil {
+			return false, err
+		}
+		iae.AnswerChannelRequest(cw)
+	}
+
+	hash, err := primitives.HexToHash(chain)
+	if err != nil {
+		return false, err
+	}
+
+	f := iae.NeedIsFirstEntry()
+	if f {
+		ent, err := c.Reader.GetFirstEntry(*hash)
+		if err != nil {
+			return false, err
+		}
+
+		same := lite.AreEntriesSame(ent, e.Entry)
+		iae.AnswerFirstEntry(same)
+	}
+
+	cw, wr := iae.ApplyEntry()
+	if wr {
+		c.ChannelCache[cw.Channel.RootChainID.String()] = *cw
+	}
+
+	return wr, nil
 }
 
 // fixOrder puts channel instantiation before anything else
@@ -116,6 +158,17 @@ func (c *Constructor) saveChannel(ch objects.ChannelWrapper) error {
 		return err
 	}
 	return nil
+}
+
+func (c *Constructor) retrieveChannel(chainID string) (*objects.ChannelWrapper, error) {
+	if cw, ok := c.ChannelCache[chainID]; ok {
+		return &cw, nil
+	}
+	cid, err := primitives.HexToHash(chainID)
+	if err != nil {
+		return nil, err
+	}
+	return c.RetrieveChannel(*cid)
 }
 
 func (c *Constructor) RetrieveChannel(chainID primitives.Hash) (*objects.ChannelWrapper, error) {
