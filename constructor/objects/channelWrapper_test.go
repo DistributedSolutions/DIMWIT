@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	//"github.com/DistributedSolutions/DIMWIT/common"
-	. "github.com/DistributedSolutions/DIMWIT/constructor"
+	. "github.com/DistributedSolutions/DIMWIT/constructor/objects"
 )
 
 func TestChannelWrapper(t *testing.T) {
