@@ -19,5 +19,5 @@ type IApplyEntry interface {
 
 	// ApplyEntry returns the channel and a bool to indicate wether or not
 	// it made changes
-	ApplyEntry() (*ChannelWrapper, bool) error
+	ApplyEntry() (*ChannelWrapper, bool)
 }
