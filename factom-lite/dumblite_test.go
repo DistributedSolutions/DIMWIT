@@ -2,8 +2,7 @@ package lite_test
 
 import (
 	"testing"
-
-	. "github.com/DistributedSolutions/DIMWIT/factom-lite"
+	//. "github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
 
 func TestGetByHeight(t *testing.T) {
