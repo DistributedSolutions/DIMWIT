@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/FactomProject/factom"
 	//"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -101,10 +102,13 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		iae.AnswerChannelRequest(cw)
+		err = iae.AnswerChannelRequest(cw)
+		if err != nil {
+			return false, err
+		}
 	}
 
-	hash, err := primitives.HexToHash(chain)
+	hash, err := primitives.HexToHash(e.Entry.ChainID)
 	if err != nil {
 		return false, err
 	}
@@ -117,7 +121,19 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 		}
 
 		same := lite.AreEntriesSame(ent, e.Entry)
-		iae.AnswerFirstEntry(same)
+		if !same {
+			return false, fmt.Errorf("Entry needs to be the first entry, but it is not")
+		}
+	}
+
+	ae := iae.NeedChainEntries()
+	if ae {
+		entries, err := c.Reader.GetAllChainEntries(*hash)
+		if err != nil {
+			return false, err
+		}
+
+		iae.AnswerChainEntries(converFactomEntriesToHolder(entries))
 	}
 
 	cw, wr := iae.ApplyEntry()
@@ -128,21 +144,38 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 	return wr, nil
 }
 
+func converFactomEntriesToHolder(fents []*factom.Entry) []*lite.EntryHolder {
+	holder := make([]*lite.EntryHolder, 0)
+	for _, e := range fents {
+		h := new(lite.EntryHolder)
+		h.Entry = e
+		h.Timestamp = 0
+		h.Height = 0
+		holder = append(holder, h)
+	}
+	return holder
+}
+
 // fixOrder puts channel instantiation before anything else
 func fixOrder(ents []*lite.EntryHolder) []*lite.EntryHolder {
-	pre := make([]*lite.EntryHolder, 0)
-	post := make([]*lite.EntryHolder, 0)
+	pre := make([]*lite.EntryHolder, 0)    // Root chain
+	middle := make([]*lite.EntryHolder, 0) // Other chains
+	post := make([]*lite.EntryHolder, 0)   // Entries
 
 	for _, e := range ents {
 		if len(e.Entry.ExtIDs) < 2 {
 			continue
 		} else if bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Root Chain")) == 0 {
 			pre = append(pre, e)
+		} else if bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Management Chain")) == 0 ||
+			bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Content Chain")) == 0 {
+			middle = append(middle, e)
 		} else {
 			post = append(post, e)
 		}
 	}
 
+	pre = append(pre, middle...)
 	return append(pre, post...)
 }
 
