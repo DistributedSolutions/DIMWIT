@@ -332,10 +332,10 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 	firstEntContent := constants.ENTRY_MAX_SIZE - headerLength
 
 	if entryCount > 0 {
-		e.Content = XORCipher(xorKey, data[:firstEntContent])
+		e.Content = primitives.XORCipher(xorKey, data[:firstEntContent])
 		data = data[firstEntContent:]
 	} else {
-		e.Content = XORCipher(xorKey, data)
+		e.Content = primitives.XORCipher(xorKey, data)
 		data = []byte{}
 	}
 
@@ -360,7 +360,7 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 		}
 
 		preXorContent := data[:end]
-		entry.Content = XORCipher(xorKey, preXorContent)
+		entry.Content = primitives.XORCipher(xorKey, preXorContent)
 		data = data[end:]
 
 		hash := sha256.Sum256(preXorContent)

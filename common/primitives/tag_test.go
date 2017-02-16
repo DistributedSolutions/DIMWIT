@@ -99,7 +99,6 @@ func TestTagDiff(t *testing.T) {
 
 	//properties.Run(gopter.ConsoleReporter(true))
 	properties.TestingRun(t)
-
 }
 
 func TestTagList(t *testing.T) {

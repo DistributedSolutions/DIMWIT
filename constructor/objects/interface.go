@@ -16,6 +16,10 @@ type IApplyEntry interface {
 	NeedIsFirstEntry() bool
 	AnswerChainEntries(ents []*lite.EntryHolder)
 
+	// Content Links
+	RequestEntriesInOtherChain() (string, bool)
+	AnswerChainEntriesInOther(ents []*lite.EntryHolder)
+
 	// ApplyEntry returns the channel and a bool to indicate wether or not
 	// it made changes
 	ApplyEntry() (*ChannelWrapper, bool)

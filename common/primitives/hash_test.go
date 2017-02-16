@@ -16,6 +16,14 @@ func TestHash(t *testing.T) {
 		data, _ := h.MarshalBinary()
 
 		n := new(Hash)
+
+		if i < 10 {
+			err := n.UnmarshalBinary(data)
+			if err != nil {
+				t.Error(err)
+			}
+		}
+
 		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
@@ -50,6 +58,43 @@ func TestHash(t *testing.T) {
 	if i.String() != str {
 		t.Error("Failed")
 	}
+
+	_, err = HexToHash("notvalid")
+	if err == nil {
+		t.Error("Not valid hex, should error")
+	}
+
+	_, err = HexToHash("000000000000000000000000000000000")
+	if err == nil {
+		t.Error("Not even length hex, should error")
+	}
+
+	err = i.UnmarshalBinary([]byte{0x00})
+	if err == nil {
+		t.Error("Should error")
+	}
+
+}
+
+func TestBytesToHex(t *testing.T) {
+	for i := 0; i < 1000; i++ {
+		data := random.RandByteSliceOfSize(32)
+		_, err := BytesToHash(data)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+	for i := 0; i < 1000; i++ {
+		size := random.RandomIntBetween(0, 1000)
+		if size == 32 {
+			size += 1
+		}
+		data := random.RandByteSliceOfSize(size)
+		_, err := BytesToHash(data)
+		if err == nil {
+			t.Error("Should Error")
+		}
+	}
 }
 
 func TestHashList(t *testing.T) {
@@ -79,6 +124,13 @@ func TestHashList(t *testing.T) {
 		if l.Empty() && len(l.GetHashes()) != 0 {
 			t.Error("Should not be empty")
 		}
+	}
+
+	// Bad unmarshal
+	h := new(HashList)
+	err := h.UnmarshalBinary([]byte{0x00})
+	if err == nil {
+		t.Error("Should error")
 	}
 }
 

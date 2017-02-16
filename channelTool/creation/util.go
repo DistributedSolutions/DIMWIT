@@ -2,7 +2,7 @@ package creation
 
 import (
 	"bytes"
-	"crypto/rand"
+	//"crypto/rand"
 	"crypto/sha256"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -54,26 +54,6 @@ func upToNonce(extIDs [][]byte, end int) []byte {
 	for _, e := range extIDs {
 		result := sha256.Sum256(e)
 		buf.Write(result[:])
-	}
-
-	return buf.Next(buf.Len())
-}
-
-func RandXORKey() byte {
-	xorCipher := make([]byte, 1)
-	rand.Read(xorCipher)
-	if xorCipher[0] == 0x00 {
-		return RandXORKey()
-	} else {
-		return xorCipher[0]
-	}
-}
-
-func XORCipher(key byte, data []byte) []byte {
-	buf := new(bytes.Buffer)
-
-	for _, d := range data {
-		buf.Write([]byte{d ^ key})
 	}
 
 	return buf.Next(buf.Len())

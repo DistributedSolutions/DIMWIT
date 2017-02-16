@@ -88,6 +88,8 @@ func (m *ManageRegisterApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 }
 
 // Ununsed
-func (m *ManageRegisterApplyEntry) NeedChainEntries() bool                      { return false }
-func (m *ManageRegisterApplyEntry) NeedIsFirstEntry() bool                      { return false }
-func (m *ManageRegisterApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
+func (m *ManageRegisterApplyEntry) NeedChainEntries() bool                             { return false }
+func (m *ManageRegisterApplyEntry) NeedIsFirstEntry() bool                             { return false }
+func (m *ManageRegisterApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}
+func (m *ManageRegisterApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
+func (m *ManageRegisterApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}

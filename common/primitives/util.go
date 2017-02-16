@@ -2,6 +2,7 @@ package primitives
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 )
@@ -20,7 +21,6 @@ func MarshalStringToBytes(str string, maxlength int) ([]byte, error) {
 		}
 	}
 	data = append(data, 0x00)
-
 	return data, nil
 }
 
@@ -97,19 +97,6 @@ func BytesToInt64(data []byte) (int64, error) {
 	return int64(val), err
 }
 
-func BytesIsSame(a []byte, b []byte) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func BoolToBytes(b bool) []byte {
 	if b {
 		return []byte{0x01}
@@ -122,4 +109,24 @@ func ByteToBool(b byte) bool {
 		return false
 	}
 	return true
+}
+
+func RandXORKey() byte {
+	xorCipher := make([]byte, 1)
+	rand.Read(xorCipher)
+	if xorCipher[0] == 0x00 {
+		return RandXORKey()
+	} else {
+		return xorCipher[0]
+	}
+}
+
+func XORCipher(key byte, data []byte) []byte {
+	buf := new(bytes.Buffer)
+
+	for _, d := range data {
+		buf.Write([]byte{d ^ key})
+	}
+
+	return buf.Next(buf.Len())
 }

@@ -63,11 +63,7 @@ func (r *RootChainApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error {
 	return nil
 }
 
-func (r *RootChainApplyEntry) NeedChainEntries() bool { return false }
-
 func (r *RootChainApplyEntry) NeedIsFirstEntry() bool { return true }
-
-func (r *RootChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
 
 func (r *RootChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	cw := new(ChannelWrapper)
@@ -86,3 +82,9 @@ func (r *RootChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 
 	return cw, false
 }
+
+// Unused
+func (m *RootChainApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
+func (m *RootChainApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}
+func (r *RootChainApplyEntry) NeedChainEntries() bool                             { return false }
+func (r *RootChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}

@@ -83,13 +83,15 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 		c.ApplyEntryToCache(e)
 	}
 
-	var _ = ents
+	// TODO: Batch write
 	return nil
 }
 
 // ApplyEntryToCache will take an entry, and apply it to the channels we have in our cache. If
 // true is returned, this signals to the caller, we should also save the channel to the database.
+// This is where the magic happens
 func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
+	// Instantiate the IApplyEntry
 	iae, err := objects.ParseFactomEntry(e)
 	if err != nil {
 		return false, err
@@ -113,6 +115,8 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 		return false, err
 	}
 
+	// If the iae requires it to be the first entry, we need to
+	// error out if it is not
 	f := iae.NeedIsFirstEntry()
 	if f {
 		ent, err := c.Reader.GetFirstEntry(*hash)
@@ -126,6 +130,7 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 		}
 	}
 
+	// Feed it all of the entries in it's chain
 	ae := iae.NeedChainEntries()
 	if ae {
 		entries, err := c.Reader.GetAllChainEntries(*hash)
@@ -136,8 +141,26 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 		iae.AnswerChainEntries(converFactomEntriesToHolder(entries))
 	}
 
+	// Do we need another chain's entries? Usually a Content Link
+	linkChain, noe := iae.RequestEntriesInOtherChain()
+	if noe {
+		ohash, err := primitives.HexToHash(linkChain)
+		if err != nil {
+			return false, err
+		}
+
+		entries, err := c.Reader.GetAllChainEntries(*ohash)
+		if err != nil {
+			return false, err
+		}
+
+		iae.AnswerChainEntriesInOther(converFactomEntriesToHolder(entries))
+	}
+
+	// The iae has everything it needs, let's see what it decided
 	cw, wr := iae.ApplyEntry()
 	if wr {
+		// Ok, it told us to write this to the db. Let's put it in the map for a batch write
 		c.ChannelCache[cw.Channel.RootChainID.String()] = *cw
 	}
 
@@ -156,7 +179,7 @@ func converFactomEntriesToHolder(fents []*factom.Entry) []*lite.EntryHolder {
 	return holder
 }
 
-// fixOrder puts channel instantiation before anything else
+// fixOrder puts channel instantiation before anything else, then first entries, then following entries
 func fixOrder(ents []*lite.EntryHolder) []*lite.EntryHolder {
 	pre := make([]*lite.EntryHolder, 0)    // Root chain
 	middle := make([]*lite.EntryHolder, 0) // Other chains
@@ -180,7 +203,8 @@ func fixOrder(ents []*lite.EntryHolder) []*lite.EntryHolder {
 }
 
 // saveChannel overwrites whatever channel is in the cache with what it is given.
-// be sure not to fuck up the data in the database. As you can see,I
+// be sure not to fuck up the data in the database. As you can see, I made it private
+// to keep people from writing to my cache!
 func (c *Constructor) saveChannel(ch objects.ChannelWrapper) error {
 	data, err := ch.MarshalBinary()
 	if err != nil {
@@ -193,6 +217,8 @@ func (c *Constructor) saveChannel(ch objects.ChannelWrapper) error {
 	return nil
 }
 
+// retrieveChannel will try to retrieve from our local map first. The local map is the channels
+// we are currently working with before a batch write. This is only used internally
 func (c *Constructor) retrieveChannel(chainID string) (*objects.ChannelWrapper, error) {
 	if cw, ok := c.ChannelCache[chainID]; ok {
 		return &cw, nil
@@ -204,6 +230,7 @@ func (c *Constructor) retrieveChannel(chainID string) (*objects.ChannelWrapper, 
 	return c.RetrieveChannel(*cid)
 }
 
+// RetrieveChannel retrieves the channel from the Level2Cache
 func (c *Constructor) RetrieveChannel(chainID primitives.Hash) (*objects.ChannelWrapper, error) {
 	data, err := c.Level2Cache.Get(CHANNEL_BUCKET, chainID.Bytes())
 	if err != nil {

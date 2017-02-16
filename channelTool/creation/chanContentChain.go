@@ -29,7 +29,6 @@ func (r *ChanContentChain) ReturnEntries() []*factom.Entry {
 //		byte		Version
 //		[24]byte	"Channel Content Chain"
 //		[32]byte	RootChainID
-//		[]byte		Title
 //		[32]byte	PublicKey(3)
 //		[64]byte	Signature
 //		[]byte		nonce

@@ -8,14 +8,14 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
 
-//// Factom Chain
+// Factom Chain
 //		byte		Version
-//		[24]byte	"Channel Management Chain"
+//		[24]byte	"Channel Content Chain"
 //		[32]byte	RootChainID
 //		[32]byte	PublicKey(3)
 //		[64]byte	Signature
 //		[]byte		nonce
-type ManageChainApplyEntry struct {
+type ContentChainApplyEntry struct {
 	// Memory
 	Channel *ChannelWrapper
 	Entry   *lite.EntryHolder
@@ -28,12 +28,12 @@ type ManageChainApplyEntry struct {
 	PubKey3     primitives.PublicKey
 }
 
-func NewManageChainApplyEntry() IApplyEntry {
-	m := new(ManageChainApplyEntry)
+func NewContentChainApplyEntry() IApplyEntry {
+	m := new(ContentChainApplyEntry)
 	return m
 }
 
-func (r *ManageChainApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error {
+func (r *ContentChainApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error {
 	ent := e.Entry
 	r.Version = ent.ExtIDs[0][0]
 	err := r.PubKey3.UnmarshalBinary(ent.ExtIDs[3])
@@ -57,21 +57,21 @@ func (r *ManageChainApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error {
 	return nil
 }
 
-func (r *ManageChainApplyEntry) RequestChannel() (string, bool) {
+func (r *ContentChainApplyEntry) RequestChannel() (string, bool) {
 	return r.RootChainID.String(), true
 }
 
-func (r *ManageChainApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error {
+func (r *ContentChainApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error {
 	if cw == nil {
-		return fmt.Errorf("Channel must exisit for ManageChainApplyEntry")
+		return fmt.Errorf("Channel must exisit for ContentChainApplyEntry")
 	}
 	r.Channel = cw
 	return nil
 }
 
-func (r *ManageChainApplyEntry) NeedIsFirstEntry() bool { return true }
+func (r *ContentChainApplyEntry) NeedIsFirstEntry() bool { return true }
 
-func (m *ManageChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
+func (m *ContentChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	if !m.PubKey3.IsSameAs(&m.Channel.Channel.LV3PublicKey) {
 		return m.Channel, false // Invalid key
 	}
@@ -85,13 +85,13 @@ func (m *ManageChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		return nil, false
 	}
 
-	m.Channel.MMadeHeight = m.Entry.Height
-	m.Channel.Channel.ManagementChainID = *hash
+	m.Channel.CMadeHeight = m.Entry.Height
+	m.Channel.Channel.ContentChainID = *hash
 	return m.Channel, true
 }
 
 // Unused
-func (r *ManageChainApplyEntry) NeedChainEntries() bool                             { return false }
-func (r *ManageChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}
-func (m *ManageChainApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
-func (m *ManageChainApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}
+func (r *ContentChainApplyEntry) NeedChainEntries() bool                             { return false }
+func (r *ContentChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}
+func (m *ContentChainApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
+func (m *ContentChainApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}

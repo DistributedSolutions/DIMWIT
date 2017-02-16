@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -24,6 +25,9 @@ type Content struct {
 	// There can be lots of parts
 	Part [2]byte
 	Tags primitives.TagList
+
+	// Retrieved from Blockchain
+	CreationTime time.Time
 
 	// Torrent Metadata
 	Trackers primitives.TrackerList
@@ -48,6 +52,7 @@ func RandomNewContent() *Content {
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CONTENT_TAGS))
 	c.Trackers = *primitives.RandomTrackerList(uint32(5))
 	c.FileList = *primitives.RandomFileList(uint32(10))
+	c.CreationTime = time.Now()
 
 	return c
 }
@@ -106,6 +111,10 @@ func (a *Content) IsSameAs(b *Content) bool {
 	}
 
 	if !a.FileList.IsSameAs(&b.FileList) {
+		return false
+	}
+
+	if a.CreationTime.Nanosecond() != b.CreationTime.Nanosecond() {
 		return false
 	}
 
@@ -190,7 +199,13 @@ func (c *Content) MarshalBinary() (data []byte, err error) {
 
 	data, err = c.FileList.MarshalBinary()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to marshal content")
+		return nil, err
+	}
+	buf.Write(data)
+
+	data, err = c.CreationTime.MarshalBinary()
+	if err != nil {
+		return nil, err
 	}
 	buf.Write(data)
 
@@ -286,6 +301,12 @@ func (c *Content) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	if err != nil {
 		return data, err
 	}
+
+	err = c.CreationTime.UnmarshalBinary(newData[:15])
+	if err != nil {
+		return data, err
+	}
+	newData = newData[15:]
 
 	return
 }

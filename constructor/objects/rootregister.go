@@ -84,6 +84,8 @@ func (m *RootRegisterApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 }
 
 // Ununsed
-func (m *RootRegisterApplyEntry) NeedChainEntries() bool                      { return false }
-func (m *RootRegisterApplyEntry) NeedIsFirstEntry() bool                      { return false }
-func (m *RootRegisterApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
+func (m *RootRegisterApplyEntry) NeedChainEntries() bool                             { return false }
+func (m *RootRegisterApplyEntry) NeedIsFirstEntry() bool                             { return false }
+func (m *RootRegisterApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}
+func (m *RootRegisterApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
+func (m *RootRegisterApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}

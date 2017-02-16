@@ -80,10 +80,8 @@ func (h *HashList) MarshalBinary() ([]byte, error) {
 	buf.Write(data)
 
 	for i := range h.list {
-		data, err := h.list[i].MarshalBinary()
-		if err != nil {
-			return nil, err
-		}
+		// This cannot actually error out
+		data, _ := h.list[i].MarshalBinary()
 		buf.Write(data)
 	}
 

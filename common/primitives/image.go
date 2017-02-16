@@ -115,5 +115,5 @@ func (a *Image) IsSameAs(b *Image) bool {
 		return false
 	}
 
-	return BytesIsSame(a.image, b.image)
+	return bytes.Compare(a.image, b.image) == 0
 }

@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/leanovate/gopter"
+	"github.com/leanovate/gopter/gen"
+	"github.com/leanovate/gopter/prop"
+
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
 )
 
@@ -47,7 +51,18 @@ func TestDescriptions(t *testing.T) {
 		if !n.IsSameAs(s) {
 			t.Error("Should match.")
 		}
+	}
 
+	s := new(ShortDescription)
+	err := s.UnmarshalBinary(nil)
+	if err == nil {
+		t.Error("Should error")
+	}
+
+	l := new(LongDescription)
+	err = l.UnmarshalBinary(nil)
+	if err == nil {
+		t.Error("Should error")
 	}
 }
 
@@ -70,6 +85,36 @@ func TestDiffDescription(t *testing.T) {
 	if a.IsSameAs(b) {
 		t.Error("Should be different")
 	}
+}
+
+func TestProp(t *testing.T) {
+	properties := gopter.NewProperties(nil)
+	properties.Property("Seting Short Descs", prop.ForAll(
+		func(t1 string) bool {
+			s, err := NewShortDescription(t1)
+			if len(t1) > s.MaxLength() {
+				return err != nil
+			} else {
+				return err == nil
+			}
+		},
+		gen.AnyString(),
+	))
+
+	properties.Property("Seting Long Descs", prop.ForAll(
+		func(t1 string) bool {
+			s, err := NewLongDescription(t1)
+			if len(t1) > s.MaxLength() {
+				return err != nil
+			} else {
+				return err == nil
+			}
+		},
+		gen.AnyString(),
+	))
+
+	properties.TestingRun(t)
+
 }
 
 func TestEmptyDescs(t *testing.T) {
