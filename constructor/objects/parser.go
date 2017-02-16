@@ -43,5 +43,5 @@ func ParseFactomEntry(e *lite.EntryHolder) (iae IApplyEntry, err error) {
 		return nil, err
 	}
 
-	return MasterChainApplyEntry, nil
+	return iae, nil
 }

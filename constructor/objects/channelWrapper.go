@@ -2,6 +2,7 @@ package objects
 
 import (
 	"bytes"
+	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -50,7 +51,7 @@ func (a *ChannelWrapper) IsSameAs(b *ChannelWrapper) bool {
 		return false
 	}
 
-	if a.RMadeHeight != b.RRegisterHeight {
+	if a.RMadeHeight != b.RMadeHeight {
 		return false
 	}
 
@@ -58,7 +59,7 @@ func (a *ChannelWrapper) IsSameAs(b *ChannelWrapper) bool {
 		return false
 	}
 
-	if a.MMadeHeight != b.MRegisterHeight {
+	if a.MMadeHeight != b.MMadeHeight {
 		return false
 	}
 
@@ -66,7 +67,7 @@ func (a *ChannelWrapper) IsSameAs(b *ChannelWrapper) bool {
 		return false
 	}
 
-	if a.CMadeHeight != b.CRegisterHeight {
+	if a.CMadeHeight != b.CMadeHeight {
 		return false
 	}
 
@@ -97,7 +98,7 @@ func (cw *ChannelWrapper) MarshalBinary() ([]byte, error) {
 	data = primitives.BoolToBytes(cw.CRegistered)
 	buf.Write(data)
 
-	data = primitives.Uint32ToBytes(cw.CMaderHeight)
+	data = primitives.Uint32ToBytes(cw.CMadeHeight)
 	buf.Write(data)
 
 	return buf.Next(buf.Len()), nil

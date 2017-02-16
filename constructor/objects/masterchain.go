@@ -1,5 +1,9 @@
 package objects
 
+import (
+	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+)
+
 // This one was easy.
 type MasterChainApplyEntry struct{}
 

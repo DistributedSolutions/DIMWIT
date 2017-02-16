@@ -2,7 +2,7 @@ package objects
 
 import (
 	//"github.com/FactomProject/factom"
-	"github.com/DistributedSolutions/DIMWIT/common"
+	//"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
@@ -77,7 +77,7 @@ func (r *RootChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		return nil, false
 	}
 
-	cw.Channel.RootChainID = chainID
+	cw.Channel.RootChainID = *chainID
 	cw.RMadeHeight = r.Entry.Height
 	// TODO: FINISH
 
