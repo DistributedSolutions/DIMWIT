@@ -86,3 +86,12 @@ func RandByteSliceOfSize(l int) []byte {
 	}
 	return answer
 }
+
+func RandomBool() bool {
+	b := RandomIntBetween(0, 100)
+	if b > 50 {
+		return true
+	} else {
+		return false
+	}
+}

@@ -109,3 +109,17 @@ func BytesIsSame(a []byte, b []byte) bool {
 	}
 	return true
 }
+
+func BoolToBytes(b bool) []byte {
+	if b {
+		return []byte{0x01}
+	}
+	return []byte{0x00}
+}
+
+func ByteToBool(b byte) bool {
+	if b == 0x00 {
+		return false
+	}
+	return true
+}

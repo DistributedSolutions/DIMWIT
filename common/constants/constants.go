@@ -65,6 +65,7 @@ const (
 const (
 	HIDDEN_DIR = ".DistroSols/"
 	SQL_DB     = "sql.db"
+	LVL2_CACHE = "level_two.cache"
 )
 
 const (
