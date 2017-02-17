@@ -91,7 +91,8 @@ func (m *ContentChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 }
 
 // Unused
-func (r *ContentChainApplyEntry) NeedChainEntries() bool                             { return false }
-func (r *ContentChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}
-func (m *ContentChainApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
-func (m *ContentChainApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}
+func (r *ContentChainApplyEntry) NeedChainEntries() bool                      { return false }
+func (r *ContentChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
+func (m *ContentChainApplyEntry) RequestEntriesInOtherChain() (string, bool)  { return "", false }
+func (m *ContentChainApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
+}

@@ -18,7 +18,7 @@ type IApplyEntry interface {
 
 	// Content Links
 	RequestEntriesInOtherChain() (string, bool)
-	AnswerChainEntriesInOther(ents []*lite.EntryHolder)
+	AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder)
 
 	// ApplyEntry returns the channel and a bool to indicate wether or not
 	// it made changes

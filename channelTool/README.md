@@ -166,14 +166,17 @@ Entries will point to individual content chains
 |ExtID (1)|Content Type {1 byte}|
 |ExtID (2)|"Content Link" {12 bytes}|
 |ExtID (3)|Channel Root ChainID {32 bytes}|
-|ExtID (4)|Timestamp {15 bytes}|
-|ExtID (5)|Content Signing Key {32 bytes}|
-|ExtID (6)|Signature of ExtID(0-4) {64 bytes}|
+|ExtID (4)|Content ChainID {32 bytes}|
+|ExtID (5)|Timestamp {15 bytes}|
+|ExtID (6)|Content Signing Key {32 bytes}|
+|ExtID (7)|Signature of ExtID(0-4) {64 bytes}|
 |Content|Unsure|
 
 The content type is a byte indicator of the type of content. If we support more types of content in the future, this will be important, but for now, its mostly all of type "video", or 0x00.
 
 We don't necessarily need to timestamp, but if we do not, then someone could replay the same content over and over again. Clients should be smart enough to recognize duplicates, but the timestamp makes it easier to ignore. +/- 6 hrs from block (may change).
+
+This is the hyperlink to the content
 
 ### Content Chain
 A new chain will be made per piece of content. This allows us to add more functionality in the future, and possibly even commenting.

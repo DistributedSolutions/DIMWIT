@@ -12,12 +12,13 @@ func NewBitBucketApplyEntry() IApplyEntry {
 	m := new(BitBucketApplyEntry)
 	return m
 }
-func (m *BitBucketApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error         { return nil }
-func (m *BitBucketApplyEntry) RequestChannel() (string, bool)                     { return "", false }
-func (m *BitBucketApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error      { return nil }
-func (m *BitBucketApplyEntry) NeedChainEntries() bool                             { return false }
-func (m *BitBucketApplyEntry) NeedIsFirstEntry() bool                             { return false }
-func (m *BitBucketApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}
-func (m *BitBucketApplyEntry) ApplyEntry() (*ChannelWrapper, bool)                { return nil, false }
-func (m *BitBucketApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
-func (m *BitBucketApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}
+func (m *BitBucketApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error    { return nil }
+func (m *BitBucketApplyEntry) RequestChannel() (string, bool)                { return "", false }
+func (m *BitBucketApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error { return nil }
+func (m *BitBucketApplyEntry) NeedChainEntries() bool                        { return false }
+func (m *BitBucketApplyEntry) NeedIsFirstEntry() bool                        { return false }
+func (m *BitBucketApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)   {}
+func (m *BitBucketApplyEntry) ApplyEntry() (*ChannelWrapper, bool)           { return nil, false }
+func (m *BitBucketApplyEntry) RequestEntriesInOtherChain() (string, bool)    { return "", false }
+func (m *BitBucketApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
+}

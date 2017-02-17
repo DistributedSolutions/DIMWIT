@@ -15,5 +15,5 @@ type CreateStruct struct {
 }
 
 func (c CreateStruct) upToNonce() []byte {
-	return upToNonce(c.ExtIDs, c.endExtID)
+	return upToNonce(c.ExtIDs)
 }

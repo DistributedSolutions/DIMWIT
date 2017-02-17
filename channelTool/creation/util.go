@@ -49,7 +49,7 @@ func checkNonce(upToNonce []byte, nonceInt uint64) bool {
 }
 
 // upToNonce is exclusive
-func upToNonce(extIDs [][]byte, end int) []byte {
+func upToNonce(extIDs [][]byte) []byte {
 	buf := new(bytes.Buffer)
 	for _, e := range extIDs {
 		result := sha256.Sum256(e)

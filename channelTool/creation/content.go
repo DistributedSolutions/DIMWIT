@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/FactomProject/factom"
@@ -64,6 +65,22 @@ func RandomHugeContentChainContent() *ContentChainContent {
 	c.TorrentFiles = c.ActionFiles
 
 	return c
+}
+
+func (c *ContentChainContent) ContentChainContentToCommonContent() *common.Content {
+	co := new(common.Content)
+	co.ContentTitle = c.Title
+	co.LongDescription = c.LongDescription
+	co.ShortDescription = c.ShortDescription
+	co.ActionFiles = c.ActionFiles
+	co.Thumbnail = c.Thumbnail
+	co.Series = c.Series
+	co.Part = c.Part
+	co.Tags = c.Tags
+	co.InfoHash = c.InfoHash
+	co.Trackers = c.Trackers
+	co.FileList = c.TorrentFiles
+	return co
 }
 
 func (c *ContentChainContent) MarshalBinary() (data []byte, err error) {
@@ -299,9 +316,9 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 	e.ExtIDs = append(e.ExtIDs, contentData.InfoHash.Bytes())     // 5
 	e.ExtIDs = append(e.ExtIDs, timeData)                         // 6
 	e.ExtIDs = append(e.ExtIDs, []byte{xorKey})                   // 7
-	e.ExtIDs = append(e.ExtIDs, contentSignKey.Public.Bytes())    // 8
 
-	msg := upToNonce(e.ExtIDs, 8)
+	msg := upToNonce(e.ExtIDs)
+	e.ExtIDs = append(e.ExtIDs, contentSignKey.Public.Bytes()) // 8
 	sig := contentSignKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 9
 	e.ExtIDs = append(e.ExtIDs, []byte{0x00, 0x00, 0x00, 0x00,
@@ -367,11 +384,11 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 		// Set headers
 		entry.ExtIDs = append(entry.ExtIDs, primitives.Uint32ToBytes(seq)) // 0
 		entry.ExtIDs = append(entry.ExtIDs, hash[:])                       // 1
-		entry.ExtIDs = append(entry.ExtIDs, contentSignKey.Public.Bytes()) // 2
 
-		msg := upToNonce(entry.ExtIDs, 3)
+		msg := upToNonce(entry.ExtIDs)
+		entry.ExtIDs = append(entry.ExtIDs, contentSignKey.Public.Bytes()) // 2
 		sig := contentSignKey.Sign(msg)
-		entry.ExtIDs = append(entry.ExtIDs, sig) // 4
+		entry.ExtIDs = append(entry.ExtIDs, sig) // 3
 		entry.ChainID = r.FirstEntry.ChainID
 
 		if int(seq-1) >= len(r.Entries) {
@@ -389,10 +406,11 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 //		byte		ContentType
 //		[12]byte	"Content Link"
 //		[32]byte	RootChainID
+// 		[32]byte 	ContentChain
 //		[]byte		Timestamp
 //		[32]byte	ContentSignKey
 //		[64]byte	Signature
-func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, contentChainID primitives.Hash, contentType byte, sigKey primitives.PrivateKey) error {
+func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, chanContentChainID primitives.Hash, contentChainID primitives.Hash, contentType byte, sigKey primitives.PrivateKey) error {
 	e := new(factom.Entry)
 
 	timeData, err := time.Now().MarshalBinary()
@@ -404,14 +422,15 @@ func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, conten
 	e.ExtIDs = append(e.ExtIDs, []byte{contentType})              // 1
 	e.ExtIDs = append(e.ExtIDs, []byte("Content Link"))           // 2
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                // 3
-	e.ExtIDs = append(e.ExtIDs, timeData)                         // 4
-	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())            // 5
+	e.ExtIDs = append(e.ExtIDs, contentChainID.Bytes())           // 4
+	e.ExtIDs = append(e.ExtIDs, timeData)                         // 5
 
-	msg := upToNonce(e.ExtIDs, 4)
+	msg := upToNonce(e.ExtIDs)
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 6
 	sig := sigKey.Sign(msg)
-	e.ExtIDs = append(e.ExtIDs, sig) // 4
+	e.ExtIDs = append(e.ExtIDs, sig) // 7
 
-	e.ChainID = contentChainID.String()
+	e.ChainID = chanContentChainID.String()
 	r.Register.Entry = e
 
 	return nil

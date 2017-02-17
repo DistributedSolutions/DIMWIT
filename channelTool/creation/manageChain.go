@@ -56,9 +56,8 @@ func (r *ManageChain) CreateManagementChain(rootChain primitives.Hash, sigKey pr
 	e.ExtIDs = append(e.ExtIDs, []byte("Channel Management Chain")) // 1
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                  // 2
 
+	msg := upToNonce(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
-
-	msg := upToNonce(e.ExtIDs, 3)
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 5
 
@@ -85,9 +84,9 @@ func (r *ManageChain) RegisterChannelManagementChain(rootChain primitives.Hash, 
 	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION})    // 0
 	e.ExtIDs = append(e.ExtIDs, []byte("Register Management Chain")) // 1
 	e.ExtIDs = append(e.ExtIDs, managementChainID.Bytes())           // 2
-	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())               // 3
 
-	msg := upToNonce(e.ExtIDs, 3)
+	msg := upToNonce(e.ExtIDs)
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 4
 
@@ -145,9 +144,9 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 	e.ExtIDs = append(e.ExtIDs, holder)                                     // 4 - Holder
 	e.ExtIDs = append(e.ExtIDs, contentHash)                                // 5 - Holder
 	e.ExtIDs = append(e.ExtIDs, tsData)                                     // 6
-	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())                      // 7
 
-	msg := upToNonce(e.ExtIDs, 7)
+	msg := upToNonce(e.ExtIDs)
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 7
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 8
 
@@ -210,9 +209,9 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 		entry.ExtIDs = append(entry.ExtIDs, primitives.Uint32ToBytes(seq))               // 4 - Seq
 		entry.ExtIDs = append(entry.ExtIDs, partHash[:])                                 // 5
 		entry.ExtIDs = append(entry.ExtIDs, tsData)                                      // 6
-		entry.ExtIDs = append(entry.ExtIDs, sigKey.Public.Bytes())                       // 7
 
-		msg := upToNonce(entry.ExtIDs, 7)
+		msg := upToNonce(entry.ExtIDs)
+		entry.ExtIDs = append(entry.ExtIDs, sigKey.Public.Bytes()) // 7
 		sig := sigKey.Sign(msg)
 		entry.ExtIDs = append(entry.ExtIDs, sig) // 8
 		entry.ChainID = manage.String()

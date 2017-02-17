@@ -91,6 +91,11 @@ func TestMarshal(t *testing.T) {
 	if err == nil {
 		t.Error("Should error")
 	}
+
+	str, err = UnmarshalStringFromBytes(nil, 0)
+	if err == nil {
+		t.Error("Should error")
+	}
 }
 
 func TestUInt32Bytes(t *testing.T) {

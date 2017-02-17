@@ -138,7 +138,7 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 			return false, err
 		}
 
-		iae.AnswerChainEntries(converFactomEntriesToHolder(entries))
+		iae.AnswerChainEntries(convertFactomEntriesToHolder(entries))
 	}
 
 	// Do we need another chain's entries? Usually a Content Link
@@ -154,7 +154,17 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 			return false, err
 		}
 
-		iae.AnswerChainEntriesInOther(converFactomEntriesToHolder(entries))
+		// Discard any element with the first entry method.
+		// There should only be on with that method, so anything else
+		// could be spam or malicious
+		first, err := c.Reader.GetFirstEntry(*ohash)
+		for i := range entries {
+			if bytes.Compare(entries[i].ExtIDs[2], first.ExtIDs[2]) == 0 {
+				entries = append(entries[:i], entries[i+1:]...)
+			}
+		}
+
+		iae.AnswerChainEntriesInOther(convertFactomEntryToHolder(first), convertFactomEntriesToHolder(entries))
 	}
 
 	// The iae has everything it needs, let's see what it decided
@@ -167,16 +177,20 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 	return wr, nil
 }
 
-func converFactomEntriesToHolder(fents []*factom.Entry) []*lite.EntryHolder {
+func convertFactomEntriesToHolder(fents []*factom.Entry) []*lite.EntryHolder {
 	holder := make([]*lite.EntryHolder, 0)
 	for _, e := range fents {
-		h := new(lite.EntryHolder)
-		h.Entry = e
-		h.Timestamp = 0
-		h.Height = 0
-		holder = append(holder, h)
+		holder = append(holder, convertFactomEntryToHolder(e))
 	}
 	return holder
+}
+
+func convertFactomEntryToHolder(fent *factom.Entry) *lite.EntryHolder {
+	h := new(lite.EntryHolder)
+	h.Entry = fent
+	h.Timestamp = 0
+	h.Height = 0
+	return h
 }
 
 // fixOrder puts channel instantiation before anything else, then first entries, then following entries

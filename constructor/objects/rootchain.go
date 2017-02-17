@@ -84,7 +84,8 @@ func (r *RootChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 }
 
 // Unused
-func (m *RootChainApplyEntry) RequestEntriesInOtherChain() (string, bool)         { return "", false }
-func (m *RootChainApplyEntry) AnswerChainEntriesInOther(ents []*lite.EntryHolder) {}
-func (r *RootChainApplyEntry) NeedChainEntries() bool                             { return false }
-func (r *RootChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder)        {}
+func (m *RootChainApplyEntry) RequestEntriesInOtherChain() (string, bool)  { return "", false }
+func (m *RootChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
+func (r *RootChainApplyEntry) NeedChainEntries() bool                      { return false }
+func (m *RootChainApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
+}
