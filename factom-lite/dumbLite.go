@@ -16,7 +16,7 @@ type DumbLite struct {
 	FactomdLocation string
 }
 
-func NewDumbLite() *DumbLite {
+func NewDumbLite() FactomLite {
 	d := new(DumbLite)
 	d.FactomdLocation = "localhost:8088"
 	factom.SetFactomdServer(d.FactomdLocation)

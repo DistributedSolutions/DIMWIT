@@ -23,6 +23,6 @@ type FactomLiteReader interface {
 // FactomLiteWriter is the writeonly functions of a FactomLite Client
 type FactomLiteWriter interface {
 	// Does the commit + reveal
-	SubmitEntry(e factom.Entry, ec factom.ECAddress) error
-	SubmitChain(e factom.Chain, ec factom.ECAddress) error
+	SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId string, eHash string, err error)
+	SubmitChain(e factom.Chain, ec factom.ECAddress) (comId string, chainID string, err error)
 }
