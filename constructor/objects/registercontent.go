@@ -72,15 +72,19 @@ func (m *ContentRegisterApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) err
 
 func (m *ContentRegisterApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	if !m.PubKey3.IsSameAs(&m.Channel.Channel.LV3PublicKey) {
-		return m.Channel, false // Invalid key
+		return nil, false // Invalid key
 	}
 
 	if valid := m.PubKey3.Verify(m.Message, m.Signature); !valid {
-		return m.Channel, false // Bad signature
+		return nil, false // Bad signature
 	}
 
 	if !m.Channel.Channel.ContentChainID.IsSameAs(&m.ContentChain) {
-		return m.Channel, false
+		return nil, false
+	}
+
+	if m.Entry.Entry.ChainID != m.Channel.Channel.RootChainID.String() {
+		return nil, false // Must be in root
 	}
 
 	m.Channel.CRegistered = true

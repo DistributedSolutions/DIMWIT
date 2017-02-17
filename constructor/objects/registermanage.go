@@ -83,6 +83,10 @@ func (m *ManageRegisterApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		return m.Channel, false
 	}
 
+	if m.Entry.Entry.ChainID != m.Channel.Channel.RootChainID.String() {
+		return nil, false // Must be in root
+	}
+
 	m.Channel.MRegistered = true
 	return m.Channel, true
 }

@@ -428,7 +428,7 @@ func (c *Channel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 		return data, err
 	}
 
-	err = c.CreationTime.UnmarshalBinary(newData)
+	err = c.CreationTime.UnmarshalBinary(newData[:15])
 	if err != nil {
 		return data, err
 	}

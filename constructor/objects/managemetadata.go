@@ -2,6 +2,7 @@ package objects
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"fmt"
 	"time"
 
@@ -114,6 +115,27 @@ func (m *ManageMetaApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {
 }
 
 func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
+	// Validate
+	if !m.RootChain.IsSameAs(m.Channel.Channel.RootChainID) {
+		return nil, false // Wrong chain dumbass
+	}
+
+	if !m.PubKey3.IsSameAs(m.Channel.Channel.LV3PublicKey) {
+		return nil, false // Invalid key
+	}
+
+	if valid := m.PubKey3.Verify(m.Message, m.Signature); !valid {
+		return nil, false // Bad sig
+	}
+
+	hash := sha256.Sum256(m.Entry.Entry.Content)
+	if bytes.Compare(hash[:], m.Entry.Entry.ExtIDs[5]) != 0 {
+		return nil, false // Bad content hash
+	}
+
+	if !m.Entry.Entry.ChainID != m.Channel.Channel.ManagementChainID.String() {
+		return nil, false // Entry in wrong chain
+	}
 
 	return nil, false
 }
