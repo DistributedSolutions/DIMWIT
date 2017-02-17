@@ -53,7 +53,7 @@ func (a *AuthChannel) MakeChannel() error {
 		return err
 	}
 
-	h, err := primitives.HexToHash(rc.Create.Chain.FirstEntry.ChainID)
+	h, err := primitives.HexToHash(rc.Create.Chain.ChainID)
 	if err != nil {
 		return err
 	}

@@ -25,7 +25,7 @@ func ParseFactomEntry(e *lite.EntryHolder) (iae IApplyEntry, err error) {
 
 	// This is how we designate the entry type
 	// and parse appropriately
-	switch string(e.Entry.ExtIDs[2]) {
+	switch string(e.Entry.ExtIDs[1]) {
 	case "Master Chain":
 		iae = NewMasterChainApplyEntry()
 	case "Channel Root Chain": // Root Create

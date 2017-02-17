@@ -38,6 +38,7 @@ func NewContructor(dbType string) (*Constructor, error) {
 		db = database.NewBoltDB(constants.HIDDEN_DIR + constants.LVL2_CACHE)
 	case "LDB":
 	case "Map":
+		db = database.NewMapDB()
 	default:
 		return nil, fmt.Errorf("DBType given not valid. Found %s, expected either: Bolt, Map, LDB", dbType)
 	}
@@ -65,7 +66,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	}
 
 	if height > rh {
-		return nil
+		return fmt.Errorf("Cannot apply height %d, the ready height is %d", height, rh)
 	}
 
 	ents, err := c.Reader.GrabAllEntriesAtHeight(height)
@@ -84,6 +85,18 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	}
 
 	// TODO: Batch write
+	for _, channel := range c.ChannelCache {
+		data, err := channel.MarshalBinary()
+		if err != nil {
+			continue
+		}
+
+		err = c.Level2Cache.Put(CHANNEL_BUCKET, channel.Channel.RootChainID.Bytes(), data)
+		if err != nil {
+			continue
+		}
+	}
+	c.CompletedHeight = height
 	return nil
 }
 

@@ -81,7 +81,7 @@ func (r *RootChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	cw.Channel.LV3PublicKey = r.PubKeys[2]
 	cw.Channel.CreationTime = time.Unix(r.Entry.Timestamp, 0)
 
-	return cw, false
+	return cw, true
 }
 
 // Unused

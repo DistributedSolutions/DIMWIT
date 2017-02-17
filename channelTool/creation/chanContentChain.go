@@ -37,10 +37,10 @@ func (r *ChanContentChain) CreateChanContentChain(rootChain primitives.Hash, sig
 
 	e := new(factom.Entry)
 
-	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION})   // 0
-	e.ExtIDs = append(e.ExtIDs, []byte("Channel Management Chain")) // 1
-	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                  // 2
-	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())              // 3
+	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION}) // 0
+	e.ExtIDs = append(e.ExtIDs, []byte("Channel Content Chain"))  // 1
+	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                // 2
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())            // 3
 
 	msg := upToNonce(e.ExtIDs)
 	sig := sigKey.Sign(msg)
