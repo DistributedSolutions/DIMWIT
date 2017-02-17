@@ -105,9 +105,11 @@ Entry to designate a Content signing key. This can be changed by the (3) public 
 |---|---|
 |ExtID (0)|Version {1 byte}|
 |ExtID (1)|"Content Signing Key" {19 byte}|
-|ExtID (2)|Content Signing Key {32 bytes}|
-|ExtID (3)|Timestamp {15 bytes}|
-|ExtID (4)|Signature of ExtID(0-3) {64 bytes}|
+|ExtID (3)|Channel Root ChainID|
+|ExtID (4)|Content Signing Key {32 bytes}|
+|ExtID (5)|Timestamp {15 bytes}|
+|ExtID (6)|PublicKey(3) {32 bytes}|
+|ExtID (7)|Signature of ExtID(0-5) {64 bytes}|
 |Content|Unsure|
 
 - Timestamp must be withing +/- 6 hrs of the block it is in to prevent replays

@@ -2,6 +2,7 @@ package creation
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -9,8 +10,9 @@ import (
 )
 
 type RootChain struct {
-	Register RegisterStruct
-	Create   CreateStruct
+	Register     RegisterStruct
+	Create       CreateStruct
+	ContSigEntry *factom.Entry
 }
 
 func (r *RootChain) ReturnChains() []*factom.Chain {
@@ -23,6 +25,7 @@ func (r *RootChain) ReturnChains() []*factom.Chain {
 func (r *RootChain) ReturnEntries() []*factom.Entry {
 	c := make([]*factom.Entry, 0)
 	c = append(c, r.Register.Entry)
+	c = append(c, r.ContSigEntry)
 
 	return c
 }
@@ -86,4 +89,37 @@ func (r *RootChain) RegisterRootEntry(rootChain primitives.Hash, sigKey primitiv
 	e.ChainID = constants.MASTER_CHAIN_STRING
 
 	r.Register.Entry = e
+}
+
+// Factom entry
+//		byte		Version
+//		[19]byte	"Content Signing Key"
+//		[32]byte	RootChainID
+//		[32]byte	ContentSigningKey
+//		[15]byte	Timestamp
+//		[32]byte	PublicKey(3)
+//		[64]byte	Signature
+func (r *RootChain) ContentSigningKey(rootChain primitives.Hash, contentSigningKey primitives.PublicKey, sigKey primitives.PrivateKey) error {
+	e := new(factom.Entry)
+
+	ts := time.Now()
+	tsData, err := ts.MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION}) // 0
+	e.ExtIDs = append(e.ExtIDs, []byte("Content Signing Key"))    // 1
+	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                // 2
+	e.ExtIDs = append(e.ExtIDs, contentSigningKey.Bytes())        // 3
+	e.ExtIDs = append(e.ExtIDs, tsData)                           // 4
+
+	msg := upToNonce(e.ExtIDs)
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 5
+	sig := sigKey.Sign(msg)
+	e.ExtIDs = append(e.ExtIDs, sig)
+	e.ChainID = rootChain.String()
+
+	r.ContSigEntry = e
+	return nil
 }

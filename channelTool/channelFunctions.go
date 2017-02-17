@@ -61,6 +61,11 @@ func (a *AuthChannel) MakeChannel() error {
 
 	rc.RegisterRootEntry(a.Channel.RootChainID, a.PrivateKeys[2])
 
+	err = rc.ContentSigningKey(a.Channel.RootChainID, a.Channel.ContentSingingKey, a.PrivateKeys[2])
+	if err != nil {
+		return err
+	}
+
 	a.RootChain = rc
 	return nil
 }

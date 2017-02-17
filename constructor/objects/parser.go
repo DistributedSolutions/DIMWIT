@@ -42,8 +42,9 @@ func ParseFactomEntry(e *lite.EntryHolder) (iae IApplyEntry, err error) {
 		iae = NewContentRegisterApplyEntry()
 	case "Channel Management Metadata Main":
 	case "Content Signing Key":
+		iae = NewContentSigningKeyApplyEntry()
 	case "Content Link": // Hyperlink
-
+		iae = NewContentLinkApplyEntry()
 	case "Content Chain": // Need to stich entries in the chain.
 		// We actually process Content Chains by the "Content Link", so we can
 		// toss these

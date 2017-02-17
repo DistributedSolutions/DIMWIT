@@ -207,6 +207,8 @@ func fixOrder(ents []*lite.EntryHolder) []*lite.EntryHolder {
 		} else if bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Management Chain")) == 0 ||
 			bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Content Chain")) == 0 {
 			middle = append(middle, e)
+		} else if bytes.Compare(e.Entry.ExtIDs[1], []byte("Content Signing Key")) == 0 {
+			middle = append(middle, e) // Root chain is in pre, we good to put this in middle
 		} else {
 			post = append(post, e)
 		}

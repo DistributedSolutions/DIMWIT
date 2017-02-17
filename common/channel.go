@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -29,6 +30,8 @@ type Channel struct {
 	Tags             primitives.TagList          // Not-Critical
 	SuggestedChannel primitives.HashList         // Not-Critical
 	Content          ContentList                 // Not-Critical
+
+	CreationTime time.Time // Not-Critical
 }
 
 func RandomNewChannel() *Channel {
@@ -53,6 +56,7 @@ func RandomNewChannel() *Channel {
 	c.Banner = *primitives.RandomImage()
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
 	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))
+	c.CreationTime = time.Now()
 
 	return c
 }
@@ -69,6 +73,7 @@ func (a *Channel) Status() int {
 	return constants.CHANNEL_NOT_READY
 }
 
+// Woo! full!
 func (a *Channel) full() bool {
 	if !a.ready() {
 		return false
@@ -101,6 +106,7 @@ func (a *Channel) full() bool {
 	return true
 }
 
+// Reaady for public consumption
 func (a *Channel) ready() bool {
 	if a.LV1PublicKey.Empty() {
 		return false
@@ -191,6 +197,10 @@ func (a *Channel) IsSameAs(b *Channel) bool {
 	}
 
 	if !a.Content.IsSameAs(&b.Content) {
+		return false
+	}
+
+	if a.CreationTime.Unix() != b.CreationTime.Unix() {
 		return false
 	}
 
@@ -309,6 +319,12 @@ func (c *Channel) MarshalBinary() (data []byte, err error) {
 	}
 	buf.Write(data)
 
+	data, err = c.CreationTime.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	buf.Write(data)
+
 	return buf.Next(buf.Len()), nil
 }
 
@@ -411,6 +427,12 @@ func (c *Channel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	if err != nil {
 		return data, err
 	}
+
+	err = c.CreationTime.UnmarshalBinary(newData)
+	if err != nil {
+		return data, err
+	}
+	newData = newData[15:]
 
 	return newData, nil
 }
