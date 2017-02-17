@@ -10,8 +10,7 @@ import (
 )
 
 type HashList struct {
-	length uint32
-	list   []Hash
+	list []Hash
 }
 
 type Hash [constants.HASH_BYTES_LENGTH]byte
@@ -19,7 +18,6 @@ type Hash [constants.HASH_BYTES_LENGTH]byte
 func RandomHashList(max uint32) *HashList {
 	h := NewHashList()
 	l := random.RandomUInt32Between(0, max)
-	h.length = l
 	h.list = make([]Hash, l)
 
 	for i := range h.list {
@@ -36,21 +34,26 @@ func NewZeroHash() *Hash {
 
 func NewHashList() *HashList {
 	h := new(HashList)
-	h.length = 0
 	h.list = make([]Hash, 0)
 
 	return h
 }
 
+func (a *HashList) Combine(b *HashList) *HashList {
+	x := new(HashList)
+	x.list = append(a.list, b.list...)
+	return x
+}
+
 func (a *HashList) Empty() bool {
-	if a.length == 0 {
+	if len(a.list) == 0 {
 		return true
 	}
 	return false
 }
 
 func (a *HashList) IsSameAs(b *HashList) bool {
-	if a.length != b.length {
+	if len(a.list) != len(b.list) {
 		return false
 	}
 
@@ -69,13 +72,12 @@ func (h *HashList) GetHashes() []Hash {
 
 func (h *HashList) AddHash(hash *Hash) {
 	h.list = append(h.list, *hash)
-	h.length++
 }
 
 func (h *HashList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data := Uint32ToBytes(h.length)
+	data := Uint32ToBytes(uint32(len(h.list)))
 
 	buf.Write(data)
 
@@ -106,7 +108,6 @@ func (h *HashList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 	if err != nil {
 		return data, err
 	}
-	h.length = u
 	newData = newData[4:]
 
 	h.list = make([]Hash, u)

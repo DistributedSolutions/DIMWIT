@@ -46,6 +46,13 @@ func SmartRandomManyPlayList(max uint32, conts ContentList) *ManyPlayList {
 	return p
 }
 
+func (a *ManyPlayList) Combine(b *ManyPlayList) *ManyPlayList {
+	pl := append(a.playlists, b.playlists...)
+	x := new(ManyPlayList)
+	x.playlists = pl
+	return x
+}
+
 func (a *ManyPlayList) IsSameAs(b *ManyPlayList) bool {
 	if len(a.playlists) != len(b.playlists) {
 		return false

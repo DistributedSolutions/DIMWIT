@@ -221,6 +221,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 			}
 			seq, err := primitives.BytesToUint32(e.Entry.ExtIDs[0])
 			if err != nil {
+				rest = append(rest[:in], rest[in+1:]...) // Remove crap
 				continue
 			}
 			if seq == uint32(in) {

@@ -9,9 +9,8 @@ import (
 )
 
 type TagList struct {
-	max    uint32 // Max amount of tags
-	length uint32
-	tags   []Tag
+	max  uint32 // Max amount of tags
+	tags []Tag
 }
 
 func NewTagList(max uint32) *TagList {
@@ -37,12 +36,27 @@ func RandomTagList(max uint32) *TagList {
 		}
 	}
 	tl.tags = tl.tags[:c]
-	tl.length = c
 	return tl
 }
 
+func (a *TagList) Combine(b *TagList) *TagList {
+	t := new(TagList)
+	tl := make([]Tag, 0)
+	if uint32(len(a.tags))+uint32(len(b.tags)) < a.max {
+		tl = append(a.tags, b.tags...)
+	} else if uint32(len(b.tags)) >= a.max {
+		tl = b.tags[:a.max]
+	} else {
+		amt := a.max - uint32(len(b.tags))
+		tl = append(a.tags[:amt], b.tags...)
+	}
+
+	t.tags = tl
+	return t
+}
+
 func (d *TagList) Empty() bool {
-	if d.length == 0 {
+	if len(d.tags) == 0 {
 		return true
 	}
 	return false
@@ -53,7 +67,7 @@ func (a *TagList) IsSameAs(b *TagList) bool {
 		return false
 	}
 
-	if a.length != b.length {
+	if len(a.tags) != len(b.tags) {
 		return false
 	}
 
@@ -80,7 +94,6 @@ func (tl *TagList) AddTag(t *Tag) error {
 	}
 
 	tl.tags = append(tl.tags, *t)
-	tl.length++
 
 	return nil
 }
@@ -139,7 +152,6 @@ func (tl *TagList) RemoveTag(t *Tag) error {
 	}
 
 	tl.tags = append(tl.tags[:i], tl.tags[i+1:]...)
-	tl.length--
 	return nil
 }
 
@@ -150,7 +162,7 @@ func (tl *TagList) MarshalBinary() ([]byte, error) {
 
 	buf.Write(data)
 
-	data = Uint32ToBytes(tl.length)
+	data = Uint32ToBytes(uint32(len(tl.tags)))
 
 	buf.Write(data)
 
@@ -193,12 +205,10 @@ func (tl *TagList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 	}
 
 	newData = newData[4:]
-	tl.length = l
-
-	tl.tags = make([]Tag, tl.length)
+	tl.tags = make([]Tag, l)
 
 	var i uint32 = 0
-	for ; i < tl.length; i++ {
+	for ; i < l; i++ {
 		t := new(Tag)
 		newData, err = t.UnmarshalBinaryData(newData)
 		if err != nil {
