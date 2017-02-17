@@ -13,3 +13,7 @@ func TestGetByHeight(t *testing.T) {
 	}*/
 
 }
+
+func TestFake(t *testing.T) {
+
+}

@@ -23,3 +23,8 @@ func AreEntriesSame(a *factom.Entry, b *factom.Entry) bool {
 
 	return true
 }
+
+func GetECAddress() *factom.ECAddress {
+	ec := factom.NewECAddress()
+	return ec
+}

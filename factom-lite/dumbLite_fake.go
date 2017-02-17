@@ -31,6 +31,7 @@ type FakeDumbLite struct {
 
 func NewFakeDumbLite() FactomLite {
 	d := new(FakeDumbLite)
+	d.db = database.NewMapDB()
 	d.chainlists = make(map[string][]factom.Entry)
 	d.heightlist = make([][]factom.Entry, 50000)
 	return d
@@ -51,6 +52,7 @@ func (d *FakeDumbLite) SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId s
 	d.heightlist[d.height] = append(d.heightlist[d.height], e)
 	d.chainlists[e.ChainID] = append(d.chainlists[e.ChainID], e)
 	d.Unlock()
+	d.height++
 	return "", hex.EncodeToString(e.Hash()), nil
 }
 
@@ -66,6 +68,7 @@ func (d *FakeDumbLite) SubmitChain(c factom.Chain, ec factom.ECAddress) (comId s
 	d.heightlist[d.height] = append(d.heightlist[d.height], *e)
 	d.chainlists[e.ChainID] = append([]factom.Entry{*e}, d.chainlists[e.ChainID]...)
 	d.Unlock()
+	d.height++
 	return "", c.FirstEntry.ChainID, nil
 }
 
