@@ -121,3 +121,4 @@ func (m *ContentSigningKeyApplyEntry) AnswerChainEntries(ents []*lite.EntryHolde
 func (m *ContentSigningKeyApplyEntry) RequestEntriesInOtherChain() (string, bool)  { return "", false }
 func (m *ContentSigningKeyApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *ContentSigningKeyApplyEntry) String() string { return "ContentSigningKeyApplyEntry" }

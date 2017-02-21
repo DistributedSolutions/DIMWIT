@@ -98,3 +98,4 @@ func (m *ManageRegisterApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) 
 func (m *ManageRegisterApplyEntry) RequestEntriesInOtherChain() (string, bool)  { return "", false }
 func (m *ManageRegisterApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *ManageRegisterApplyEntry) String() string { return "ManageRegisterApplyEntry" }

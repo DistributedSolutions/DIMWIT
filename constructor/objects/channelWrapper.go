@@ -26,6 +26,14 @@ type ChannelWrapper struct {
 	CMadeHeight uint32
 }
 
+func NewChannelWrapper() *ChannelWrapper {
+	cw := new(ChannelWrapper)
+	c := common.NewChannel()
+	cw.Channel = *c
+
+	return cw
+}
+
 func RandomChannelWrapper() *ChannelWrapper {
 	cw := new(ChannelWrapper)
 	cw.Channel = *common.RandomNewChannel()

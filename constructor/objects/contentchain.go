@@ -96,3 +96,4 @@ func (r *ContentChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
 func (m *ContentChainApplyEntry) RequestEntriesInOtherChain() (string, bool)  { return "", false }
 func (m *ContentChainApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *ContentChainApplyEntry) String() string { return "ContentChainApplyEntry" }

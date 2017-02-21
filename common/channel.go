@@ -34,6 +34,13 @@ type Channel struct {
 	CreationTime time.Time // Not-Critical
 }
 
+func NewChannel() *Channel {
+	c := new(Channel)
+
+	c.Tags = *primitives.NewTagList(uint32(constants.MAX_CHANNEL_TAGS))
+	return c
+}
+
 func RandomNewChannel() *Channel {
 	c := new(Channel)
 
@@ -137,72 +144,90 @@ func (a *Channel) ready() bool {
 
 func (a *Channel) IsSameAs(b *Channel) bool {
 	if !a.RootChainID.IsSameAs(&b.RootChainID) {
+		fmt.Println("Exit 1")
 		return false
 	}
 
 	if !a.ManagementChainID.IsSameAs(&b.ManagementChainID) {
+		fmt.Println("Exit 1")
 		return false
 	}
 
 	if !a.ContentChainID.IsSameAs(&b.ContentChainID) {
+		fmt.Println("Exit 2")
 		return false
 	}
 
 	if !a.LV1PublicKey.IsSameAs(&b.LV1PublicKey) {
+		fmt.Println("Exit 3")
 		return false
 	}
 
 	if !a.LV2PublicKey.IsSameAs(&b.LV2PublicKey) {
+		fmt.Println("Exit 4")
 		return false
 	}
 
 	if !a.LV3PublicKey.IsSameAs(&b.LV3PublicKey) {
+		fmt.Println("Exit 5")
 		return false
 	}
 
 	if !a.ContentSingingKey.IsSameAs(&b.ContentSingingKey) {
+		fmt.Println("Exit 6")
 		return false
 	}
 
 	if !a.Website.IsSameAs(&b.Website) {
+		fmt.Println("Exit 7")
 		return false
 	}
 
 	if !a.LongDescription.IsSameAs(&b.LongDescription) {
+		fmt.Println("Exit 8")
 		return false
 	}
 
 	if !a.ShortDescription.IsSameAs(&b.ShortDescription) {
+		fmt.Println("Exit 9")
 		return false
 	}
 
 	if !a.Playlist.IsSameAs(&b.Playlist) {
+		fmt.Println("Exit 10")
 		return false
 	}
 
 	if !a.Thumbnail.IsSameAs(&b.Thumbnail) {
+		fmt.Println("Exit 11")
 		return false
 	}
 
 	if !a.Banner.IsSameAs(&b.Banner) {
+		fmt.Println("Exit 12")
 		return false
 	}
 
 	if !a.Tags.IsSameAs(&b.Tags) {
+		fmt.Println(a.Tags, b.Tags)
+		fmt.Println("Exit 13")
 		return false
 	}
 
 	if !a.SuggestedChannel.IsSameAs(&b.SuggestedChannel) {
+		fmt.Println("Exit 14")
 		return false
 	}
 
 	if !a.Content.IsSameAs(&b.Content) {
+		fmt.Println("Exit 15")
 		return false
 	}
 
-	if a.CreationTime.Unix() != b.CreationTime.Unix() {
+	/*if a.CreationTime.Unix() != b.CreationTime.Unix() {
+		fmt.Println("Exit 16")
 		return false
-	}
+	}*/
 
 	return true
 }
@@ -428,10 +453,12 @@ func (c *Channel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 		return data, err
 	}
 
-	err = c.CreationTime.UnmarshalBinary(newData[:15])
+	var tmp time.Time
+	err = tmp.UnmarshalBinary(newData[:15])
 	if err != nil {
 		return data, err
 	}
+	c.CreationTime = tmp
 	newData = newData[15:]
 
 	return newData, nil

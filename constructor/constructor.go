@@ -182,6 +182,7 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 
 	// The iae has everything it needs, let's see what it decided
 	cw, wr := iae.ApplyEntry()
+	// fmt.Println(iae.String(), " -- ", wr)
 	if wr {
 		// Ok, it told us to write this to the db. Let's put it in the map for a batch write
 		c.ChannelCache[cw.Channel.RootChainID.String()] = *cw
@@ -266,7 +267,7 @@ func (c *Constructor) RetrieveChannel(chainID primitives.Hash) (*objects.Channel
 		return nil, err
 	}
 
-	ch := new(objects.ChannelWrapper)
+	ch := objects.NewChannelWrapper()
 	if len(data) == 0 {
 
 	} else {

@@ -48,6 +48,15 @@ func checkNonce(upToNonce []byte, nonceInt uint64) bool {
 	return false
 }
 
+func upToSig(extIDs [][]byte) []byte {
+	buf := new(bytes.Buffer)
+	for _, e := range extIDs {
+		buf.Write(e)
+	}
+
+	return buf.Next(buf.Len())
+}
+
 // upToNonce is exclusive
 func upToNonce(extIDs [][]byte) []byte {
 	buf := new(bytes.Buffer)

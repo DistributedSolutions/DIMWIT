@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -18,7 +19,22 @@ type ContentChain struct {
 	Entries    []*factom.Entry
 
 	// Must be done after first entry
-	Register *RegisterStruct
+	Register *factom.Entry
+}
+
+func (r *ContentChain) ReturnChains() []*factom.Chain {
+	c := make([]*factom.Chain, 0)
+	c = append(c, r.FirstEntry)
+
+	return c
+}
+
+func (r *ContentChain) ReturnEntries() []*factom.Entry {
+	c := make([]*factom.Entry, 0)
+	c = append(c, r.Entries...)
+	c = append(c, r.Register)
+
+	return c
 }
 
 // The content of the entries in factom
@@ -80,6 +96,22 @@ func (c *ContentChainContent) ContentChainContentToCommonContent() *common.Conte
 	co.InfoHash = c.InfoHash
 	co.Trackers = c.Trackers
 	co.FileList = c.TorrentFiles
+	return co
+}
+
+func CommonContentToContentChainContent(c *common.Content) *ContentChainContent {
+	co := new(ContentChainContent)
+	co.Title = c.ContentTitle
+	co.LongDescription = c.LongDescription
+	co.ShortDescription = c.ShortDescription
+	co.ActionFiles = c.ActionFiles
+	co.Thumbnail = c.Thumbnail
+	co.Series = c.Series
+	co.Part = c.Part
+	co.Tags = c.Tags
+	co.InfoHash = c.InfoHash
+	co.Trackers = c.Trackers
+	co.TorrentFiles = c.FileList
 	return co
 }
 
@@ -275,9 +307,9 @@ func (a *ContentChainContent) IsSameAs(b *ContentChainContent) bool {
 
 // Factom Chain
 //		byte		Version				0
-//		byte		ContentType			1
-//		[4]byte		TotalEntries		2
-//		[13]byte	"Content Chain"		3
+//		[13]byte	"Content Chain"		1
+//		byte		ContentType			2
+//		[4]byte		TotalEntries		3
 //		[32]byte	RootChainID			4
 //		[20]byte	Infohash			5
 //		[]byte		Timestamp			6
@@ -309,15 +341,15 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 
 	e := new(factom.Entry)
 	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION}) // 0
-	e.ExtIDs = append(e.ExtIDs, []byte{contentType})              // 1
-	e.ExtIDs = append(e.ExtIDs, primitives.Uint32ToBytes(0))      // 2
-	e.ExtIDs = append(e.ExtIDs, []byte("Content Chain"))          // 3
+	e.ExtIDs = append(e.ExtIDs, []byte("Content Chain"))          // 1
+	e.ExtIDs = append(e.ExtIDs, []byte{contentType})              // 2
+	e.ExtIDs = append(e.ExtIDs, primitives.Uint32ToBytes(0))      // 3
 	e.ExtIDs = append(e.ExtIDs, root.Bytes())                     // 4
 	e.ExtIDs = append(e.ExtIDs, contentData.InfoHash.Bytes())     // 5
 	e.ExtIDs = append(e.ExtIDs, timeData)                         // 6
 	e.ExtIDs = append(e.ExtIDs, []byte{xorKey})                   // 7
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, contentSignKey.Public.Bytes()) // 8
 	sig := contentSignKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 9
@@ -338,6 +370,15 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 		entryCount = howManyEntries(headerLength, contentLength, 142)
 	}
 	e.ExtIDs[2] = primitives.Uint32ToBytes(uint32(entryCount))
+
+	// Redo signature with  new values
+	buf := new(bytes.Buffer)
+	for i := 0; i < 8; i++ {
+		buf.Write(e.ExtIDs[i])
+	}
+	msgData := buf.Next(buf.Len())
+	sig = contentSignKey.Sign(msgData)
+	e.ExtIDs[9] = sig
 
 	// Find nonce
 	c := new(CreateStruct)
@@ -385,7 +426,7 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 		entry.ExtIDs = append(entry.ExtIDs, primitives.Uint32ToBytes(seq)) // 0
 		entry.ExtIDs = append(entry.ExtIDs, hash[:])                       // 1
 
-		msg := upToNonce(entry.ExtIDs)
+		msg := upToSig(entry.ExtIDs)
 		entry.ExtIDs = append(entry.ExtIDs, contentSignKey.Public.Bytes()) // 2
 		sig := contentSignKey.Sign(msg)
 		entry.ExtIDs = append(entry.ExtIDs, sig) // 3
@@ -403,14 +444,14 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 
 // Factom Entry
 //		byte		Version
-//		byte		ContentType
 //		[12]byte	"Content Link"
+//		byte		ContentType
 //		[32]byte	RootChainID
 // 		[32]byte 	ContentChain
 //		[]byte		Timestamp
 //		[32]byte	ContentSignKey
 //		[64]byte	Signature
-func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, chanContentChainID primitives.Hash, contentChainID primitives.Hash, contentType byte, sigKey primitives.PrivateKey) error {
+func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, chanContentChainID primitives.Hash, contentType byte, sigKey primitives.PrivateKey) error {
 	e := new(factom.Entry)
 
 	timeData, err := time.Now().MarshalBinary()
@@ -418,20 +459,25 @@ func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, chanCo
 		return fmt.Errorf("Unable to create a timestamp: %s", err.Error())
 	}
 
+	contentChain, err := hex.DecodeString(r.FirstEntry.FirstEntry.ChainID)
+	if err != nil {
+		return err
+	}
+
 	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION}) // 0
-	e.ExtIDs = append(e.ExtIDs, []byte{contentType})              // 1
-	e.ExtIDs = append(e.ExtIDs, []byte("Content Link"))           // 2
+	e.ExtIDs = append(e.ExtIDs, []byte("Content Link"))           // 1
+	e.ExtIDs = append(e.ExtIDs, []byte{contentType})              // 2
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                // 3
-	e.ExtIDs = append(e.ExtIDs, contentChainID.Bytes())           // 4
+	e.ExtIDs = append(e.ExtIDs, contentChain)                     // 4
 	e.ExtIDs = append(e.ExtIDs, timeData)                         // 5
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 6
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 7
 
 	e.ChainID = chanContentChainID.String()
-	r.Register.Entry = e
+	r.Register = e
 
 	return nil
 }

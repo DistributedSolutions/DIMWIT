@@ -21,3 +21,4 @@ func (m *MasterChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool)           {
 func (m *MasterChainApplyEntry) RequestEntriesInOtherChain() (string, bool)    { return "", false }
 func (m *MasterChainApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *MasterChainApplyEntry) String() string { return "MasterChainApplyEntry" }

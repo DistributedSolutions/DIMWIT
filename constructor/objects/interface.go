@@ -23,4 +23,7 @@ type IApplyEntry interface {
 	// ApplyEntry returns the channel and a bool to indicate wether or not
 	// it made changes
 	ApplyEntry() (*ChannelWrapper, bool)
+
+	// Identifies which ApplyEntry type it is
+	String() string
 }

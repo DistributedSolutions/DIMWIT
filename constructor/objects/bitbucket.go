@@ -22,3 +22,4 @@ func (m *BitBucketApplyEntry) ApplyEntry() (*ChannelWrapper, bool)           { r
 func (m *BitBucketApplyEntry) RequestEntriesInOtherChain() (string, bool)    { return "", false }
 func (m *BitBucketApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *BitBucketApplyEntry) String() string { return "BitBucketApplyEntry" }

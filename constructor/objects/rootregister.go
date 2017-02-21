@@ -90,3 +90,4 @@ func (m *RootRegisterApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
 func (m *RootRegisterApplyEntry) RequestEntriesInOtherChain() (string, bool)  { return "", false }
 func (m *RootRegisterApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *RootRegisterApplyEntry) String() string { return "RootRegisterApplyEntry" }

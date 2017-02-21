@@ -40,7 +40,7 @@ func RandomTagList(max uint32) *TagList {
 }
 
 func (a *TagList) Combine(b *TagList) *TagList {
-	t := new(TagList)
+	t := NewTagList(a.max)
 	tl := make([]Tag, 0)
 	if uint32(len(a.tags))+uint32(len(b.tags)) < a.max {
 		tl = append(a.tags, b.tags...)
@@ -53,6 +53,10 @@ func (a *TagList) Combine(b *TagList) *TagList {
 
 	t.tags = tl
 	return t
+}
+
+func (d *TagList) Max() uint32 {
+	return d.max
 }
 
 func (d *TagList) Empty() bool {

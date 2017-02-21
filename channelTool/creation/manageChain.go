@@ -2,6 +2,7 @@ package creation
 
 import (
 	//"encoding/hex"
+	"bytes"
 	"crypto/sha256"
 	"fmt"
 	"reflect"
@@ -34,8 +35,8 @@ func (r *ManageChain) ReturnChains() []*factom.Chain {
 func (r *ManageChain) ReturnEntries() []*factom.Entry {
 	c := make([]*factom.Entry, 0)
 	c = append(c, r.Register.Entry)
-	c = append(c, r.MetaData.MainEntry)
 	c = append(c, r.MetaData.Entries...)
+	c = append(c, r.MetaData.MainEntry)
 
 	return c
 }
@@ -56,7 +57,7 @@ func (r *ManageChain) CreateManagementChain(rootChain primitives.Hash, sigKey pr
 	e.ExtIDs = append(e.ExtIDs, []byte("Channel Management Chain")) // 1
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                  // 2
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 5
@@ -85,7 +86,7 @@ func (r *ManageChain) RegisterChannelManagementChain(rootChain primitives.Hash, 
 	e.ExtIDs = append(e.ExtIDs, []byte("Register Management Chain")) // 1
 	e.ExtIDs = append(e.ExtIDs, managementChainID.Bytes())           // 2
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 4
@@ -145,7 +146,7 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 	e.ExtIDs = append(e.ExtIDs, contentHash)                                // 5 - Holder
 	e.ExtIDs = append(e.ExtIDs, tsData)                                     // 6
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 7
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 8
@@ -176,6 +177,15 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 		partHash := sha256.Sum256(flData)
 		e.ExtIDs[5] = partHash[:]
 	}
+
+	// Redo signature with  new values
+	buf := new(bytes.Buffer)
+	for i := 0; i < 7; i++ {
+		buf.Write(e.ExtIDs[i])
+	}
+	contentData := buf.Next(buf.Len())
+	sig = sigKey.Sign(contentData)
+	e.ExtIDs[8] = sig
 
 	// Entry Stich
 	//	0	byte		Version
@@ -210,7 +220,7 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 		entry.ExtIDs = append(entry.ExtIDs, partHash[:])                                 // 5
 		entry.ExtIDs = append(entry.ExtIDs, tsData)                                      // 6
 
-		msg := upToNonce(entry.ExtIDs)
+		msg := upToSig(entry.ExtIDs)
 		entry.ExtIDs = append(entry.ExtIDs, sigKey.Public.Bytes()) // 7
 		sig := sigKey.Sign(msg)
 		entry.ExtIDs = append(entry.ExtIDs, sig) // 8
@@ -352,12 +362,12 @@ func (m *ManageChainMetaData) UnmarshalBinary(data []byte) (err error) {
 }
 
 func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
-	/*defer func() {
+	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
 			return
 		}
-	}()*/
+	}()
 
 	mb := new(ManageChainMetaDataBytes)
 	newData = data
@@ -368,6 +378,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.Website) > 0 {
+		m.Website = new(primitives.SiteURL)
 		_, err = m.Website.UnmarshalBinaryData(mb.Website)
 		if err != nil {
 			return data, err
@@ -377,6 +388,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.LongDescription) > 0 {
+		m.LongDescription = new(primitives.LongDescription)
 		err = m.LongDescription.UnmarshalBinary(mb.LongDescription)
 		if err != nil {
 			return data, err
@@ -386,6 +398,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.ShortDescription) > 0 {
+		m.ShortDescription = new(primitives.ShortDescription)
 		err = m.ShortDescription.UnmarshalBinary(mb.ShortDescription)
 		if err != nil {
 			return data, err
@@ -395,6 +408,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.Playlist) > 0 {
+		m.Playlist = new(common.ManyPlayList)
 		err = m.Playlist.UnmarshalBinary(mb.Playlist)
 		if err != nil {
 			return data, err
@@ -404,6 +418,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.Thumbnail) > 0 {
+		m.Thumbnail = new(primitives.Image)
 		err = m.Thumbnail.UnmarshalBinary(mb.Thumbnail)
 		if err != nil {
 			return data, err
@@ -413,6 +428,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.Banner) > 0 {
+		m.Banner = new(primitives.Image)
 		err = m.Banner.UnmarshalBinary(mb.Banner)
 		if err != nil {
 			return data, err
@@ -422,6 +438,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.ChannelTags) > 0 {
+		m.ChannelTags = new(primitives.TagList)
 		err = m.ChannelTags.UnmarshalBinary(mb.ChannelTags)
 		if err != nil {
 			return data, err
@@ -431,6 +448,7 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	}
 
 	if len(mb.SuggestedChannels) > 0 {
+		m.SuggestedChannels = new(primitives.HashList)
 		err = m.SuggestedChannels.UnmarshalBinary(mb.SuggestedChannels)
 		if err != nil {
 			return data, err

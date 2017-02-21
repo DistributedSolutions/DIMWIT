@@ -26,6 +26,7 @@ type AuthChannel struct {
 	RootChain    *creation.RootChain
 	ManageChain  *creation.ManageChain
 	ContentChain *creation.ChanContentChain
+	Contents     []*creation.ContentChain
 }
 
 // Makes the authority channel and builds all factom components
@@ -47,6 +48,14 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 			return nil, err
 		}
 		a.PrivateKeys[i] = *pk
+		switch i {
+		case 0:
+			a.Channel.LV1PublicKey = pk.Public
+		case 1:
+			a.Channel.LV2PublicKey = pk.Public
+		case 2:
+			a.Channel.LV3PublicKey = pk.Public
+		}
 	}
 
 	pk, err := primitives.GeneratePrivateKey()
@@ -55,6 +64,7 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 	}
 
 	a.ContentSigning = *pk
+	a.Channel.ContentSingingKey = pk.Public
 	a.EntryCreditKey = ec
 
 	err = a.MakeChannel()
@@ -68,6 +78,12 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 	}
 
 	err = a.MakeContentChain()
+	if err != nil {
+		return nil, err
+	}
+
+	a.Contents = make([]*creation.ContentChain, 0)
+	err = a.MakeContents()
 	if err != nil {
 		return nil, err
 	}

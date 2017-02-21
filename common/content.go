@@ -38,6 +38,10 @@ func (cl *ContentList) GetContents() []Content {
 	return cl.contentList
 }
 
+func (cl *ContentList) AddContent(c Content) {
+	cl.contentList = append(cl.contentList, c)
+}
+
 func RandomNewContent() *Content {
 	c := new(Content)
 

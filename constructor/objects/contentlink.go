@@ -16,8 +16,8 @@ import (
 
 // Factom Entry
 //		byte		Version				0
-//		byte		ContentType			1
-//		[12]byte	"Content Link"		2
+//		[12]byte	"Content Link"		1
+//		byte		ContentType			2
 //		[32]byte	RootChainID			3
 //		[32]byte	ContentChainID		4
 //		[]byte		Timestamp			5
@@ -98,7 +98,7 @@ func (m *ContentLinkApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error {
 }
 
 func (m *ContentLinkApplyEntry) RequestChannel() (string, bool) {
-	return m.RootChainID.String(), false
+	return m.RootChainID.String(), true
 }
 
 func (m *ContentLinkApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error {
@@ -128,7 +128,7 @@ func (m *ContentLinkApplyEntry) RequestEntriesInOtherChain() (string, bool) {
 //	CONTENT
 //		XOR Marshaled content <-- Need to stitch
 func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
-	if bytes.Compare(first.Entry.ExtIDs[2], []byte("Content Chain")) != 0 {
+	if bytes.Compare(first.Entry.ExtIDs[1], []byte("Content Chain")) != 0 {
 		m.ErrorAndStop = true
 	}
 
@@ -137,6 +137,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	m.ContentType = ex[1][0]
 	u, err := primitives.BytesToUint32(ex[2])
 	if err != nil {
+		log.Println("ERROR: 1")
 		m.ErrorAndStop = true
 		return
 	}
@@ -144,17 +145,20 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 
 	r, err := primitives.BytesToHash(ex[4])
 	if err != nil {
+		log.Println("ERROR: 2")
 		m.ErrorAndStop = true
 		return
 	}
 	// Root chain in Link does not match.
 	if !m.RootChainID.IsSameAs(r) {
+		log.Println("ERROR: 3")
 		m.ErrorAndStop = true
 		return
 	}
 
 	i, err := primitives.BytesToInfoHash(ex[5])
 	if err != nil {
+		log.Println("ERROR: 4")
 		m.ErrorAndStop = true
 		return
 	}
@@ -163,12 +167,14 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	var t time.Time
 	err = t.UnmarshalBinary(ex[6])
 	if err != nil {
+		log.Println("ERROR: 5")
 		m.ErrorAndStop = true
 		return
 	}
 	m.Timestamp = t
 	// Check Time window
 	if !InsideTimeWindow(m.LinkTimestamp, m.Timestamp, constants.ENTRY_TIMESTAMP_WINDOW) {
+		log.Println("ERROR: 6")
 		m.ErrorAndStop = true
 		return
 	}
@@ -177,6 +183,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 
 	err = m.ContentSigKey.UnmarshalBinary(ex[8])
 	if err != nil {
+		log.Println("ERROR: 7")
 		m.ErrorAndStop = true
 		return
 	}
@@ -189,11 +196,15 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	m.Signature = ex[9]
 
 	if !m.ContentSigKey.IsSameAs(&m.Channel.Channel.ContentSingingKey) {
+		log.Println("ERROR: 8")
 		m.ErrorAndStop = true
 		return
 	}
 
 	if valid := m.ContentSigKey.Verify(m.Message, m.Signature); !valid {
+		log.Println("ERROR: 9")
+		fmt.Printf("FOUND: %x, %x\n", m.Message, m.Signature)
+
 		m.ErrorAndStop = true
 		return
 	}
@@ -235,6 +246,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 			}
 		}
 		if !found {
+			log.Println("ERROR: 10")
 			m.ErrorAndStop = true
 			return
 		}
@@ -243,6 +255,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	// Woo! Stiched up!
 	err = m.ContentData.UnmarshalBinary(content)
 	if err != nil {
+		log.Println("ERROR: 11")
 		m.ErrorAndStop = true
 		return
 	}
@@ -271,6 +284,8 @@ func (m *ContentLinkApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		return nil, false
 	}
 
+	m.Channel.Channel.Content.AddContent(m.Content)
+
 	return m.Channel, true
 }
 
@@ -278,3 +293,4 @@ func (m *ContentLinkApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 func (m *ContentLinkApplyEntry) NeedChainEntries() bool                      { return false }
 func (m *ContentLinkApplyEntry) NeedIsFirstEntry() bool                      { return false }
 func (m *ContentLinkApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
+func (m *ContentLinkApplyEntry) String() string                              { return "ContentLinkApplyEntry" }

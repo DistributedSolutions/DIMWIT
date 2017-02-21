@@ -36,6 +36,9 @@ type ManageMetaApplyEntry struct {
 
 func NewManageMetaApplyEntry() IApplyEntry {
 	m := new(ManageMetaApplyEntry)
+	meta := new(creation.ManageChainMetaData)
+	meta.ChannelTags = primitives.NewTagList(uint32(constants.MAX_CHANNEL_TAGS))
+	m.Meta = *meta
 	return m
 }
 
@@ -77,6 +80,7 @@ func (m *ManageMetaApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error {
 	if err != nil {
 		return err
 	}
+	m.Timestamp = ts
 
 	err = m.PubKey3.UnmarshalBinary(ex[7])
 	if err != nil {
@@ -158,18 +162,30 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		for in, e := range rest {
 			if len(e.Entry.ExtIDs) != 9 ||
 				bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Management Metadata Stich")) != 0 { // Crap
-				rest = append(rest[:in], rest[in+1:]...) // Remove crap
+				if in == len(rest) {
+					rest = rest[:in]
+				} else {
+					rest = append(rest[:in], rest[in+1:]...) // Remove crap
+				}
 				continue
 			}
 			seq, err := primitives.BytesToUint32(e.Entry.ExtIDs[4])
 			if err != nil {
-				rest = append(rest[:in], rest[in+1:]...) // Remove crap
+				if in == len(rest) {
+					rest = rest[:in]
+				} else {
+					rest = append(rest[:in], rest[in+1:]...) // Remove crap
+				}
 				continue
 			}
 			if seq == uint32(in) {
 				v, data := m.ValidateStitch(e)
 				if v { // Stich applied, look for the next
-					rest = append(rest[:in], rest[in+1:]...)
+					if in == len(rest) {
+						rest = rest[:in]
+					} else {
+						rest = append(rest[:in], rest[in+1:]...) // Remove crap
+					}
 					content = append(content, data...)
 					found = true
 					break
@@ -184,8 +200,12 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 
 	fContHash := sha256.Sum256(content)
 	if bytes.Compare(fContHash[:], m.FullContentHash.Bytes()) != 0 {
+		fmt.Println("ERROR!: Content hash of metadata does not match")
 		return nil, false
 	}
+
+	t := new(creation.ManageChainMetaData)
+	m.Meta = *t
 
 	// Wow, we did it.
 	err := m.Meta.UnmarshalBinary(content)
@@ -296,3 +316,4 @@ func (m *ManageMetaApplyEntry) ValidateStitch(e *lite.EntryHolder) (bool, []byte
 func (m *ManageMetaApplyEntry) RequestEntriesInOtherChain() (string, bool) { return "", false }
 func (m *ManageMetaApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *ManageMetaApplyEntry) String() string { return "ManageMetaApplyEntry" }

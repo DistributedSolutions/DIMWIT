@@ -1,11 +1,14 @@
 package objects
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
+
+var _ = fmt.Sprintf("")
 
 // Factom Chain
 //		byte		Version
@@ -66,7 +69,7 @@ func (r *RootChainApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error {
 func (r *RootChainApplyEntry) NeedIsFirstEntry() bool { return true }
 
 func (r *RootChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
-	cw := new(ChannelWrapper)
+	cw := NewChannelWrapper()
 	chainID, err := primitives.HexToHash(r.Entry.Entry.ChainID)
 	if err != nil {
 		return nil, false
@@ -90,3 +93,4 @@ func (m *RootChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
 func (r *RootChainApplyEntry) NeedChainEntries() bool                      { return false }
 func (m *RootChainApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *RootChainApplyEntry) String() string { return "RootChainApplyEntry" }

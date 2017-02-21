@@ -40,9 +40,10 @@ func (r *ChanContentChain) CreateChanContentChain(rootChain primitives.Hash, sig
 	e.ExtIDs = append(e.ExtIDs, []byte{constants.FACTOM_VERSION}) // 0
 	e.ExtIDs = append(e.ExtIDs, []byte("Channel Content Chain"))  // 1
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                // 2
-	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes())            // 3
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
+	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
+
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 4
 
@@ -70,7 +71,7 @@ func (r *ChanContentChain) RegisterChannelContentChain(rootChain primitives.Hash
 	e.ExtIDs = append(e.ExtIDs, []byte("Register Content Chain")) // 1
 	e.ExtIDs = append(e.ExtIDs, contentChainID.Bytes())           // 2
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig) // 4

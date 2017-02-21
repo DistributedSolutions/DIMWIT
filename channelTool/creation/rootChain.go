@@ -82,7 +82,7 @@ func (r *RootChain) RegisterRootEntry(rootChain primitives.Hash, sigKey primitiv
 	e.ExtIDs = append(e.ExtIDs, []byte("Channel Chain"))          // 1
 	e.ExtIDs = append(e.ExtIDs, rootChain.Bytes())                // 2
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 3
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig)
@@ -114,7 +114,7 @@ func (r *RootChain) ContentSigningKey(rootChain primitives.Hash, contentSigningK
 	e.ExtIDs = append(e.ExtIDs, contentSigningKey.Bytes())        // 3
 	e.ExtIDs = append(e.ExtIDs, tsData)                           // 4
 
-	msg := upToNonce(e.ExtIDs)
+	msg := upToSig(e.ExtIDs)
 	e.ExtIDs = append(e.ExtIDs, sigKey.Public.Bytes()) // 5
 	sig := sigKey.Sign(msg)
 	e.ExtIDs = append(e.ExtIDs, sig)

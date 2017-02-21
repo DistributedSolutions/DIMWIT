@@ -96,3 +96,4 @@ func (r *ManageChainApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {}
 func (m *ManageChainApplyEntry) RequestEntriesInOtherChain() (string, bool)  { return "", false }
 func (m *ManageChainApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolder, rest []*lite.EntryHolder) {
 }
+func (m *ManageChainApplyEntry) String() string { return "ManageChainApplyEntry" }

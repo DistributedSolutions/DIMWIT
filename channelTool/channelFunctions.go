@@ -23,6 +23,10 @@ func (a *AuthChannel) ReturnFactomChains() ([]*factom.Chain, error) {
 	c = append(c, a.RootChain.ReturnChains()...)
 	c = append(c, a.ManageChain.ReturnChains()...)
 	c = append(c, a.ContentChain.ReturnChains()...)
+
+	for _, con := range a.Contents {
+		c = append(c, con.ReturnChains()...)
+	}
 	return c, nil
 }
 
@@ -36,6 +40,10 @@ func (a *AuthChannel) ReturnFactomEntries() ([]*factom.Entry, error) {
 	c = append(c, a.RootChain.ReturnEntries()...)
 	c = append(c, a.ManageChain.ReturnEntries()...)
 	c = append(c, a.ContentChain.ReturnEntries()...)
+
+	for _, con := range a.Contents {
+		c = append(c, con.ReturnEntries()...)
+	}
 	return c, nil
 }
 
@@ -123,5 +131,21 @@ func (a *AuthChannel) MakeContentChain() error {
 	cc.RegisterChannelContentChain(a.Channel.RootChainID, *h, a.PrivateKeys[2])
 
 	a.ContentChain = cc
+	return nil
+}
+
+func (a *AuthChannel) MakeContents() error {
+	for _, c := range a.Channel.Content.GetContents() {
+		cc := new(creation.ContentChain)
+		cont := creation.CommonContentToContentChainContent(&c)
+		err := cc.CreateContentChain(c.Type, *cont, a.Channel.RootChainID, a.ContentSigning)
+		if err != nil {
+			return err
+		}
+
+		cc.RegisterNewContentChain(a.Channel.RootChainID, a.Channel.ContentChainID, c.Type, a.ContentSigning)
+		a.Contents = append(a.Contents, cc)
+	}
+
 	return nil
 }

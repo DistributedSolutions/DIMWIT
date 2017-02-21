@@ -36,6 +36,7 @@ func TestBitbucket(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+		fmt.Println(string(c.FirstEntry.ExtIDs[1]))
 	}
 
 	eHashes := make([]string, 0)
@@ -67,6 +68,7 @@ func TestBitbucket(t *testing.T) {
 		t.Error(err)
 	}
 
+	fmt.Println(cw)
 	if !cw.Channel.IsSameAs(&auth.Channel) {
 		t.Error("Channels not the same")
 	}
