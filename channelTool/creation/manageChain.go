@@ -353,7 +353,12 @@ func (m *ManageChainMetaData) MarshalBinary() ([]byte, error) {
 		return nil, err
 	}
 
-	return msgPackData, nil
+	length := primitives.Uint32ToBytes(uint32(len(msgPackData)))
+	buf := new(bytes.Buffer)
+	buf.Write(length)
+	buf.Write(msgPackData)
+
+	return buf.Next(buf.Len()), nil
 }
 
 func (m *ManageChainMetaData) UnmarshalBinary(data []byte) (err error) {
@@ -372,10 +377,18 @@ func (m *ManageChainMetaData) UnmarshalBinaryData(data []byte) (newData []byte, 
 	mb := new(ManageChainMetaDataBytes)
 	newData = data
 
-	newData, err = mb.UnmarshalMsg(newData)
+	u, err := primitives.BytesToUint32(newData[:4])
 	if err != nil {
 		return data, err
 	}
+	newData = newData[4:]
+
+	_, err = mb.UnmarshalMsg(newData[:u])
+	if err != nil {
+		return data, err
+	}
+
+	newData = newData[u:]
 
 	if len(mb.Website) > 0 {
 		m.Website = new(primitives.SiteURL)

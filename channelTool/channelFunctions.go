@@ -135,7 +135,7 @@ func (a *AuthChannel) MakeContentChain() error {
 }
 
 func (a *AuthChannel) MakeContents() error {
-	for _, c := range a.Channel.Content.GetContents() {
+	for i, c := range a.Channel.Content.GetContents() {
 		cc := new(creation.ContentChain)
 		cont := creation.CommonContentToContentChainContent(&c)
 		err := cc.CreateContentChain(c.Type, *cont, a.Channel.RootChainID, a.ContentSigning)
@@ -145,6 +145,13 @@ func (a *AuthChannel) MakeContents() error {
 
 		cc.RegisterNewContentChain(a.Channel.RootChainID, a.Channel.ContentChainID, c.Type, a.ContentSigning)
 		a.Contents = append(a.Contents, cc)
+		a.Channel.Content.ContentList[i].RootChainID = a.Channel.RootChainID
+		chainID, err := primitives.HexToHash(cc.FirstEntry.FirstEntry.ChainID)
+		if err != nil {
+			return err
+		}
+		a.Channel.Content.ContentList[i].ContentID = *chainID
+
 	}
 
 	return nil

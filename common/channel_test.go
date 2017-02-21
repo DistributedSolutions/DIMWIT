@@ -11,7 +11,7 @@ import (
 var _ = fmt.Sprintf("")
 
 func TestChannel(t *testing.T) {
-	for i := 0; i < 5000; i++ {
+	for i := 0; i < 2000; i++ {
 		l := RandomNewChannel()
 		data, err := l.MarshalBinary()
 		if err != nil {

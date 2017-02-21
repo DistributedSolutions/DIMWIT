@@ -56,6 +56,15 @@ func NewContentLinkApplyEntry() IApplyEntry {
 	return m
 }
 
+// Factom Entry
+//		byte		Version				0
+//		[12]byte	"Content Link"		1
+//		byte		ContentType			2
+//		[32]byte	RootChainID			3
+// 		[32]byte 	ContentChain		4
+//		[]byte		Timestamp			5
+//		[32]byte	ContentSignKey		6
+//		[64]byte	Signature			7
 func (m *ContentLinkApplyEntry) ParseFactomEntry(e *lite.EntryHolder) error {
 	m.Entry = e
 	ex := e.Entry.ExtIDs
@@ -115,9 +124,9 @@ func (m *ContentLinkApplyEntry) RequestEntriesInOtherChain() (string, bool) {
 
 // Factom Chain
 //		byte		Version				0
-//		byte		ContentType			1
-//		[4]byte		TotalEntries		2
-//		[13]byte	"Content Chain"		3
+//		[13]byte	"Content Chain"		1
+//		byte		ContentType			2
+//		[4]byte		TotalEntries		3
 //		[32]byte	RootChainID			4
 //		[20]byte	Infohash			5
 //		[]byte		Timestamp			6
@@ -134,8 +143,8 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 
 	ex := first.Entry.ExtIDs
 	m.Version = ex[0][0]
-	m.ContentType = ex[1][0]
-	u, err := primitives.BytesToUint32(ex[2])
+	m.ContentType = ex[2][0]
+	u, err := primitives.BytesToUint32(ex[3])
 	if err != nil {
 		log.Println("ERROR: 1")
 		m.ErrorAndStop = true
@@ -284,6 +293,7 @@ func (m *ContentLinkApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		return nil, false
 	}
 
+	m.Content.RootChainID = m.RootChainID
 	m.Channel.Channel.Content.AddContent(m.Content)
 
 	return m.Channel, true

@@ -2,6 +2,8 @@ package objects
 
 import (
 	"time"
+
+	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
 
 // InsideTimeWindow returns true if ele is withing window time of Main
@@ -17,3 +19,15 @@ func InsideTimeWindow(main time.Time, ele time.Time, window int64) bool {
 	}
 	return true
 }
+
+func RemoveFromList(list []*lite.EntryHolder, i int) (newList []*lite.EntryHolder) {
+	defer func() {
+		if r := recover(); r != nil {
+			newList = list
+			return
+		}
+	}()
+	return append(list[:i], list[i+1:]...)
+}
+
+//append(list[:i], list[i+1:]...)

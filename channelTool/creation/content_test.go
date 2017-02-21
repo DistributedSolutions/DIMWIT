@@ -66,7 +66,9 @@ func TestContentChain(t *testing.T) {
 
 		if len(cc.Entries) > 0 {
 			if ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs)+len(cc.FirstEntry.FirstEntry.Content) != constants.ENTRY_MAX_SIZE {
-				t.Errorf("Fist entry length is not %d bytes. It has more entries, and it's length is %d", constants.ENTRY_MAX_SIZE, ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs)+len(cc.FirstEntry.FirstEntry.Content))
+				t.Errorf("%d - Fist entry length is not %d bytes. It has more entries, and it's length is %d. Header: %d, Content: %d",
+					i, constants.ENTRY_MAX_SIZE, ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs)+len(cc.FirstEntry.FirstEntry.Content),
+					ExIDLength(cc.FirstEntry.FirstEntry.ExtIDs), len(cc.FirstEntry.FirstEntry.Content))
 			}
 		}
 

@@ -56,7 +56,9 @@ func RandomNewChannel() *Channel {
 	c.Website = *primitives.RandomSiteURL()
 	c.LongDescription = *primitives.RandomLongDescription()
 	c.ShortDescription = *primitives.RandomShortDescription()
-	c.Content = *RandomContentList(random.RandomUInt32Between(0, 30))
+	c.Content = *SmartRandomContentList(random.RandomUInt32Between(0, 30),
+		c.RootChainID,
+		c.ContentChainID)
 	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
 	c.Playlist = *SmartRandomManyPlayList(random.RandomUInt32Between(0, 100), c.Content)
 	c.Thumbnail = *primitives.RandomImage()
@@ -221,6 +223,7 @@ func (a *Channel) IsSameAs(b *Channel) bool {
 
 	if !a.Content.IsSameAs(&b.Content) {
 		fmt.Println("Exit 15")
+		fmt.Println("DEBUG:", len(a.Content.GetContents()), len(b.Content.ContentList))
 		return false
 	}
 
@@ -456,6 +459,7 @@ func (c *Channel) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	var tmp time.Time
 	err = tmp.UnmarshalBinary(newData[:15])
 	if err != nil {
+		fmt.Printf("Hit the error here: %x\n", newData[:15])
 		return data, err
 	}
 	c.CreationTime = tmp

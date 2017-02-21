@@ -162,30 +162,18 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		for in, e := range rest {
 			if len(e.Entry.ExtIDs) != 9 ||
 				bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Management Metadata Stich")) != 0 { // Crap
-				if in == len(rest) {
-					rest = rest[:in]
-				} else {
-					rest = append(rest[:in], rest[in+1:]...) // Remove crap
-				}
+				rest = RemoveFromList(rest, in) // Remove crap
 				continue
 			}
 			seq, err := primitives.BytesToUint32(e.Entry.ExtIDs[4])
 			if err != nil {
-				if in == len(rest) {
-					rest = rest[:in]
-				} else {
-					rest = append(rest[:in], rest[in+1:]...) // Remove crap
-				}
+				rest = RemoveFromList(rest, in) // Remove crap
 				continue
 			}
 			if seq == uint32(in) {
 				v, data := m.ValidateStitch(e)
 				if v { // Stich applied, look for the next
-					if in == len(rest) {
-						rest = rest[:in]
-					} else {
-						rest = append(rest[:in], rest[in+1:]...) // Remove crap
-					}
+					rest = RemoveFromList(rest, in) // Remove crap
 					content = append(content, data...)
 					found = true
 					break

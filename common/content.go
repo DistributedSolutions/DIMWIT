@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -35,11 +36,11 @@ type Content struct {
 }
 
 func (cl *ContentList) GetContents() []Content {
-	return cl.contentList
+	return cl.ContentList
 }
 
 func (cl *ContentList) AddContent(c Content) {
-	cl.contentList = append(cl.contentList, c)
+	cl.ContentList = append(cl.ContentList, c)
 }
 
 func RandomNewContent() *Content {
@@ -61,64 +62,105 @@ func RandomNewContent() *Content {
 	return c
 }
 
+func SmartRandomNewContent(root primitives.Hash, content primitives.Hash) *Content {
+	c := new(Content)
+
+	c.ContentID = content
+	c.RootChainID = root
+	c.ContentTitle = *primitives.RandomTitle()
+	c.InfoHash = *primitives.RandomInfoHash()
+	c.LongDescription = *primitives.RandomLongDescription()
+	c.ShortDescription = *primitives.RandomShortDescription()
+	c.ActionFiles = *primitives.RandomFileList(uint32(10))
+	c.Thumbnail = *primitives.RandomImage()
+	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CONTENT_TAGS))
+	c.Trackers = *primitives.RandomTrackerList(uint32(5))
+	c.FileList = *primitives.RandomFileList(uint32(10))
+	c.CreationTime = time.Now()
+
+	return c
+}
+
 func (a *Content) IsSameAs(b *Content) bool {
 	if a.Type != b.Type {
+		fmt.Println(a.Type, b.Type)
+		log.Println("Content IsSameAs Exit 1")
 		return false
 	}
 
 	if !a.ContentID.IsSameAs(&b.ContentID) {
+		fmt.Println(a.ContentID.String(), b.ContentID.String())
+		log.Println("Content IsSameAs Exit 2")
 		return false
 	}
 
 	if !a.RootChainID.IsSameAs(&b.RootChainID) {
+		log.Println("Content IsSameAs Exit 3")
+		fmt.Println(a.RootChainID.String(), b.RootChainID.String())
 		return false
 	}
 
 	if !a.ContentTitle.IsSameAs(&b.ContentTitle) {
+		log.Println("Content IsSameAs Exit 4")
 		return false
 	}
 
 	if !a.InfoHash.IsSameAs(&b.InfoHash) {
+		log.Println("Content IsSameAs Exit 5")
 		return false
 	}
 
 	if !a.LongDescription.IsSameAs(&b.LongDescription) {
+		log.Println("Content IsSameAs Exit 6")
 		return false
 	}
 
 	if !a.ShortDescription.IsSameAs(&b.ShortDescription) {
+		log.Println("Content IsSameAs Exit 7")
 		return false
 	}
 
 	if !a.ActionFiles.IsSameAs(&b.ActionFiles) {
+		log.Println("Content IsSameAs Exit 8")
 		return false
 	}
 
 	if !a.Thumbnail.IsSameAs(&b.Thumbnail) {
+		log.Println("Content IsSameAs Exit 9")
 		return false
 	}
 
 	if a.Series != b.Series {
+		log.Println("Content IsSameAs Exit 10")
 		return false
 	}
 
 	if a.Part[0] != b.Part[0] || a.Part[1] != b.Part[1] {
+		log.Println("Content IsSameAs Exit 11")
 		return false
 	}
 
 	if !a.Tags.IsSameAs(&b.Tags) {
+		log.Println("Content IsSameAs Exit 12")
 		return false
 	}
 
 	if !a.Trackers.IsSameAs(&b.Trackers) {
+		log.Println("Content IsSameAs Exit 13")
 		return false
 	}
 
 	if !a.FileList.IsSameAs(&b.FileList) {
+		log.Println("Content IsSameAs Exit 14")
 		return false
 	}
 
-	if a.CreationTime.Nanosecond() != b.CreationTime.Nanosecond() {
+	diff := a.CreationTime.Unix() - b.CreationTime.Unix()
+	if diff < 0 {
+		diff = -1 * diff
+	}
+	if diff > 60*60*24 { // 1 day difference
+		log.Println("Content IsSameAs Exit 15")
 		return false
 	}
 
@@ -320,30 +362,42 @@ func (c *Content) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 //
 
 type ContentList struct {
-	length      uint32
-	contentList []Content
+	ContentList []Content
 }
 
 func RandomContentList(max uint32) *ContentList {
 	p := new(ContentList)
 	l := random.RandomUInt32Between(0, max)
-	p.length = l
 
-	p.contentList = make([]Content, l)
-	for i := range p.contentList {
-		p.contentList[i] = *RandomNewContent()
+	p.ContentList = make([]Content, l)
+	for i := range p.ContentList {
+		p.ContentList[i] = *RandomNewContent()
+	}
+
+	return p
+}
+
+func SmartRandomContentList(max uint32, root primitives.Hash, content primitives.Hash) *ContentList {
+	p := new(ContentList)
+	l := random.RandomUInt32Between(0, max)
+
+	p.ContentList = make([]Content, l)
+	for i := range p.ContentList {
+		p.ContentList[i] = *SmartRandomNewContent(root, content)
 	}
 
 	return p
 }
 
 func (a *ContentList) IsSameAs(b *ContentList) bool {
-	if a.length != b.length {
+	if len(a.ContentList) != len(b.ContentList) {
+		log.Println("ContentList Exit 1")
 		return false
 	}
 
-	for i := range a.contentList {
-		if !a.contentList[i].IsSameAs(&b.contentList[i]) {
+	for i := range a.ContentList {
+		if !a.ContentList[i].IsSameAs(&b.ContentList[i]) {
+			log.Println("ContentList Exit 2")
 			return false
 		}
 	}
@@ -353,11 +407,11 @@ func (a *ContentList) IsSameAs(b *ContentList) bool {
 func (p *ContentList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data := primitives.Uint32ToBytes(p.length)
+	data := primitives.Uint32ToBytes(uint32(len(p.ContentList)))
 	buf.Write(data)
 
-	for i := range p.contentList {
-		data, err := p.contentList[i].MarshalBinary()
+	for i := range p.ContentList {
+		data, err := p.ContentList[i].MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
@@ -385,13 +439,12 @@ func (p *ContentList) UnmarshalBinaryData(data []byte) (newData []byte, err erro
 	if err != nil {
 		return data, err
 	}
-	p.length = u
 	newData = newData[4:]
 
-	p.contentList = make([]Content, u)
+	p.ContentList = make([]Content, u)
 	var i uint32
 	for i = 0; i < u; i++ {
-		newData, err = p.contentList[i].UnmarshalBinaryData(newData)
+		newData, err = p.ContentList[i].UnmarshalBinaryData(newData)
 		if err != nil {
 			return data, err
 		}

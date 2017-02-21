@@ -369,7 +369,7 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 	if totalSize > constants.ENTRY_MAX_SIZE {
 		entryCount = howManyEntries(headerLength, contentLength, 142)
 	}
-	e.ExtIDs[2] = primitives.Uint32ToBytes(uint32(entryCount))
+	e.ExtIDs[3] = primitives.Uint32ToBytes(uint32(entryCount))
 
 	// Redo signature with  new values
 	buf := new(bytes.Buffer)
@@ -443,14 +443,14 @@ func (r *ContentChain) CreateContentChain(contentType byte, contentData ContentC
 }
 
 // Factom Entry
-//		byte		Version
-//		[12]byte	"Content Link"
-//		byte		ContentType
-//		[32]byte	RootChainID
-// 		[32]byte 	ContentChain
-//		[]byte		Timestamp
-//		[32]byte	ContentSignKey
-//		[64]byte	Signature
+//		byte		Version				0
+//		[12]byte	"Content Link"		1
+//		byte		ContentType			2
+//		[32]byte	RootChainID			3
+// 		[32]byte 	ContentChain		4
+//		[]byte		Timestamp			5
+//		[32]byte	ContentSignKey		6
+//		[64]byte	Signature			7
 func (r *ContentChain) RegisterNewContentChain(rootChain primitives.Hash, chanContentChainID primitives.Hash, contentType byte, sigKey primitives.PrivateKey) error {
 	e := new(factom.Entry)
 
