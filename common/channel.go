@@ -181,7 +181,7 @@ func (a *Channel) IsSameAs(b *Channel) bool {
 	}
 
 	if !a.Website.IsSameAs(&b.Website) {
-		fmt.Println("Exit 7")
+		fmt.Printf("Exit 7. Web A: %s, Web B: %s\n", a.Website.String(), b.Website.String())
 		return false
 	}
 

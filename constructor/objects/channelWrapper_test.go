@@ -8,7 +8,7 @@ import (
 )
 
 func TestChannelWrapper(t *testing.T) {
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 10; i++ {
 		w := *RandomChannelWrapper()
 		data, err := w.MarshalBinary()
 		if err != nil {

@@ -175,6 +175,7 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 				if v { // Stich applied, look for the next
 					rest = RemoveFromList(rest, in) // Remove crap
 					content = append(content, data...)
+					fmt.Println("Found, ", seq)
 					found = true
 					break
 				}
@@ -188,7 +189,7 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 
 	fContHash := sha256.Sum256(content)
 	if bytes.Compare(fContHash[:], m.FullContentHash.Bytes()) != 0 {
-		fmt.Println("ERROR!: Content hash of metadata does not match")
+		fmt.Printf("ERROR!: Content hash of metadata does not match. %d Entries\n", m.EntryCount)
 		return nil, false
 	}
 

@@ -51,8 +51,8 @@ func TestCompleteAuthChannel(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if len(chs) != 3 {
-			t.Error("Should be 3 chains")
+		if len(chs) < 3 {
+			t.Error("Should be at least 3 chains")
 		}
 
 		es, err := a.ReturnFactomEntries()
