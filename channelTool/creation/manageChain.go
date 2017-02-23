@@ -194,12 +194,12 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 	//	3	[32]byte	FullContentHash
 	//	4	[4]byte		Sequence
 	//	5	[32]byte	ContentHash
-	//	6	[15]byte		Timestamp
+	//	6	[15]byte	Timestamp
 	//	7	[32]byte	PublicKey(3)
 	//	8	[64]byte	Signature
 	c.Entries = make([]*factom.Entry, entryCount)
 	bytesPerEntry := constants.ENTRY_MAX_SIZE - contentHeaderLen
-	var seq uint32 = 1
+	var seq uint32 = 0
 	for len(data) > 0 {
 		entry := new(factom.Entry)
 		end := bytesPerEntry
@@ -216,7 +216,7 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 		entry.ExtIDs = append(entry.ExtIDs, []byte("Channel Management Metadata Stich")) // 1
 		entry.ExtIDs = append(entry.ExtIDs, root.Bytes())                                // 2
 		entry.ExtIDs = append(entry.ExtIDs, fullHash[:])                                 // 3
-		entry.ExtIDs = append(entry.ExtIDs, primitives.Uint32ToBytes(seq))               // 4 - Seq
+		entry.ExtIDs = append(entry.ExtIDs, primitives.Uint32ToBytes(seq+1))             // 4 - Seq
 		entry.ExtIDs = append(entry.ExtIDs, partHash[:])                                 // 5
 		entry.ExtIDs = append(entry.ExtIDs, tsData)                                      // 6
 
@@ -227,10 +227,11 @@ func (r *ManageChain) CreateMetadata(meta *ManageChainMetaData, root primitives.
 		entry.ChainID = manage.String()
 		entry.Content = contentData
 
-		if int(seq-1) >= len(c.Entries) {
+		if int(seq) >= len(c.Entries) {
 			return fmt.Errorf("Ran out of entries. Seq is %d. Entrycount is %d, %d bytes left to write", seq-1, entryCount, len(data))
 		}
-		c.Entries[seq-1] = entry
+		c.Entries[seq] = entry
+		//fmt.Println("Seq", seq, len(c.Entries[seq].Content), len(data), entry.ExtIDs[4])
 		seq++
 	}
 

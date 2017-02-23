@@ -61,7 +61,7 @@ func RandomNewChannel() *Channel {
 		c.ContentChainID)
 	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
 	c.Playlist = *SmartRandomManyPlayList(random.RandomUInt32Between(0, 100), c.Content)
-	c.Thumbnail = *primitives.RandomImage()
+	c.Thumbnail = *primitives.RandomHugeImage()
 	c.Banner = *primitives.RandomImage()
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
 	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))

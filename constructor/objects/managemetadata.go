@@ -122,7 +122,6 @@ func (m *ManageMetaApplyEntry) AnswerChainEntries(ents []*lite.EntryHolder) {
 }
 
 func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
-	// Validate
 	if !m.RootChain.IsSameAs(&m.Channel.Channel.RootChainID) {
 		return nil, false // Wrong chain dumbass
 	}
@@ -155,27 +154,32 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 
 	rest := m.Entries
 	var c uint32
-	for c = 1; c < m.EntryCount; c++ {
+	for c = 1; c < m.EntryCount+1; c++ {
 		// Looking for sequence c
 		found := false
-
 		for in, e := range rest {
+			var _ = in
 			if len(e.Entry.ExtIDs) != 9 ||
 				bytes.Compare(e.Entry.ExtIDs[1], []byte("Channel Management Metadata Stich")) != 0 { // Crap
-				rest = RemoveFromList(rest, in) // Remove crap
+				//rest = RemoveFromList(rest, in) // Remove crap
+				//skip = true
+				//fmt.Println("REMOVE", e.Entry.ExtIDs[4], len(rest))
 				continue
 			}
-			seq, err := primitives.BytesToUint32(e.Entry.ExtIDs[4])
+
+			u, err := primitives.BytesToUint32(e.Entry.ExtIDs[4])
 			if err != nil {
-				rest = RemoveFromList(rest, in) // Remove crap
+				//rest = RemoveFromList(rest, in) // Remove crap
+				//fmt.Println("REMOVE", e.Entry.ExtIDs[4], len(rest))
 				continue
 			}
-			if seq == uint32(in) {
+
+			seq := u
+			if seq == c {
 				v, data := m.ValidateStitch(e)
 				if v { // Stich applied, look for the next
-					rest = RemoveFromList(rest, in) // Remove crap
+					//rest = RemoveFromList(rest, in)
 					content = append(content, data...)
-					fmt.Println("Found, ", seq)
 					found = true
 					break
 				}
@@ -189,7 +193,7 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 
 	fContHash := sha256.Sum256(content)
 	if bytes.Compare(fContHash[:], m.FullContentHash.Bytes()) != 0 {
-		fmt.Printf("ERROR!: Content hash of metadata does not match. %d Entries\n", m.EntryCount)
+		fmt.Printf("ERROR!: Content hash of metadata does not match. %d Entries. ContentLen: %d\n", m.EntryCount, len(content))
 		return nil, false
 	}
 
@@ -199,6 +203,7 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	// Wow, we did it.
 	err := m.Meta.UnmarshalBinary(content)
 	if err != nil {
+		fmt.Println("DEBUG: Bad 1")
 		return nil, false // Fuuuuuck
 	}
 
@@ -265,13 +270,12 @@ func (m *ManageMetaApplyEntry) ValidateStitch(e *lite.EntryHolder) (bool, []byte
 		return false, nil
 	}
 
-	hash, err = primitives.BytesToHash(e.Entry.ExtIDs[3])
+	hash, err = primitives.BytesToHash(e.Entry.ExtIDs[5])
 	if err != nil {
 		return false, nil
 	}
 
 	contentHash := sha256.Sum256(e.Entry.Content)
-
 	if bytes.Compare(contentHash[:], hash.Bytes()) != 0 {
 		return false, nil
 	}

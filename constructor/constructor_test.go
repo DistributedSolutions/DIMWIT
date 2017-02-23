@@ -14,6 +14,7 @@ var _ = fmt.Sprintf("")
 
 func TestBitbucket(t *testing.T) {
 	fake := lite.NewFakeDumbLite()
+	//fake := lite.NewDumbLite()
 	for i := 0; i < 5; i++ {
 		ch := common.RandomNewChannel()
 		ec := lite.GetECAddress()
@@ -69,7 +70,7 @@ func TestBitbucket(t *testing.T) {
 		}
 
 		if !cw.Channel.IsSameAs(&auth.Channel) {
-			t.Error("Channels not the same")
+			t.Error("Channels not the same", cw.Channel.RootChainID.String(), auth.Channel.RootChainID.String())
 		}
 	}
 

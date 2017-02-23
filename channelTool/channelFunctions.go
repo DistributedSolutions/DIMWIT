@@ -44,6 +44,7 @@ func (a *AuthChannel) ReturnFactomEntries() ([]*factom.Entry, error) {
 	for _, con := range a.Contents {
 		c = append(c, con.ReturnEntries()...)
 	}
+
 	return c, nil
 }
 
