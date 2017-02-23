@@ -80,6 +80,7 @@ const (
 	//CHANNEL
 	SQL_TABLE_CHANNEL__HASH  = "channelHash"
 	SQL_TABLE_CHANNEL__TITLE = "tile"
+	SQL_TABLE_CHANNEL__DT    = "dt"
 
 	//CHANNEL TAG
 	SQL_TABLE_CHANNEL_TAG__ID   = "id"
@@ -99,6 +100,7 @@ const (
 	//CONTENT TAG
 	SQL_TABLE_CONTENT_TAG__ID   = "id"
 	SQL_TABLE_CONTENT_TAG__NAME = "name"
+	SQL_TABLE_CONTENT_TAG__DT   = "dt"
 
 	//CONTENT + TAG + REL
 	SQL_TABLE_CONTENT_TAG_REL__C_ID  = "c_id"

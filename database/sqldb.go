@@ -43,7 +43,8 @@ var TABLE_NAMES = []string{
 var CREATE_TABLE = []string{
 	constants.SQL_CHANNEL + "(" +
 		constants.SQL_TABLE_CHANNEL__HASH + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") PRIMARY KEY, " +
-		constants.SQL_TABLE_CHANNEL__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL)",
+		constants.SQL_TABLE_CHANNEL__TITLE + " VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL," +
+		constants.SQL_TABLE_CHANNEL__DT + " datetime)",
 
 	constants.SQL_CHANNEL_TAG + "(" +
 		constants.SQL_TABLE_CHANNEL_TAG__ID + " INTEGER PRIMARY KEY, " +
@@ -69,7 +70,8 @@ var CREATE_TABLE = []string{
 
 	constants.SQL_CONTENT_TAG + "(" +
 		constants.SQL_TABLE_CONTENT_TAG__ID + " INTEGER PRIMARY KEY, " +
-		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
+		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE," +
+		constants.SQL_TABLE_CONTENT_TAG__DT + " datetime)",
 
 	constants.SQL_CONTENT_TAG_REL + "(" +
 		constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " INTEGER NOT NULL, " +
