@@ -3,7 +3,6 @@ package common
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
