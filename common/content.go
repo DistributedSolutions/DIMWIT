@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -71,7 +72,7 @@ func SmartRandomNewContent(root primitives.Hash, content primitives.Hash) *Conte
 	c.LongDescription = *primitives.RandomLongDescription()
 	c.ShortDescription = *primitives.RandomShortDescription()
 	c.ActionFiles = *primitives.RandomFileList(uint32(10))
-	c.Thumbnail = *primitives.RandomImage()
+	c.Thumbnail = *primitives.RandomHugeImage()
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CONTENT_TAGS))
 	c.Trackers = *primitives.RandomTrackerList(uint32(5))
 	c.FileList = *primitives.RandomFileList(uint32(10))

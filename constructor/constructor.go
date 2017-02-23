@@ -171,9 +171,16 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 		// There should only be on with that method, so anything else
 		// could be spam or malicious
 		first, err := c.Reader.GetFirstEntry(*ohash)
-		for i := range entries {
+		end := len(entries)
+		for i := 0; i < end; i++ {
 			if bytes.Compare(entries[i].ExtIDs[2], first.ExtIDs[2]) == 0 {
-				entries = append(entries[:i], entries[i+1:]...)
+				//entries = append(entries[:i], entries[i+1:]...)
+				entries[i] = entries[len(entries)-1]
+				entries = entries[:len(entries)-1]
+				if i > 0 {
+					i--
+				}
+				end = end - 1
 			}
 		}
 

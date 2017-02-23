@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
-	"log"
+	//"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
@@ -146,7 +146,6 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	m.ContentType = ex[2][0]
 	u, err := primitives.BytesToUint32(ex[3])
 	if err != nil {
-		log.Println("ERROR: 1")
 		m.ErrorAndStop = true
 		return
 	}
@@ -154,20 +153,17 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 
 	r, err := primitives.BytesToHash(ex[4])
 	if err != nil {
-		log.Println("ERROR: 2")
 		m.ErrorAndStop = true
 		return
 	}
 	// Root chain in Link does not match.
 	if !m.RootChainID.IsSameAs(r) {
-		log.Println("ERROR: 3")
 		m.ErrorAndStop = true
 		return
 	}
 
 	i, err := primitives.BytesToInfoHash(ex[5])
 	if err != nil {
-		log.Println("ERROR: 4")
 		m.ErrorAndStop = true
 		return
 	}
@@ -176,14 +172,12 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	var t time.Time
 	err = t.UnmarshalBinary(ex[6])
 	if err != nil {
-		log.Println("ERROR: 5")
 		m.ErrorAndStop = true
 		return
 	}
 	m.Timestamp = t
 	// Check Time window
 	if !InsideTimeWindow(m.LinkTimestamp, m.Timestamp, constants.ENTRY_TIMESTAMP_WINDOW) {
-		log.Println("ERROR: 6")
 		m.ErrorAndStop = true
 		return
 	}
@@ -192,7 +186,6 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 
 	err = m.ContentSigKey.UnmarshalBinary(ex[8])
 	if err != nil {
-		log.Println("ERROR: 7")
 		m.ErrorAndStop = true
 		return
 	}
@@ -205,15 +198,11 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	m.Signature = ex[9]
 
 	if !m.ContentSigKey.IsSameAs(&m.Channel.Channel.ContentSingingKey) {
-		log.Println("ERROR: 8")
 		m.ErrorAndStop = true
 		return
 	}
 
 	if valid := m.ContentSigKey.Verify(m.Message, m.Signature); !valid {
-		log.Println("ERROR: 9")
-		fmt.Printf("FOUND: %x, %x\n", m.Message, m.Signature)
-
 		m.ErrorAndStop = true
 		return
 	}
@@ -231,31 +220,31 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	content = append(content, plain...)
 
 	var c uint32
-	for c = 1; c < m.TotalEntries; c++ {
+	for c = 1; c < m.TotalEntries+1; c++ {
 		// Looking for sequence c
 		found := false
 		for in, e := range rest {
 			if len(e.Entry.ExtIDs) != 4 { // Crap
-				rest = append(rest[:in], rest[in+1:]...)
+				//rest = append(rest[:in], rest[in+1:]...)
 				continue
 			}
 			seq, err := primitives.BytesToUint32(e.Entry.ExtIDs[0])
 			if err != nil {
-				rest = append(rest[:in], rest[in+1:]...) // Remove crap
+				//rest = append(rest[:in], rest[in+1:]...) // Remove crap
 				continue
 			}
-			if seq == uint32(in) {
+			if seq == uint32(c) {
 				v, data := m.ValidateStitch(e)
 				if v { // Stich applied, look for the next
-					rest = append(rest[:in], rest[in+1:]...)
+					//rest = append(rest[:in], rest[in+1:]...)
 					content = append(content, data...)
 					found = true
 					break
 				}
 			}
+			var _ = in
 		}
 		if !found {
-			log.Println("ERROR: 10")
 			m.ErrorAndStop = true
 			return
 		}
@@ -264,7 +253,6 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	// Woo! Stiched up!
 	err = m.ContentData.UnmarshalBinary(content)
 	if err != nil {
-		log.Println("ERROR: 11")
 		m.ErrorAndStop = true
 		return
 	}
@@ -289,7 +277,6 @@ func (m *ContentLinkApplyEntry) ValidateStitch(e *lite.EntryHolder) (bool, []byt
 func (m *ContentLinkApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	// Application happens above in the getting entries
 	if m.ErrorAndStop {
-		log.Println("Error occured. Could not apply ContentLinkApplyEntry")
 		return nil, false
 	}
 

@@ -193,7 +193,6 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 
 	fContHash := sha256.Sum256(content)
 	if bytes.Compare(fContHash[:], m.FullContentHash.Bytes()) != 0 {
-		fmt.Printf("ERROR!: Content hash of metadata does not match. %d Entries. ContentLen: %d\n", m.EntryCount, len(content))
 		return nil, false
 	}
 
@@ -203,7 +202,6 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	// Wow, we did it.
 	err := m.Meta.UnmarshalBinary(content)
 	if err != nil {
-		fmt.Println("DEBUG: Bad 1")
 		return nil, false // Fuuuuuck
 	}
 

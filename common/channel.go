@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"fmt"
+	//"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -146,89 +147,89 @@ func (a *Channel) ready() bool {
 
 func (a *Channel) IsSameAs(b *Channel) bool {
 	if !a.ChannelTitle.IsSameAs(&b.ChannelTitle) {
-		//fmt.Println("Exit 0")
+		//log.Println("Exit 0")
 		return false
 	}
 
 	if !a.RootChainID.IsSameAs(&b.RootChainID) {
-		//fmt.Println("Exit 1")
+		//log.Println("Exit 1")
 		return false
 	}
 
 	if !a.ManagementChainID.IsSameAs(&b.ManagementChainID) {
-		//fmt.Println("Exit 1")
+		//log.Println("Exit 1")
 		return false
 	}
 
 	if !a.ContentChainID.IsSameAs(&b.ContentChainID) {
-		//fmt.Println("Exit 2")
+		//log.Println("Exit 2")
 		return false
 	}
 
 	if !a.LV1PublicKey.IsSameAs(&b.LV1PublicKey) {
-		//fmt.Println("Exit 3")
+		//log.Println("Exit 3")
 		return false
 	}
 
 	if !a.LV2PublicKey.IsSameAs(&b.LV2PublicKey) {
-		//fmt.Println("Exit 4")
+		//log.Println("Exit 4")
 		return false
 	}
 
 	if !a.LV3PublicKey.IsSameAs(&b.LV3PublicKey) {
-		//fmt.Println("Exit 5")
+		//log.Println("Exit 5")
 		return false
 	}
 
 	if !a.ContentSingingKey.IsSameAs(&b.ContentSingingKey) {
-		//fmt.Println("Exit 6")
+		//log.Println("Exit 6")
 		return false
 	}
 
 	if !a.Website.IsSameAs(&b.Website) {
-		//fmt.Printf("Exit 7. Web A: %s, Web B: %s\n", a.Website.String(), b.Website.String())
+		//log.Printf("Exit 7. Web A: %s, Web B: %s\n", a.Website.String(), b.Website.String())
 		return false
 	}
 
 	if !a.LongDescription.IsSameAs(&b.LongDescription) {
-		//fmt.Println("Exit 8")
+		//log.Println("Exit 8")
 		return false
 	}
 
 	if !a.ShortDescription.IsSameAs(&b.ShortDescription) {
-		//fmt.Println("Exit 9")
+		//log.Println("Exit 9")
 		return false
 	}
 
 	if !a.Playlist.IsSameAs(&b.Playlist) {
-		//fmt.Println("Exit 10")
+		//log.Println("Exit 10")
 		return false
 	}
 
 	if !a.Thumbnail.IsSameAs(&b.Thumbnail) {
-		//fmt.Println("Exit 11")
+		//log.Println("Exit 11")
 		return false
 	}
 
 	if !a.Banner.IsSameAs(&b.Banner) {
-		//fmt.Println("Exit 12")
+		//log.Println("Exit 12")
 		return false
 	}
 
 	if !a.Tags.IsSameAs(&b.Tags) {
-		//fmt.Println(a.Tags, b.Tags)
-		//fmt.Println("Exit 13")
+		//log.Println(a.Tags, b.Tags)
+		//log.Println("Exit 13")
 		return false
 	}
 
 	if !a.SuggestedChannel.IsSameAs(&b.SuggestedChannel) {
-		//fmt.Println("Exit 14")
+		//log.Println("Exit 14")
 		return false
 	}
 
 	if !a.Content.IsSameAs(&b.Content) {
-		//fmt.Println("Exit 15")
-		//fmt.Println("DEBUG:", len(a.Content.GetContents()), len(b.Content.ContentList))
+		//log.Println("Exit 15")
+		//log.Println("DEBUG:", len(a.Content.GetContents()), len(b.Content.ContentList))
 		return false
 	}
 
