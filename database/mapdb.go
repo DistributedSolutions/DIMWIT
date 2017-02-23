@@ -84,9 +84,6 @@ func (db *MapDB) Put(bucket, key []byte, data []byte) error {
 }
 
 func (db *MapDB) PutInBatch(records []Record) error {
-	db.Sem.Lock()
-	defer db.Sem.Unlock()
-
 	for _, v := range records {
 		err := db.Put(v.Bucket, v.Key, v.Data)
 		if err != nil {
