@@ -1,4 +1,4 @@
-// package database_test
+package database_test
 
 // import (
 // 	"fmt"
