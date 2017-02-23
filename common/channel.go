@@ -145,85 +145,90 @@ func (a *Channel) ready() bool {
 }
 
 func (a *Channel) IsSameAs(b *Channel) bool {
+	if !a.ChannelTitle.IsSameAs(&b.ChannelTitle) {
+		//fmt.Println("Exit 0")
+		return false
+	}
+
 	if !a.RootChainID.IsSameAs(&b.RootChainID) {
-		fmt.Println("Exit 1")
+		//fmt.Println("Exit 1")
 		return false
 	}
 
 	if !a.ManagementChainID.IsSameAs(&b.ManagementChainID) {
-		fmt.Println("Exit 1")
+		//fmt.Println("Exit 1")
 		return false
 	}
 
 	if !a.ContentChainID.IsSameAs(&b.ContentChainID) {
-		fmt.Println("Exit 2")
+		//fmt.Println("Exit 2")
 		return false
 	}
 
 	if !a.LV1PublicKey.IsSameAs(&b.LV1PublicKey) {
-		fmt.Println("Exit 3")
+		//fmt.Println("Exit 3")
 		return false
 	}
 
 	if !a.LV2PublicKey.IsSameAs(&b.LV2PublicKey) {
-		fmt.Println("Exit 4")
+		//fmt.Println("Exit 4")
 		return false
 	}
 
 	if !a.LV3PublicKey.IsSameAs(&b.LV3PublicKey) {
-		fmt.Println("Exit 5")
+		//fmt.Println("Exit 5")
 		return false
 	}
 
 	if !a.ContentSingingKey.IsSameAs(&b.ContentSingingKey) {
-		fmt.Println("Exit 6")
+		//fmt.Println("Exit 6")
 		return false
 	}
 
 	if !a.Website.IsSameAs(&b.Website) {
-		fmt.Printf("Exit 7. Web A: %s, Web B: %s\n", a.Website.String(), b.Website.String())
+		//fmt.Printf("Exit 7. Web A: %s, Web B: %s\n", a.Website.String(), b.Website.String())
 		return false
 	}
 
 	if !a.LongDescription.IsSameAs(&b.LongDescription) {
-		fmt.Println("Exit 8")
+		//fmt.Println("Exit 8")
 		return false
 	}
 
 	if !a.ShortDescription.IsSameAs(&b.ShortDescription) {
-		fmt.Println("Exit 9")
+		//fmt.Println("Exit 9")
 		return false
 	}
 
 	if !a.Playlist.IsSameAs(&b.Playlist) {
-		fmt.Println("Exit 10")
+		//fmt.Println("Exit 10")
 		return false
 	}
 
 	if !a.Thumbnail.IsSameAs(&b.Thumbnail) {
-		fmt.Println("Exit 11")
+		//fmt.Println("Exit 11")
 		return false
 	}
 
 	if !a.Banner.IsSameAs(&b.Banner) {
-		fmt.Println("Exit 12")
+		//fmt.Println("Exit 12")
 		return false
 	}
 
 	if !a.Tags.IsSameAs(&b.Tags) {
-		fmt.Println(a.Tags, b.Tags)
-		fmt.Println("Exit 13")
+		//fmt.Println(a.Tags, b.Tags)
+		//fmt.Println("Exit 13")
 		return false
 	}
 
 	if !a.SuggestedChannel.IsSameAs(&b.SuggestedChannel) {
-		fmt.Println("Exit 14")
+		//fmt.Println("Exit 14")
 		return false
 	}
 
 	if !a.Content.IsSameAs(&b.Content) {
-		fmt.Println("Exit 15")
-		fmt.Println("DEBUG:", len(a.Content.GetContents()), len(b.Content.ContentList))
+		//fmt.Println("Exit 15")
+		//fmt.Println("DEBUG:", len(a.Content.GetContents()), len(b.Content.ContentList))
 		return false
 	}
 

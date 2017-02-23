@@ -27,7 +27,9 @@ func RemoveFromList(list []*lite.EntryHolder, i int) (newList []*lite.EntryHolde
 			return
 		}
 	}()
-	return append(list[:i], list[i+1:]...)
+	list[i] = list[len(list)-1]
+	return list[:len(list)-1]
+	//return append(list[:i], list[i+1:]...)
 }
 
 //append(list[:i], list[i+1:]...)

@@ -2,14 +2,16 @@ package database_test
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 
 	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 	. "github.com/DistributedSolutions/DIMWIT/database"
 )
 
+var _ = fmt.Sprintf("")
+
 func TestMap(t *testing.T) {
-	return
 	database := NewMapDB()
 	defer database.Close()
 

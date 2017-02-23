@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DistributedSolutions/DIMWIT/channelTool"
+	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	. "github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
@@ -14,10 +15,12 @@ var _ = fmt.Sprintf("")
 
 func TestBitbucket(t *testing.T) {
 	fake := lite.NewFakeDumbLite()
+	m := creation.NewMasterChain()
+	ec := lite.GetECAddress()
+	fake.SubmitChain(*m.Chain, *ec)
 	//fake := lite.NewDumbLite()
 	for i := 0; i < 5; i++ {
 		ch := common.RandomNewChannel()
-		ec := lite.GetECAddress()
 		auth, err := channelTool.NewAuthChannel(ch, ec)
 		if err != nil {
 			t.Error(err)

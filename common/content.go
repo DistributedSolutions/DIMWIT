@@ -3,7 +3,6 @@ package common
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -83,75 +82,75 @@ func SmartRandomNewContent(root primitives.Hash, content primitives.Hash) *Conte
 
 func (a *Content) IsSameAs(b *Content) bool {
 	if a.Type != b.Type {
-		fmt.Println(a.Type, b.Type)
-		log.Println("Content IsSameAs Exit 1")
+		//fmt.Println(a.Type, b.Type)
+		//log.Println("Content IsSameAs Exit 1")
 		return false
 	}
 
 	if !a.ContentID.IsSameAs(&b.ContentID) {
-		fmt.Println(a.ContentID.String(), b.ContentID.String())
-		log.Println("Content IsSameAs Exit 2")
+		//fmt.Println(a.ContentID.String(), b.ContentID.String())
+		//log.Println("Content IsSameAs Exit 2")
 		return false
 	}
 
 	if !a.RootChainID.IsSameAs(&b.RootChainID) {
-		log.Println("Content IsSameAs Exit 3")
-		fmt.Println(a.RootChainID.String(), b.RootChainID.String())
+		//log.Println("Content IsSameAs Exit 3")
+		//fmt.Println(a.RootChainID.String(), b.RootChainID.String())
 		return false
 	}
 
 	if !a.ContentTitle.IsSameAs(&b.ContentTitle) {
-		log.Println("Content IsSameAs Exit 4")
+		//log.Println("Content IsSameAs Exit 4")
 		return false
 	}
 
 	if !a.InfoHash.IsSameAs(&b.InfoHash) {
-		log.Println("Content IsSameAs Exit 5")
+		//log.Println("Content IsSameAs Exit 5")
 		return false
 	}
 
 	if !a.LongDescription.IsSameAs(&b.LongDescription) {
-		log.Println("Content IsSameAs Exit 6")
+		//log.Println("Content IsSameAs Exit 6")
 		return false
 	}
 
 	if !a.ShortDescription.IsSameAs(&b.ShortDescription) {
-		log.Println("Content IsSameAs Exit 7")
+		//log.Println("Content IsSameAs Exit 7")
 		return false
 	}
 
 	if !a.ActionFiles.IsSameAs(&b.ActionFiles) {
-		log.Println("Content IsSameAs Exit 8")
+		//log.Println("Content IsSameAs Exit 8")
 		return false
 	}
 
 	if !a.Thumbnail.IsSameAs(&b.Thumbnail) {
-		log.Println("Content IsSameAs Exit 9")
+		//log.Println("Content IsSameAs Exit 9")
 		return false
 	}
 
 	if a.Series != b.Series {
-		log.Println("Content IsSameAs Exit 10")
+		//log.Println("Content IsSameAs Exit 10")
 		return false
 	}
 
 	if a.Part[0] != b.Part[0] || a.Part[1] != b.Part[1] {
-		log.Println("Content IsSameAs Exit 11")
+		//log.Println("Content IsSameAs Exit 11")
 		return false
 	}
 
 	if !a.Tags.IsSameAs(&b.Tags) {
-		log.Println("Content IsSameAs Exit 12")
+		//log.Println("Content IsSameAs Exit 12")
 		return false
 	}
 
 	if !a.Trackers.IsSameAs(&b.Trackers) {
-		log.Println("Content IsSameAs Exit 13")
+		//log.Println("Content IsSameAs Exit 13")
 		return false
 	}
 
 	if !a.FileList.IsSameAs(&b.FileList) {
-		log.Println("Content IsSameAs Exit 14")
+		//log.Println("Content IsSameAs Exit 14")
 		return false
 	}
 
@@ -160,7 +159,7 @@ func (a *Content) IsSameAs(b *Content) bool {
 		diff = -1 * diff
 	}
 	if diff > 60*60*24 { // 1 day difference
-		log.Println("Content IsSameAs Exit 15")
+		//log.Println("Content IsSameAs Exit 15")
 		return false
 	}
 
@@ -391,13 +390,11 @@ func SmartRandomContentList(max uint32, root primitives.Hash, content primitives
 
 func (a *ContentList) IsSameAs(b *ContentList) bool {
 	if len(a.ContentList) != len(b.ContentList) {
-		log.Println("ContentList Exit 1")
 		return false
 	}
 
 	for i := range a.ContentList {
 		if !a.ContentList[i].IsSameAs(&b.ContentList[i]) {
-			log.Println("ContentList Exit 2")
 			return false
 		}
 	}
