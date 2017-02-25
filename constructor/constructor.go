@@ -14,7 +14,9 @@ import (
 )
 
 var (
-	CHANNEL_BUCKET []byte = []byte("Channels")
+	CHANNEL_BUCKET    []byte = []byte("Channels")
+	STATE_BUCKET      []byte = []byte("State")
+	STATE_COMP_HEIGHT []byte = []byte("CompletedHeight")
 )
 
 // Constructor builds the level 2 cache using factom-lite
@@ -55,8 +57,29 @@ func (c *Constructor) SetReader(r lite.FactomLiteReader) {
 
 // LoadStateFromDB loads state information, such as last completed height. This mean's we don't have to parse
 // through the blockchain again! Woot!
-func (c *Constructor) LoadStateFromDB() {
-	// TODO: Set current height to height in DB
+func (c *Constructor) LoadStateFromDB() error {
+	c.CompletedHeight = 0
+	if c.Level2Cache != nil {
+		data, err := c.Level2Cache.Get(STATE_BUCKET, STATE_COMP_HEIGHT)
+		if err == nil {
+			u, err = primitives.BytesToUint32(data)
+			if err == nil {
+				c.CompletedHeight = u
+			}
+		}
+
+		// Either we encountered an error loading, or
+		// we never had a database to begin with.
+		if c.CompletedHeight == 0 {
+			// TODO: Might want to check if data exists, if it does
+			// then we have data, but the height is 0. This might cause issues
+			err = c.Level2Cache.Put(STATE_BUCKET, STATE_COMP_HEIGHT, []byte{0x00, 0x00, 0x00, 0x00})
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (c *Constructor) ApplyHeight(height uint32) error {
@@ -97,6 +120,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 		}
 	}
 	c.CompletedHeight = height
+	c.Level2Cache.Put(STATE_BUCKET, STATE_COMP_HEIGHT, primitives.Uint32ToBytes(c.CompletedHeight))
 	return nil
 }
 
@@ -189,7 +213,6 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 
 	// The iae has everything it needs, let's see what it decided
 	cw, wr := iae.ApplyEntry()
-	// fmt.Println(iae.String(), " -- ", wr)
 	if wr {
 		// Ok, it told us to write this to the db. Let's put it in the map for a batch write
 		c.ChannelCache[cw.Channel.RootChainID.String()] = *cw

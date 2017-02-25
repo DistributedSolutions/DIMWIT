@@ -12,27 +12,27 @@ import (
 )
 
 type Channel struct {
-	RootChainID       primitives.Hash
-	ManagementChainID primitives.Hash
-	ContentChainID    primitives.Hash
+	RootChainID       primitives.Hash `json:"rootchain"`
+	ManagementChainID primitives.Hash `json:"managechain"`
+	ContentChainID    primitives.Hash `json:"contentchain"`
 	// They are not an array, because they are never referenced as an array
-	LV1PublicKey      primitives.PublicKey // Critical
-	LV2PublicKey      primitives.PublicKey // Critical
-	LV3PublicKey      primitives.PublicKey // Critical
-	ContentSingingKey primitives.PublicKey // Critical
-	ChannelTitle      primitives.Title     // Critical
+	LV1PublicKey      primitives.PublicKey `json:"pubkey1"`    // Critical
+	LV2PublicKey      primitives.PublicKey `json:"pubkey2"`    // Critical
+	LV3PublicKey      primitives.PublicKey `json:"pubkey3"`    // Critical
+	ContentSingingKey primitives.PublicKey `json:"contentkey"` // Critical
+	ChannelTitle      primitives.Title     `json:"title"`      // Critical
 
-	Website          primitives.SiteURL          // Not-Critical
-	LongDescription  primitives.LongDescription  // Not-Critical
-	ShortDescription primitives.ShortDescription // Not-Critical
-	Playlist         ManyPlayList                // Not-Critical
-	Thumbnail        primitives.Image            // Not-Critical
-	Banner           primitives.Image            // Not-Critical
-	Tags             primitives.TagList          // Not-Critical
-	SuggestedChannel primitives.HashList         // Not-Critical
-	Content          ContentList                 // Not-Critical
+	Website          primitives.SiteURL          `json:"site"`              // Not-Critical
+	LongDescription  primitives.LongDescription  `json:"longdesc"`          // Not-Critical
+	ShortDescription primitives.ShortDescription `json:"shortdesc"`         // Not-Critical
+	Playlist         ManyPlayList                `json:"playlist"`          // Not-Critical
+	Thumbnail        primitives.Image            `json:"thumbnail"`         // Not-Critical
+	Banner           primitives.Image            `json:"banner"`            // Not-Critical
+	Tags             primitives.TagList          `json:"tags"`              // Not-Critical
+	SuggestedChannel primitives.HashList         `json:"suggestedchannels"` // Not-Critical
+	Content          ContentList                 `json:"contentlist"`       // Not-Critical
 
-	CreationTime time.Time // Not-Critical
+	CreationTime time.Time `json:"creationtime"` // Not-Critical
 }
 
 func NewChannel() *Channel {
