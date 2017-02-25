@@ -1,5 +1,5 @@
-hash: b62c95c1a3f0ee95d7792af6805b6acd8d77d553bb63e269728e72e160807b3e
-updated: 2017-02-05T20:35:56.411741728-06:00
+hash: 2f2215c14320e8f5bcdf560a3df5e9778d9a6a9eedff2c2b7648b1f49a2812e9
+updated: 2017-02-25T16:32:15.733974173-06:00
 imports:
 - name: github.com/boltdb/bolt
   version: 583e8937c61f1af6513608ccc75c97b6abdf4ff9
@@ -18,7 +18,7 @@ imports:
   subpackages:
   - edwards25519
 - name: github.com/FactomProject/factom
-  version: 1468a74125c1f969f60565aa960cb80b6389c7bf
+  version: 22c2a7941890085f4031ac4f84f9e8c2a1f2bd8a
 - name: github.com/FactomProject/go-bip32
   version: 3b593af1c415abc1017648e4eb24a88c32fee0f3
 - name: github.com/FactomProject/go-bip39
@@ -38,21 +38,27 @@ imports:
   subpackages:
   - msgp
 - name: golang.org/x/crypto
-  version: c3b1d0d6d8690eaebe3064711b026770cc37efa3
+  version: bed12803fa9663d7aa2c2346b0c634ad2dcd43b7
   subpackages:
   - ed25519
   - ed25519/internal/edwards25519
   - pbkdf2
   - ripemd160
 - name: golang.org/x/net
-  version: b7883d29650d340156352196ef5e434db117757b
+  version: 007e530097ad7f954752df63046b4036f98ba6a6
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  version: 7a6e5648d140666db5d920909e082ca00a87ba2c
   subpackages:
   - unix
 testImports:
+- name: github.com/adams-sarah/prettytest
+  version: 2880862ae7f579fe57d0a6ddcaabcadb228102e0
+- name: github.com/adams-sarah/test2doc
+  version: e96044288938931a6a83c9aac8913aa47bce72ab
+- name: github.com/gorilla/mux
+  version: 392c28fe23e1c45ddba891b0320b3b5df220beea
 - name: github.com/leanovate/gopter
   version: 43cf95bdcf8d4b73624e7e71fec73765eb0a92dc
   subpackages:
