@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 )
 
 const (
@@ -25,6 +26,15 @@ func NewSqlWriter() *SqlWriter {
 	sw.channelQueue = make(chan common.Channel, 1000)
 
 	return sw
+}
+
+// Called to send a channel to the SQLWriter.
+func (sw *SqlWriter) SendChannelDownQueue(c objects.ChannelWrapper) {
+	// If you want to do anything to it before it hits the go-routine
+	// do so here.
+	// You have access to some extra variables with the Wrapper.
+	// I don't think you care about them though.
+	sw.channelQueue <- c.Channel
 }
 
 // Close sqlwriter

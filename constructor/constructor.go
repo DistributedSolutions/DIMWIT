@@ -46,6 +46,7 @@ func NewContructor(db database.IDatabase) (*Constructor, error) {
 		return nil, fmt.Errorf("DBType given not valid. Found '%s', expected either: Bolt, Map, LDB", dbType)
 	}*/
 
+	c.SqlGuy = NewSqlWriter()
 	c.Level2Cache = db
 	c.loadStateFromDB()
 	c.quit = make(chan int, 20)
@@ -62,6 +63,7 @@ func (c *Constructor) InterruptClose() {
 }
 
 func (c *Constructor) Close() error {
+	c.SqlGuy.Close()
 	c.Kill() // Kill routine
 	return c.Level2Cache.Close()
 }
@@ -125,6 +127,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	// TODO: Batch write
 	for _, channel := range c.ChannelCache {
+		c.SqlGuy.SendChannelDownQueue(channel)
 		data, err := channel.MarshalBinary()
 		if err != nil {
 			continue
