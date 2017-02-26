@@ -71,12 +71,12 @@ func TestCreateDB(t *testing.T) {
 
 func TestAddTags(t *testing.T) {
 	//add in tags to db that was just created
-	err = AddTags(testDB.DB)
+	err := AddTags(testDB.DB)
 	if err != nil {
 		t.Error(err)
 	}
 	//deletes the tags from the newly created db
-	err := DeleteTags(testDB.DB)
+	err = DeleteTags(testDB.DB)
 	if err != nil {
 		t.Error(err)
 	}
@@ -129,12 +129,10 @@ func TestAddTags(t *testing.T) {
 }
 
 func TestAddChannel(t *testing.T) {
-
-	//////////ADD 3 RANDOM CHANNELS/////////////////
 	c := common.RandomNewChannel()
 	channels := make([]*common.Channel, 1, 1)
 	channels[0] = c
-	err := AddChannelArr(testDB.DB, channels, -1) //HEIGHT PLACEHOLDER IN SECOND VALUE CURRENT IS TEMPORARY
+	err := AddChannelArr(testDB.DB, channels, -1)
 	if err != nil {
 		t.Error(err)
 	}

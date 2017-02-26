@@ -315,7 +315,7 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		}
 	}
 
-	deleteQuery += "DELETE FROM " + constants.SQL_PLAYLIST_TEMP + " WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " <= ?"
+	deleteQuery := "DELETE FROM " + constants.SQL_PLAYLIST_TEMP + " WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " <= ?"
 	_, err = db.Exec(deleteQuery, currentHeight)
 	if err != nil {
 		fmt.Printf("ERROR!! CRUCIAL problems delete query deleting playlsit temp index's with query [%s]: Error [%s]\n", deleteQuery, err.Error())

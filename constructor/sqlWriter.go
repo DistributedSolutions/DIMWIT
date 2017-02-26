@@ -25,6 +25,10 @@ func NewSqlWriter() *SqlWriter {
 	sw.quit = make(chan int, 5)
 	sw.channelQueue = make(chan common.Channel, 1000)
 
+	testDB, err = CreateDB(constants.SQL_DB, CREATE_TABLE)
+	if err != nil {
+		t.Error(err)
+	}
 	return sw
 }
 
@@ -69,7 +73,10 @@ func (sw *SqlWriter) DrainChannelQueue() {
 			}
 
 			// ChannelList, play with it
-			// JESSE! IMPLEMENT
+			// err := AddChannelArr(testDB.DB, channelList, )
+			// if err != nil {
+			// 	t.Error(err)
+			// }
 		default:
 			// Nothing really
 		}
