@@ -1,4 +1,4 @@
-package constructor_test
+package provider_test
 
 import (
 	"fmt"
@@ -10,21 +10,23 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
-	. "github.com/DistributedSolutions/DIMWIT/constructor"
+	"github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	. "github.com/DistributedSolutions/DIMWIT/provider"
 )
 
 var _ = fmt.Sprintf("")
 var _ = time.Second
 
-func TestConstructor(t *testing.T) {
+func TestProvider(t *testing.T) {
 	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
 	fake := lite.NewFakeDumbLite()
 	m := creation.NewMasterChain()
 	ec := lite.GetECAddress()
 	fake.SubmitChain(*m.Chain, *ec)
 	//fake := lite.NewDumbLite()
+	chanList := make([]common.Channel, 0)
 
 	for i := 0; i < 5; i++ {
 		ch := common.RandomNewChannel()
@@ -32,6 +34,8 @@ func TestConstructor(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
+
+		chanList = append(chanList, auth.Channel)
 
 		chains, err := auth.ReturnFactomChains()
 		if err != nil {
@@ -66,40 +70,53 @@ func TestConstructor(t *testing.T) {
 				t.Error(err)
 			}
 		}
-
-		db := database.NewMapDB()
-		con, err := NewContructor(db)
-		if err != nil {
-			t.Error(err)
-		}
-
-		con.SetReader(fake)
-		go con.StartConstructor()
-
-		/*for i := 0; ; i++ {
-			err := con.ApplyHeight(uint32(i))
-			if err != nil {
-				break
-			}
-			fmt.Println(i)
-		}*/
-		//time.Sleep(10 * time.Second)
-
-		max, _ := con.Reader.GetReadyHeight()
-		for con.CompletedHeight < max-1 {
-			time.Sleep(200 * time.Millisecond)
-			// fmt.Println(con.CompletedHeight, max)
-		}
-
-		cw, err := con.RetrieveChannel(auth.Channel.RootChainID)
-		if err != nil {
-			t.Error(err)
-		}
-
-		if !cw.Channel.IsSameAs(&auth.Channel) {
-			t.Error("Channels not the same", cw.Channel.RootChainID.String(), auth.Channel.RootChainID.String())
-		}
-		con.Close()
 	}
 
+	db := database.NewMapDB()
+	con, err := constructor.NewContructor(db)
+	if err != nil {
+		t.Error(err)
+	}
+	defer con.Close()
+
+	con.SetReader(fake)
+	go con.StartConstructor()
+
+	max, _ := con.Reader.GetReadyHeight()
+	for con.CompletedHeight < max-1 {
+		time.Sleep(200 * time.Millisecond)
+		// fmt.Println(con.CompletedHeight, max)
+	}
+
+	prov, err := NewProvider(db)
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, c := range chanList {
+		nc, err := prov.GetChannel(c.RootChainID.String())
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+		if !nc.IsSameAs(&c) {
+			t.Error("Channel should be equal")
+		}
+
+		for _, content := range c.Content.GetContents() {
+			newContent, err := prov.GetContent(content.ContentID.String())
+			if err != nil {
+				t.Error(err)
+				t.FailNow()
+			}
+			if !newContent.IsSameAs(&content) {
+				t.Error("Content should be equal")
+			}
+		}
+	}
+
+	_, err = prov.GetCompleteHeight()
+	if err != nil {
+		t.Error(err)
+	}
 }

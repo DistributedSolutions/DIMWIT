@@ -2,6 +2,7 @@ package primitives
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -114,4 +115,21 @@ func (a *MD5Checksum) IsSameAs(b *MD5Checksum) bool {
 	}
 
 	return true
+}
+
+func (h *MD5Checksum) MarshalJSON() ([]byte, error) {
+	return json.Marshal(h.String())
+}
+
+func (h *MD5Checksum) UnmarshalJSON(b []byte) error {
+	var hexS string
+	if err := json.Unmarshal(b, &hexS); err != nil {
+		return err
+	}
+	data, err := hex.DecodeString(hexS)
+	if err != nil {
+		return err
+	}
+	h.SetBytes(data)
+	return nil
 }

@@ -1,10 +1,15 @@
 package primitives_test
 
 import (
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
 )
+
+var _ = fmt.Sprintf("")
 
 func TestPrivateKey(t *testing.T) {
 	p, err := GeneratePrivateKey()
@@ -48,7 +53,63 @@ func TestPrivateKeyMarshal(t *testing.T) {
 		if h.Empty() {
 			t.Error("Should not be empty")
 		}
+
+		jdata, err := json.Marshal(h)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(PrivateKey)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !h.IsSameAs(j) {
+			t.Errorf("Should be same. Found %s, expected %s", j.String(), h.String())
+		}
 	}
+}
+
+func TestCreateKey(t *testing.T) {
+	// 4d801d9228505cbf1008b6a1a4d38edc3fcf40ecc08476d2c811813c0b239cfa
+	// a2be234ba4bc77f58581e55d61d7db15018f188a0b31ce632b80918fc68dca13
+	sec, _ := hex.DecodeString("4d801d9228505cbf1008b6a1a4d38edc3fcf40ecc08476d2c811813c0b239cfa")
+	// pub, _ := hex.DecodeString("a2be234ba4bc77f58581e55d61d7db15018f188a0b31ce632b80918fc68dca13")
+
+	pk, err := GeneratePrivateKeyFromHex("4d801d9228505cbf1008b6a1a4d38edc3fcf40ecc08476d2c811813c0b239cfa")
+	if err != nil {
+		t.Error(err)
+	}
+
+	if pk.String() != "4d801d9228505cbf1008b6a1a4d38edc3fcf40ecc08476d2c811813c0b239cfaa2be234ba4bc77f58581e55d61d7db15018f188a0b31ce632b80918fc68dca13" {
+		t.Error("Private key failed to import from hex")
+	}
+
+	pk, err = GeneratePrivateKeyFromBytes(sec)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if pk.String() != "4d801d9228505cbf1008b6a1a4d38edc3fcf40ecc08476d2c811813c0b239cfaa2be234ba4bc77f58581e55d61d7db15018f188a0b31ce632b80918fc68dca13" {
+		t.Error("Private key failed to import from hex")
+	}
+
+	_, err = GeneratePrivateKeyFromBytes([]byte{})
+	if err == nil {
+		t.Error("should error")
+	}
+
+	_, err = GeneratePrivateKeyFromHex("aa")
+	if err == nil {
+		t.Error("should error")
+	}
+
+	_, err = GeneratePrivateKeyFromHex("Kd801d9228505cbf1008b6a1a4d38edc3fcf40ecc08476d2c811813c0b239cfa")
+	if err == nil {
+		t.Error("should error")
+	}
+
 }
 
 func TestPrivateKeyDiff(t *testing.T) {
@@ -77,7 +138,7 @@ func TestBadUnmarshalPrK(t *testing.T) {
 
 	n := new(PrivateKey)
 
-	_, err := n.UnmarshalBinaryData(badData)
+	err := n.UnmarshalBinary(badData)
 	if err == nil {
 		t.Error("Should panic or error out")
 	}

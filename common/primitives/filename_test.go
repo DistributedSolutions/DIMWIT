@@ -1,6 +1,7 @@
 package primitives_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -31,6 +32,21 @@ func TestSingleFile(t *testing.T) {
 			t.Error("Failed, should have no bytes left")
 		}
 
+		jdata, err := json.Marshal(n)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(File)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !n.IsSameAs(j) {
+			t.Errorf("Should be same. ")
+		}
+
 	}
 }
 
@@ -57,6 +73,21 @@ func TestFileList(t *testing.T) {
 
 		if l.Empty() && len(l.GetFiles()) != 0 {
 			t.Error("Should not be empty")
+		}
+
+		jdata, err := json.Marshal(n)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(FileList)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !n.IsSameAs(j) {
+			t.Errorf("Should be same. ")
 		}
 	}
 }

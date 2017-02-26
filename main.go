@@ -1,6 +1,9 @@
 package main
 
-import ()
+import (
+	"github.com/DistributedSolutions/DIMWIT/engine"
+)
 
 func main() {
+	engine.GrabFlagsAndRun()
 }

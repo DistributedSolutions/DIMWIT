@@ -2,6 +2,8 @@ package primitives
 
 import (
 	"bytes"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -116,4 +118,36 @@ func (a *Image) IsSameAs(b *Image) bool {
 	}
 
 	return bytes.Compare(a.image, b.image) == 0
+}
+
+func (i *Image) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		ImgType byte   `json:"imgtype"`
+		Length  uint32 `json:"length"`
+		Image   string `json:"image"`
+	}{
+		ImgType: i.imgType,
+		Length:  i.length,
+		Image:   hex.EncodeToString(i.image),
+	})
+}
+
+func (i *Image) UnmarshalJSON(b []byte) error {
+	obj := new(struct {
+		ImgType byte   `json:"imgtype"`
+		Length  uint32 `json:"length"`
+		Image   string `json:"image"`
+	})
+
+	if err := json.Unmarshal(b, obj); err != nil {
+		return err
+	}
+
+	i.SetImageType(obj.ImgType)
+	img, err := hex.DecodeString(obj.Image)
+	if err != nil {
+		return err
+	}
+	i.SetImage(img)
+	return nil
 }

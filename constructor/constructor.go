@@ -3,6 +3,7 @@ package constructor
 import (
 	"bytes"
 	"fmt"
+	"log"
 
 	"github.com/FactomProject/factom"
 	//"github.com/DistributedSolutions/DIMWIT/common"
@@ -11,10 +12,6 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
-)
-
-var (
-	CHANNEL_BUCKET []byte = []byte("Channels")
 )
 
 // Constructor builds the level 2 cache using factom-lite
@@ -28,11 +25,15 @@ type Constructor struct {
 
 	// Constructor only reads from Factom
 	Reader lite.FactomLiteReader
+
+	// Managing
+	quit chan int
 }
 
-func NewContructor(dbType string) (*Constructor, error) {
+//dbType string,
+func NewContructor(db database.IDatabase) (*Constructor, error) {
 	c := new(Constructor)
-	var db database.IDatabase
+	/*var db database.IDatabase
 	switch dbType {
 	case "Bolt":
 		db = database.NewBoltDB(constants.HIDDEN_DIR + constants.LVL2_CACHE)
@@ -40,12 +41,27 @@ func NewContructor(dbType string) (*Constructor, error) {
 	case "Map":
 		db = database.NewMapDB()
 	default:
-		return nil, fmt.Errorf("DBType given not valid. Found %s, expected either: Bolt, Map, LDB", dbType)
-	}
+		return nil, fmt.Errorf("DBType given not valid. Found '%s', expected either: Bolt, Map, LDB", dbType)
+	}*/
 
 	c.Level2Cache = db
-	c.LoadStateFromDB()
+	c.loadStateFromDB()
+	c.quit = make(chan int, 20)
 	return c, nil
+}
+
+func (c *Constructor) InterruptClose() {
+	err := c.Close()
+	if err != nil {
+		log.Println("Constructor failed to safely close: ", err.Error())
+	} else {
+		log.Println("Constructor closed safely")
+	}
+}
+
+func (c *Constructor) Close() error {
+	c.Kill() // Kill routine
+	return c.Level2Cache.Close()
 }
 
 // SetReader takes in a FactomLiteReader, this is where the contructor will get it's data
@@ -53,10 +69,31 @@ func (c *Constructor) SetReader(r lite.FactomLiteReader) {
 	c.Reader = r
 }
 
-// LoadStateFromDB loads state information, such as last completed height. This mean's we don't have to parse
+// loadStateFromDB loads state information, such as last completed height. This mean's we don't have to parse
 // through the blockchain again! Woot!
-func (c *Constructor) LoadStateFromDB() {
-	// TODO: Set current height to height in DB
+func (c *Constructor) loadStateFromDB() error {
+	c.CompletedHeight = 0
+	if c.Level2Cache != nil {
+		data, err := c.Level2Cache.Get(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT)
+		if err == nil {
+			u, err := primitives.BytesToUint32(data)
+			if err == nil {
+				c.CompletedHeight = u
+			}
+		}
+
+		// Either we encountered an error loading, or
+		// we never had a database to begin with.
+		if c.CompletedHeight == 0 {
+			// TODO: Might want to check if data exists, if it does
+			// then we have data, but the height is 0. This might cause issues
+			err = c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, []byte{0x00, 0x00, 0x00, 0x00})
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (c *Constructor) ApplyHeight(height uint32) error {
@@ -81,7 +118,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	c.ChannelCache = make(map[string]objects.ChannelWrapper)
 	// Make a channel map, and get a batch apply map
 	for _, e := range ents {
-		c.ApplyEntryToCache(e)
+		c.applyEntryToCache(e)
 	}
 
 	// TODO: Batch write
@@ -91,19 +128,32 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 			continue
 		}
 
-		err = c.Level2Cache.Put(CHANNEL_BUCKET, channel.Channel.RootChainID.Bytes(), data)
+		err = c.Level2Cache.Put(constants.CHANNEL_BUCKET, channel.Channel.RootChainID.Bytes(), data)
 		if err != nil {
 			continue
 		}
+
+		for _, content := range channel.Channel.Content.GetContents() {
+			data, err = content.MarshalBinary()
+			if err != nil {
+				continue
+			}
+
+			err = c.Level2Cache.Put(constants.CONTENT_BUCKET, content.ContentID.Bytes(), data)
+			if err != nil {
+				continue
+			}
+		}
 	}
 	c.CompletedHeight = height
+	c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, primitives.Uint32ToBytes(c.CompletedHeight))
 	return nil
 }
 
-// ApplyEntryToCache will take an entry, and apply it to the channels we have in our cache. If
+// applyEntryToCache will take an entry, and apply it to the channels we have in our cache. If
 // true is returned, this signals to the caller, we should also save the channel to the database.
 // This is where the magic happens
-func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
+func (c *Constructor) applyEntryToCache(e *lite.EntryHolder) (bool, error) {
 	// Instantiate the IApplyEntry
 	iae, err := objects.ParseFactomEntry(e)
 	if err != nil {
@@ -189,7 +239,6 @@ func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
 
 	// The iae has everything it needs, let's see what it decided
 	cw, wr := iae.ApplyEntry()
-	// fmt.Println(iae.String(), " -- ", wr)
 	if wr {
 		// Ok, it told us to write this to the db. Let's put it in the map for a batch write
 		c.ChannelCache[cw.Channel.RootChainID.String()] = *cw
@@ -247,7 +296,7 @@ func (c *Constructor) saveChannel(ch objects.ChannelWrapper) error {
 	if err != nil {
 		return err
 	}
-	err = c.Level2Cache.Put(CHANNEL_BUCKET, ch.Channel.RootChainID.Bytes(), data)
+	err = c.Level2Cache.Put(constants.CHANNEL_BUCKET, ch.Channel.RootChainID.Bytes(), data)
 	if err != nil {
 		return err
 	}
@@ -269,7 +318,7 @@ func (c *Constructor) retrieveChannel(chainID string) (*objects.ChannelWrapper, 
 
 // RetrieveChannel retrieves the channel from the Level2Cache
 func (c *Constructor) RetrieveChannel(chainID primitives.Hash) (*objects.ChannelWrapper, error) {
-	data, err := c.Level2Cache.Get(CHANNEL_BUCKET, chainID.Bytes())
+	data, err := c.Level2Cache.Get(constants.CHANNEL_BUCKET, chainID.Bytes())
 	if err != nil {
 		return nil, err
 	}

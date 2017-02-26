@@ -9,14 +9,12 @@ import (
 )
 
 type TrackerList struct {
-	length   uint32
-	trackers []Tracker
+	Trackers []Tracker
 }
 
 func NewTrackerList() *TrackerList {
 	tl := new(TrackerList)
-	tl.trackers = make([]Tracker, 0)
-	tl.length = 0
+	tl.Trackers = make([]Tracker, 0)
 
 	return tl
 }
@@ -34,15 +32,14 @@ func RandomTrackerList(max uint32) *TrackerList {
 }
 
 func (d *TrackerList) Empty() bool {
-	if d.length == 0 {
+	if len(d.Trackers) == 0 {
 		return true
 	}
 	return false
 }
 
 func (tl *TrackerList) AddNewTracker(tracker *Tracker) error {
-	tl.length++
-	tl.trackers = append(tl.trackers, *tracker)
+	tl.Trackers = append(tl.Trackers, *tracker)
 
 	return nil
 }
@@ -53,8 +50,7 @@ func (tl *TrackerList) AddNewTrackerURL(url string) error {
 		return err
 	}
 
-	tl.length++
-	tl.trackers = append(tl.trackers, *t)
+	tl.Trackers = append(tl.Trackers, *t)
 
 	return nil
 }
@@ -62,10 +58,10 @@ func (tl *TrackerList) AddNewTrackerURL(url string) error {
 func (tl *TrackerList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data := Uint32ToBytes(tl.length)
+	data := Uint32ToBytes(uint32(len(tl.Trackers)))
 	buf.Write(data)
 
-	for _, t := range tl.trackers {
+	for _, t := range tl.Trackers {
 		data, err := t.MarshalBinary()
 		if err != nil {
 			return nil, err
@@ -95,13 +91,12 @@ func (tl *TrackerList) UnmarshalBinaryData(data []byte) (newData []byte, err err
 	if err != nil {
 		return data, err
 	}
-	tl.length = u
 	newData = newData[4:]
 
-	tl.trackers = make([]Tracker, u)
+	tl.Trackers = make([]Tracker, u)
 	var i uint32
 	for i = 0; i < u; i++ {
-		newData, err = tl.trackers[i].UnmarshalBinaryData(newData)
+		newData, err = tl.Trackers[i].UnmarshalBinaryData(newData)
 		if err != nil {
 			return data, err
 		}
@@ -111,12 +106,12 @@ func (tl *TrackerList) UnmarshalBinaryData(data []byte) (newData []byte, err err
 }
 
 func (a *TrackerList) IsSameAs(b *TrackerList) bool {
-	if a.length != b.length {
+	if len(a.Trackers) != len(b.Trackers) {
 		return false
 	}
 
-	for i := range a.trackers {
-		if !a.trackers[i].IsSameAs(&(b.trackers[i])) {
+	for i := range a.Trackers {
+		if !a.Trackers[i].IsSameAs(&(b.Trackers[i])) {
 			return false
 		}
 	}

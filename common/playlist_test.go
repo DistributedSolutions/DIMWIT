@@ -1,6 +1,7 @@
 package common_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 var _ = fmt.Sprintf("")
 
 func TestManyPlayList(t *testing.T) {
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 650; i++ {
 		max := random.RandomUInt32Between(0, 25)
 		l := RandomManyPlayList(max)
 		data, err := l.MarshalBinary()
@@ -34,6 +35,21 @@ func TestManyPlayList(t *testing.T) {
 
 		if l.Empty() && len(l.GetPlaylists()) != 0 {
 			t.Error("Should not be empty")
+		}
+
+		jdata, err := json.Marshal(l)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(ManyPlayList)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !l.IsSameAs(j) {
+			t.Errorf("[PlaylistJsonMarshal]Should be same.")
 		}
 	}
 }
