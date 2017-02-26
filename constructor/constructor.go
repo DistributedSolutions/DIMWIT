@@ -3,6 +3,7 @@ package constructor
 import (
 	"bytes"
 	"fmt"
+	"log"
 
 	"github.com/FactomProject/factom"
 	//"github.com/DistributedSolutions/DIMWIT/common"
@@ -49,13 +50,22 @@ func NewContructor(dbType string) (*Constructor, error) {
 	}
 
 	c.Level2Cache = db
-	c.LoadStateFromDB()
+	c.loadStateFromDB()
 	c.quit = make(chan int, 20)
 	return c, nil
 }
 
+func (c *Constructor) InterruptClose() {
+	err := c.Close()
+	if err != nil {
+		log.Println("Constructor failed to safely close: ", err.Error())
+	} else {
+		log.Println("Constructor closed safely")
+	}
+}
+
 func (c *Constructor) Close() error {
-	c.quit <- 0 // Kill routine
+	c.Kill() // Kill routine
 	return c.Level2Cache.Close()
 }
 
@@ -64,9 +74,9 @@ func (c *Constructor) SetReader(r lite.FactomLiteReader) {
 	c.Reader = r
 }
 
-// LoadStateFromDB loads state information, such as last completed height. This mean's we don't have to parse
+// loadStateFromDB loads state information, such as last completed height. This mean's we don't have to parse
 // through the blockchain again! Woot!
-func (c *Constructor) LoadStateFromDB() error {
+func (c *Constructor) loadStateFromDB() error {
 	c.CompletedHeight = 0
 	if c.Level2Cache != nil {
 		data, err := c.Level2Cache.Get(STATE_BUCKET, STATE_COMP_HEIGHT)
@@ -113,7 +123,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	c.ChannelCache = make(map[string]objects.ChannelWrapper)
 	// Make a channel map, and get a batch apply map
 	for _, e := range ents {
-		c.ApplyEntryToCache(e)
+		c.applyEntryToCache(e)
 	}
 
 	// TODO: Batch write
@@ -133,10 +143,10 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	return nil
 }
 
-// ApplyEntryToCache will take an entry, and apply it to the channels we have in our cache. If
+// applyEntryToCache will take an entry, and apply it to the channels we have in our cache. If
 // true is returned, this signals to the caller, we should also save the channel to the database.
 // This is where the magic happens
-func (c *Constructor) ApplyEntryToCache(e *lite.EntryHolder) (bool, error) {
+func (c *Constructor) applyEntryToCache(e *lite.EntryHolder) (bool, error) {
 	// Instantiate the IApplyEntry
 	iae, err := objects.ParseFactomEntry(e)
 	if err != nil {

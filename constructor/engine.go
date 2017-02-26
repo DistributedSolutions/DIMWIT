@@ -27,3 +27,7 @@ func (c *Constructor) StartConstructor() {
 		}
 	}
 }
+
+func (c *Constructor) Kill() {
+	c.quit <- 0
+}

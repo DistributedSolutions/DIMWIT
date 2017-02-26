@@ -1,14 +1,29 @@
 package engine
 
 import (
+	"flag"
+	"log"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
 
+var _ = log.Prefix()
+
 var CloseCalls []func()
+
+func GrabFlagsAndRun() {
+	var (
+		fct  = flag.String("fct", "fake", "Factom Client Type: 'fake', 'dumb")
+		cdbt = flag.String("condb", "Map", "Constructor DB Type: 'Map', 'Bolt', 'LDB'")
+	)
+	flag.Parse()
+
+	StartEngine(*fct, *cdbt)
+}
 
 // StartEngine is the main start, that launches the appropriate go routines and handles closing.
 func StartEngine(factomClientType string, constructorDBType string) error {
@@ -34,13 +49,29 @@ func StartEngine(factomClientType string, constructorDBType string) error {
 	go con.StartConstructor()
 
 	// Safe Close
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	/*c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
+		log.Println("Safely Closing....")
 		for _, f := range CloseCalls {
 			f()
 		}
+		log.Println("Completed safe close")
+		os.Exit(1)
+	}()*/
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		log.Println("Safely Closing....")
+		for _, f := range CloseCalls {
+			f()
+		}
+		log.Println("Completed safe close")
+		os.Exit(1)
 	}()
 
+	// Run the Control
+	Control()
 	return nil
 }

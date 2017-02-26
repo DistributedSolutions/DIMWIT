@@ -21,6 +21,14 @@ func TestBitbucket(t *testing.T) {
 	ec := lite.GetECAddress()
 	fake.SubmitChain(*m.Chain, *ec)
 	//fake := lite.NewDumbLite()
+	con, err := NewContructor("Map")
+	if err != nil {
+		t.Error(err)
+	}
+
+	con.SetReader(fake)
+	go con.StartConstructor()
+
 	for i := 0; i < 5; i++ {
 		ch := common.RandomNewChannel()
 		auth, err := channelTool.NewAuthChannel(ch, ec)
@@ -54,12 +62,6 @@ func TestBitbucket(t *testing.T) {
 			eHashes = append(eHashes, ehash)
 		}
 
-		con, err := NewContructor("Map")
-		if err != nil {
-			t.Error(err)
-		}
-
-		con.SetReader(fake)
 		//con.
 
 		/*for i := 0; ; i++ {
@@ -70,7 +72,7 @@ func TestBitbucket(t *testing.T) {
 			fmt.Println(i)
 		}*/
 		//time.Sleep(10 * time.Second)
-		go con.StartConstructor()
+
 		max, _ := con.Reader.GetReadyHeight()
 		for con.CompletedHeight < max-1 {
 			time.Sleep(200 * time.Millisecond)
@@ -86,5 +88,6 @@ func TestBitbucket(t *testing.T) {
 			t.Error("Channels not the same", cw.Channel.RootChainID.String(), auth.Channel.RootChainID.String())
 		}
 	}
+	con.Close()
 
 }
