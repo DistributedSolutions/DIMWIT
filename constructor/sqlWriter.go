@@ -18,6 +18,7 @@ type SqlWriter struct {
 	quit chan int
 }
 
+// Called to make SQLWriter
 func NewSqlWriter() *SqlWriter {
 	sw := new(SqlWriter)
 	sw.quit = make(chan int, 5)
@@ -31,6 +32,7 @@ func (sw *SqlWriter) Close() {
 	sw.quit <- 0
 }
 
+// Called to run SQLWriter
 func (sw *SqlWriter) DrainChannelQueue() {
 	for {
 		// Closeing sqlwrite
@@ -57,7 +59,7 @@ func (sw *SqlWriter) DrainChannelQueue() {
 			}
 
 			// ChannelList, play with it
-			// Do your write
+			// JESSE! IMPLEMENT
 		default:
 			// Nothing really
 		}

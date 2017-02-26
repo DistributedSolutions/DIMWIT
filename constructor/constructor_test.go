@@ -76,21 +76,13 @@ func TestConstructor(t *testing.T) {
 		con.SetReader(fake)
 		go con.StartConstructor()
 
-		/*for i := 0; ; i++ {
-			err := con.ApplyHeight(uint32(i))
-			if err != nil {
-				break
-			}
-			fmt.Println(i)
-		}*/
-		//time.Sleep(10 * time.Second)
-
 		max, _ := con.Reader.GetReadyHeight()
 		for con.CompletedHeight < max-1 {
 			time.Sleep(200 * time.Millisecond)
 			// fmt.Println(con.CompletedHeight, max)
 		}
 
+		// Constructor finished!
 		cw, err := con.RetrieveChannel(auth.Channel.RootChainID)
 		if err != nil {
 			t.Error(err)
@@ -99,6 +91,12 @@ func TestConstructor(t *testing.T) {
 		if !cw.Channel.IsSameAs(&auth.Channel) {
 			t.Error("Channels not the same", cw.Channel.RootChainID.String(), auth.Channel.RootChainID.String())
 		}
+
+		// Jesse Test Assertions
+
+		// END JESSE ASSERTIONS
+
+		// Close constructor
 		con.Close()
 	}
 
