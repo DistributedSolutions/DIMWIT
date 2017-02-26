@@ -150,6 +150,14 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	// Write to SQL
 	err = c.SqlGuy.AddChannelArr(chanList, height)
+	if err != nil {
+		return err
+	}
+
+	err = c.SqlGuy.FlushTempPlaylists(height)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
