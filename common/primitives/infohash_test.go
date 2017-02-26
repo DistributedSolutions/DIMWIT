@@ -76,7 +76,6 @@ func TestInfoHashDiff(t *testing.T) {
 	if same > 15 {
 		t.Error("More than 15 are the same, it is totally random, so it is likely the IsSameAs is broken.")
 	}
-
 }
 
 func TestEmptyIH(t *testing.T) {
@@ -91,7 +90,22 @@ func TestBadUnmarshalInfoHash(t *testing.T) {
 
 	n := new(InfoHash)
 
-	_, err := n.UnmarshalBinaryData(badData)
+	err := n.UnmarshalBinary(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	err = n.UnmarshalJSON([]byte{0x00})
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	err = n.UnmarshalJSON([]byte("T28653dd34894ecff4fbbaf2dc513aae917659a2"))
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	_, err = HexToInfoHash("T28653dd34894ecff4fbbaf2dc513aae917659a2")
 	if err == nil {
 		t.Error("Should panic or error out")
 	}
