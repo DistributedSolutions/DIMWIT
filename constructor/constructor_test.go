@@ -9,6 +9,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	. "github.com/DistributedSolutions/DIMWIT/constructor"
+	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
 
@@ -21,13 +22,6 @@ func TestBitbucket(t *testing.T) {
 	ec := lite.GetECAddress()
 	fake.SubmitChain(*m.Chain, *ec)
 	//fake := lite.NewDumbLite()
-	con, err := NewContructor("Map")
-	if err != nil {
-		t.Error(err)
-	}
-
-	con.SetReader(fake)
-	go con.StartConstructor()
 
 	for i := 0; i < 5; i++ {
 		ch := common.RandomNewChannel()
@@ -62,7 +56,14 @@ func TestBitbucket(t *testing.T) {
 			eHashes = append(eHashes, ehash)
 		}
 
-		//con.
+		db := database.NewMapDB()
+		con, err := NewContructor(db)
+		if err != nil {
+			t.Error(err)
+		}
+
+		con.SetReader(fake)
+		go con.StartConstructor()
 
 		/*for i := 0; ; i++ {
 			err := con.ApplyHeight(uint32(i))
@@ -87,7 +88,7 @@ func TestBitbucket(t *testing.T) {
 		if !cw.Channel.IsSameAs(&auth.Channel) {
 			t.Error("Channels not the same", cw.Channel.RootChainID.String(), auth.Channel.RootChainID.String())
 		}
+		con.Close()
 	}
-	con.Close()
 
 }

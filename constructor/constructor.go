@@ -7,7 +7,7 @@ import (
 
 	"github.com/FactomProject/factom"
 	//"github.com/DistributedSolutions/DIMWIT/common"
-	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	// "github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
@@ -36,9 +36,10 @@ type Constructor struct {
 	quit chan int
 }
 
-func NewContructor(dbType string) (*Constructor, error) {
+//dbType string,
+func NewContructor(db database.IDatabase) (*Constructor, error) {
 	c := new(Constructor)
-	var db database.IDatabase
+	/*var db database.IDatabase
 	switch dbType {
 	case "Bolt":
 		db = database.NewBoltDB(constants.HIDDEN_DIR + constants.LVL2_CACHE)
@@ -47,7 +48,7 @@ func NewContructor(dbType string) (*Constructor, error) {
 		db = database.NewMapDB()
 	default:
 		return nil, fmt.Errorf("DBType given not valid. Found '%s', expected either: Bolt, Map, LDB", dbType)
-	}
+	}*/
 
 	c.Level2Cache = db
 	c.loadStateFromDB()

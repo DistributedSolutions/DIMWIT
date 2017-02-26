@@ -11,7 +11,7 @@ var _ = fmt.Sprintf("")
 var HelpText string
 
 // Control function lasts until signal hit
-func Control() {
+func Control(w *WholeState) {
 	scanner := bufio.NewScanner(os.Stdin)
 	HelpText = "------------------------------------------    Commands    ------------------------------------------\n"
 	AddHelp("|---[command]---|", "|---[text]---|")
@@ -19,6 +19,7 @@ func Control() {
 	// Commands
 	// Add Helps
 	AddHelp("h || help", "Display help messages")
+	AddHelp("c", "Display Constructor completed height")
 
 	// Start loop
 	for scanner.Scan() {
@@ -30,6 +31,8 @@ func Control() {
 		case "help":
 			fmt.Println(HelpText[:len(HelpText)-1])
 			fmt.Println("----------------------------------------------------------------------------------------------------")
+		case "c":
+			fmt.Printf("Constructor Completed Height: %d\n", w.Constructor.CompletedHeight)
 		}
 	}
 }

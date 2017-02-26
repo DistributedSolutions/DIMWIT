@@ -12,7 +12,13 @@ var (
 	})
 )
 
+var inited bool = false
+
 func InitEnginePrometheus() {
+	if inited {
+		return
+	}
+	inited = true
 	// Constructor-Engine
 	prometheus.MustRegister(constructorEngineHeight)
 }
