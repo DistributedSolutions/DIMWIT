@@ -1,0 +1,31 @@
+
+# Group Api
+
+## /api
+
+### POST [POST]
+
+
++ Request (application/json)
+
+
+
+    + Body
+
+            {
+                "jsonrpc": "2.0",
+                "method": "HelloService.Say",
+                "params": {
+                    "Who": "James"
+                }
+            }        
+
++ Response 400 (text/plain; charset=utf-8)
+
+
+
+    + Body
+
+            json: cannot unmarshal object into Go value of type [1]interface {}        
+
+
