@@ -34,6 +34,10 @@ func TestContent(t *testing.T) {
 			t.Error("Failed, should have no bytes left")
 		}
 
+		if i > 10 {
+			continue
+		}
+
 		j := new(Content)
 		jdata, err := json.Marshal(l)
 		if err != nil {

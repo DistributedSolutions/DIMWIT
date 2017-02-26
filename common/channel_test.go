@@ -18,7 +18,7 @@ var _ = log.Prefix()
 var _ = ioutil.Discard
 
 func TestChannel(t *testing.T) {
-	for i := 0; i < 700; i++ {
+	for i := 0; i < 250; i++ {
 		l := RandomNewChannel()
 		data, err := l.MarshalBinary()
 		if err != nil {
@@ -38,6 +38,9 @@ func TestChannel(t *testing.T) {
 			t.Error("Failed, should have no bytes left")
 		}
 
+		if i > 10 {
+			continue
+		}
 		j := new(Channel)
 		jdata, err := json.Marshal(l)
 		if err != nil {
@@ -59,6 +62,8 @@ func TestChannel(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	_, _ = a.CustomMarshalJSON()
 
 	b := NewChannel()
 	_, err = b.UnmarshalBinaryData(data)

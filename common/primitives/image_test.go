@@ -37,6 +37,10 @@ func TestImage(t *testing.T) {
 			t.Error("Should not be empty")
 		}
 
+		if i > 10 {
+			continue
+		}
+
 		jdata, err := json.Marshal(h)
 		if err != nil {
 			t.Error(err)

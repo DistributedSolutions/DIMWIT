@@ -32,6 +32,10 @@ func TestSingleFile(t *testing.T) {
 			t.Error("Failed, should have no bytes left")
 		}
 
+		if i > 10 {
+			continue
+		}
+
 		jdata, err := json.Marshal(n)
 		if err != nil {
 			t.Error(err)

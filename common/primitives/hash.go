@@ -230,6 +230,7 @@ func (a *Hash) IsSameAs(b *Hash) bool {
 }
 
 func (h *Hash) MarshalJSON() ([]byte, error) {
+	fmt.Println("HETTT", h.String())
 	return json.Marshal(h.String())
 }
 

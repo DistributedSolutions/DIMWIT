@@ -37,6 +37,10 @@ func TestManyPlayList(t *testing.T) {
 			t.Error("Should not be empty")
 		}
 
+		if i > 10 {
+			continue
+		}
+
 		jdata, err := json.Marshal(l)
 		if err != nil {
 			t.Error(err)

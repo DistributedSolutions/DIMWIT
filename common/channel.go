@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -71,6 +72,69 @@ func RandomNewChannel() *Channel {
 	c.CreationTime = time.Now()
 
 	return c
+}
+
+type customJSONMarshalChannel struct {
+	RootChainID       string `json:"rootchain"`
+	ManagementChainID string `json:"managechain"`
+	ContentChainID    string `json:"contentchain"`
+	// They are not an array, because they are never referenced as an array
+	LV1PublicKey      string           `json:"pubkey1"`    // Critical
+	LV2PublicKey      string           `json:"pubkey2"`    // Critical
+	LV3PublicKey      string           `json:"pubkey3"`    // Critical
+	ContentSingingKey string           `json:"contentkey"` // Critical
+	ChannelTitle      primitives.Title `json:"title"`      // Critical
+
+	Website          primitives.SiteURL             `json:"site"`              // Not-Critical
+	LongDescription  primitives.LongDescription     `json:"longdesc"`          // Not-Critical
+	ShortDescription primitives.ShortDescription    `json:"shortdesc"`         // Not-Critical
+	Playlist         ManyPlayList                   `json:"playlist"`          // Not-Critical
+	Thumbnail        primitives.Image               `json:"thumbnail"`         // Not-Critical
+	Banner           primitives.Image               `json:"banner"`            // Not-Critical
+	Tags             primitives.TagList             `json:"tags"`              // Not-Critical
+	SuggestedChannel primitives.HashList            `json:"suggestedchannels"` // Not-Critical
+	Content          []customJSONMarshalContentList `json:"contentlist"`       // Not-Critical
+
+	CreationTime time.Time `json:"creationtime"` // Not-Critical
+}
+
+type customJSONMarshalContentList struct {
+	ContentID string `json:"contentid"`
+	Title     string `json:"title"`
+}
+
+// CustomMarshalJSON reduces overhead of contentlist
+func (a *Channel) CustomMarshalJSON() ([]byte, error) {
+	con := make([]customJSONMarshalContentList, 0)
+	for _, h := range a.Content.GetContents() {
+		ci := new(customJSONMarshalContentList)
+		ci.Title = h.ContentTitle.String()
+		ci.ContentID = h.ContentID.String()
+		con = append(con, *ci)
+		//hashList = append(hashList, h.ContentID.String())
+		//titleList = append(titleList, h.ContentTitle.String())
+	}
+	custom := customJSONMarshalChannel{
+		RootChainID:       a.RootChainID.String(),
+		ManagementChainID: a.ManagementChainID.String(),
+		ContentChainID:    a.ContentChainID.String(),
+		LV1PublicKey:      a.LV1PublicKey.String(),
+		LV2PublicKey:      a.LV2PublicKey.String(),
+		LV3PublicKey:      a.LV3PublicKey.String(),
+		ContentSingingKey: a.ContentSingingKey.String(),
+		ChannelTitle:      a.ChannelTitle,
+		Website:           a.Website,
+		LongDescription:   a.LongDescription,
+		ShortDescription:  a.ShortDescription,
+		Playlist:          a.Playlist,
+		Thumbnail:         a.Thumbnail,
+		Banner:            a.Banner,
+		Tags:              a.Tags,
+		SuggestedChannel:  a.SuggestedChannel,
+		Content:           con,
+		CreationTime:      a.CreationTime,
+	}
+	return json.Marshal(custom)
 }
 
 func (a *Channel) Status() int {
