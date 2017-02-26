@@ -3,7 +3,7 @@ package constructor
 import (
 	"time"
 
-	"github.com/DistributedSolutions/DIMWIT/common"
+	//"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 )
 
@@ -13,7 +13,7 @@ const (
 
 type SqlWriter struct {
 	// Incoming channels to write to sql db
-	channelQueue chan common.Channel
+	channelQueue chan objects.ChannelWrapper
 
 	// Stop goroutine
 	quit chan int
@@ -23,7 +23,7 @@ type SqlWriter struct {
 func NewSqlWriter() *SqlWriter {
 	sw := new(SqlWriter)
 	sw.quit = make(chan int, 5)
-	sw.channelQueue = make(chan common.Channel, 1000)
+	sw.channelQueue = make(chan objects.ChannelWrapper, 1000)
 
 	return sw
 }
@@ -34,7 +34,7 @@ func (sw *SqlWriter) SendChannelDownQueue(c objects.ChannelWrapper) {
 	// do so here.
 	// You have access to some extra variables with the Wrapper.
 	// I don't think you care about them though.
-	sw.channelQueue <- c.Channel
+	sw.channelQueue <- c
 }
 
 // Close sqlwriter
@@ -56,7 +56,7 @@ func (sw *SqlWriter) DrainChannelQueue() {
 		// Take incoming channels
 		select {
 		case channel := <-sw.channelQueue:
-			channelList := make([]common.Channel, 0)
+			channelList := make([]objects.ChannelWrapper, 0)
 			channelList = append(channelList, channel)
 			// Do stuff
 			length := len(sw.channelQueue)

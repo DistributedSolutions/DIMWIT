@@ -35,16 +35,6 @@ type Constructor struct {
 //dbType string,
 func NewContructor(db database.IDatabase) (*Constructor, error) {
 	c := new(Constructor)
-	/*var db database.IDatabase
-	switch dbType {
-	case "Bolt":
-		db = database.NewBoltDB(constants.HIDDEN_DIR + constants.LVL2_CACHE)
-	case "LDB":
-	case "Map":
-		db = database.NewMapDB()
-	default:
-		return nil, fmt.Errorf("DBType given not valid. Found '%s', expected either: Bolt, Map, LDB", dbType)
-	}*/
 
 	c.SqlGuy = NewSqlWriter()
 	c.Level2Cache = db
@@ -127,6 +117,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	// TODO: Batch write
 	for _, channel := range c.ChannelCache {
+		channel.CurrentHeight = c.CompletedHeight
 		c.SqlGuy.SendChannelDownQueue(channel)
 		data, err := channel.MarshalBinary()
 		if err != nil {
