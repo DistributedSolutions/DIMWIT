@@ -236,6 +236,19 @@ func ExecStmt(stmt *sql.Stmt, data []string) error {
 	return nil
 }
 
+func ExecStmtResult(stmt *sql.Stmt, data []string) (sql.Result, error) {
+	insertDataInterface := make([]interface{}, len(data))
+	for index, value := range data {
+		insertDataInterface[index] = value
+	}
+
+	res, err := stmt.Exec(insertDataInterface...)
+	if err != nil {
+		return nil, fmt.Errorf("Error stmt exec: %s", err.Error())
+	}
+	return res, nil
+}
+
 // func InsertIntoTable(db *sql.DB, insertCols,) (sql.Result, error) {
 
 // 	stmt, err := db.Prepare(s)
