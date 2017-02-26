@@ -70,6 +70,12 @@ func TestCreateDB(t *testing.T) {
 }
 
 func TestAddTags(t *testing.T) {
+	//add in tags to db that was just created
+	err = AddTags(testDB.DB)
+	if err != nil {
+		t.Error(err)
+	}
+	//deletes the tags from the newly created db
 	err := DeleteTags(testDB.DB)
 	if err != nil {
 		t.Error(err)
@@ -184,21 +190,12 @@ func TestAddChannel(t *testing.T) {
 	//NO need to check if the playlist was inserted, would have thrown an error if it was not inserted correctly
 }
 
-func TestFlushPlaylistTemp(t *testing.T) {
-	err := FlushPlaylistTempTable(testDB.DB, -1) //HEIGHT PLACEHOLDER IN SECONd VALUE CURRENT IS TEMPORARY
+func TestFlushPlaylistTemp(t *testing.T, height int) {
+	err := FlushPlaylistTempTable(testDB.DB, height) //HEIGHT PLACEHOLDER IN SECONd VALUE CURRENT IS TEMPORARY
 	if err != nil {
 		t.Error(err)
 	}
 	//*************WILL HAVE TO CHANGE IN FUTURE WHEN HEIGHT MANEGEMENT IS CHANGED******************
-	q := "SELECT " + constants.SQL_TABLE_PLAYLIST__ID + " FROM " + constants.SQL_PLAYLIST_TEMP
-	rows, err := testDB.DB.Query(q)
-	if err != nil {
-		t.Error(fmt.Errorf("Error retrieving playlist temp with query[%s]: %s\n", q, err))
-	}
-	for rows.Next() {
-		t.Error(fmt.Errorf("Error extra content rows\n"))
-	}
-	rows.Close()
 }
 
 func TestCloseDB(t *testing.T) {
