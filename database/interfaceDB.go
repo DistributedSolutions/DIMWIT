@@ -280,22 +280,36 @@ func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(currentHeight uint32) error {
 	}
 	rows.Close()
 
+	insertColsPlayList := []string{
+		constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE,
+		constants.SQL_TABLE_PLAYLIST__CHANNEL_ID,
+	}
+
+	insertColsPlayListRel := []string{
+		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID,
+		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID,
+	}
+
+	insertData := make([]string, 2, 2)
+
+	stmtPlayList, err := PrepareStmtInsertUpdate(db, constants.SQL_PLAYLIST, insertColsPlayList, insertData)
+	if err != nil {
+		return fmt.Errorf("Error preparing to add channel playlists: %s", err.Error())
+	}
+	stmtPlayListRel, err := PrepareStmtInsertUpdate(db, constants.SQL_PLAYLIST_CONTENT_REL, insertColsPlayListRel, insertData)
+	if err != nil {
+		return fmt.Errorf("Error preparing to add channel playlists: %s", err.Error())
+	}
+	defer (*stmtPlayList).Close()
+	defer (*stmtPlayListRel).Close()
+
 	for i := 0; i < nRows; i++ {
 		//Insert into playlist table
-		insertCols := []string{
-			constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE,
-			constants.SQL_TABLE_PLAYLIST__CHANNEL_ID,
-		}
-		insertData := []string{
-			tableEntries[i].Title,
-			tableEntries[i].ChannelId,
-		}
-
-		s := "INSERT INTO " + constants.SQL_PLAYLIST + " (" + insertCols[0] + "," + insertCols[1] +
-			") VALUES(?,?)"
-		res, err := db.Exec(s, insertData[0], insertData[1])
+		insertData[0] = tableEntries[i].Title
+		insertData[1] = tableEntries[i].ChannelId
+		res, err := ExecStmtResult(stmtPlayList, insertData)
 		if err != nil {
-			return fmt.Errorf("Error adding channel: %s\n", err.Error())
+			return fmt.Errorf("Error adding playlist from playlistTemp: %s\n", err.Error())
 		}
 
 		//retrieve id
@@ -305,19 +319,11 @@ func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(currentHeight uint32) error {
 		}
 
 		//Insert into playlistRel table
-		insertCols = []string{
-			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID,
-			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID,
-		}
-		insertData = []string{
-			fmt.Sprintf("%d", id),
-			tableEntries[i].ContentId,
-		}
-		s = "INSERT INTO " + constants.SQL_PLAYLIST_CONTENT_REL + " (" + insertCols[0] + "," + insertCols[1] +
-			") VALUES(?,?)"
-		_, err = db.Exec(s, insertData[0], insertData[1])
+		insertData[0] = fmt.Sprintf("%d", id)
+		insertData[1] = tableEntries[i].ContentId
+		err = ExecStmt(stmtPlayList, insertData)
 		if err != nil {
-			fmt.Printf("WARNING 'MOST LIKELY FOREIGN KEY CONSTRAINT FAIL' inserting into playlist rel table with title[%s] and channelId[%s] and contentID[%s] error message is [%s]\n", title, channelId, contentId, err.Error())
+			return fmt.Errorf("Error adding playlistRel from playlistTemp: %s\n", err.Error())
 		}
 	}
 

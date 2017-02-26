@@ -11,7 +11,7 @@ import (
 
 var _ = fmt.Sprintf("")
 
-var testDB *DB
+var testDB *SqlDBWrapper
 
 func TestCreateDB(t *testing.T) {
 	err := DeleteDB(constants.SQL_DB)
@@ -71,12 +71,12 @@ func TestCreateDB(t *testing.T) {
 
 func TestAddTags(t *testing.T) {
 	//add in tags to db that was just created
-	err := AddTags(testDB.DB)
+	err := testDB.AddTags()
 	if err != nil {
 		t.Error(err)
 	}
 	//deletes the tags from the newly created db
-	err = DeleteTags(testDB.DB)
+	err = testDB.DeleteTags()
 	if err != nil {
 		t.Error(err)
 	}
@@ -99,7 +99,7 @@ func TestAddTags(t *testing.T) {
 		t.Error(fmt.Errorf("All channel tags not deleted with query [%s] and count [%d]\n", s, count))
 	}
 
-	err = AddTags(testDB.DB)
+	err = testDB.AddTags()
 	if err != nil {
 		t.Error(err)
 	}
@@ -131,9 +131,9 @@ func TestAddTags(t *testing.T) {
 func TestAddChannel(t *testing.T) {
 	// return // TODO: Jesse I commented this out
 	c := common.RandomNewChannel()
-	channels := make([]*common.Channel, 1, 1)
-	channels[0] = c
-	err := AddChannelArr(testDB.DB, channels, -1)
+	channels := make([]common.Channel, 1, 1)
+	channels[0] = *c
+	err := testDB.AddChannelArr(channels, 5)
 	if err != nil {
 		t.Error(err)
 	}
@@ -147,7 +147,7 @@ func TestAddChannel(t *testing.T) {
 		") AND " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " = '" + c.ContentChainID.String() + "'"
 	rows, err := testDB.DB.Query(q)
 	if err != nil {
-		t.Error(fmt.Errorf("Error retrieving tables with query[%s]: %s\n", q, err.Error()))
+		t.Error(fmt.Errorf("Error retriGetTagsAsStringArreving tables with query[%s]: %s\n", q, err.Error()))
 	}
 	for rows.Next() {
 		t.Error(fmt.Errorf("Error extra channel tag rows with query[%s]\n", q))
