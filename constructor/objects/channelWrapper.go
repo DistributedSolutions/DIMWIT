@@ -24,6 +24,9 @@ type ChannelWrapper struct {
 	// Content
 	CRegistered bool
 	CMadeHeight uint32
+
+	// Used when Passing down
+	CurrentHeight uint32
 }
 
 func NewChannelWrapper() *ChannelWrapper {

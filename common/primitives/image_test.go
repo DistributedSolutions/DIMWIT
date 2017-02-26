@@ -92,6 +92,7 @@ func TestDiffImage(t *testing.T) {
 		t.Error("Not same")
 	}
 
+	a.GetImageType()
 }
 
 func TestEmptyImage(t *testing.T) {
@@ -107,6 +108,18 @@ func TestBadUnmarshalImage(t *testing.T) {
 	n := new(Image)
 
 	_, err := n.UnmarshalBinaryData(badData)
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	badJson := ""
+	err = n.UnmarshalJSON([]byte(badJson))
+	if err == nil {
+		t.Error("Should panic or error out")
+	}
+
+	badJson = `{"imgtype":2,"length":6,"image":"T12074657374"}`
+	err = n.UnmarshalJSON([]byte(badJson))
 	if err == nil {
 		t.Error("Should panic or error out")
 	}

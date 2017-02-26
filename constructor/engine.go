@@ -19,7 +19,7 @@ func (c *Constructor) StartConstructor() {
 		case <-c.quit:
 			return
 		default:
-			constructorEngineHeight.Set(float64(c.CompletedHeight))
+			// constructorEngineHeight.Set(float64(c.CompletedHeight))
 			err := c.ApplyHeight(c.CompletedHeight + 1)
 			if err != nil {
 				time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)

@@ -129,6 +129,7 @@ func TestAddTags(t *testing.T) {
 }
 
 func TestAddChannel(t *testing.T) {
+	// return // TODO: Jesse I commented this out
 	c := common.RandomNewChannel()
 	channels := make([]*common.Channel, 1, 1)
 	channels[0] = c

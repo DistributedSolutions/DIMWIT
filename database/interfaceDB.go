@@ -25,7 +25,7 @@ func DeleteTags(db *sql.DB) error {
 	return DeleteTable(db, constants.SQL_CONTENT_TAG)
 }
 
-func AddChannelArr(db *sql.DB, channels []*common.Channel, height int) error {
+func AddChannelArr(db *sql.DB, channels []common.Channel, height uint32) error {
 	err := addChannels(db, channels)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func AddChannelArr(db *sql.DB, channels []*common.Channel, height int) error {
 	return nil
 }
 
-func addChannels(db *sql.DB, channels []*common.Channel) error {
+func addChannels(db *sql.DB, channels []common.Channel) error {
 	insertCols := []string{
 		constants.SQL_TABLE_CHANNEL__HASH,
 		constants.SQL_TABLE_CHANNEL__TITLE,
@@ -72,7 +72,7 @@ func addChannels(db *sql.DB, channels []*common.Channel) error {
 	return nil
 }
 
-func addChannelsTags(db *sql.DB, channels []*common.Channel) error {
+func addChannelsTags(db *sql.DB, channels []common.Channel) error {
 	insertCols := []string{
 		constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID,
 		constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID,
@@ -108,7 +108,7 @@ func addChannelsTags(db *sql.DB, channels []*common.Channel) error {
 	return nil
 }
 
-func addChannelsContents(db *sql.DB, channels []*common.Channel) error {
+func addChannelsContents(db *sql.DB, channels []common.Channel) error {
 	insertCols := []string{
 		constants.SQL_TABLE_CONTENT__CONTENT_HASH,
 		constants.SQL_TABLE_CONTENT__TITLE,
@@ -146,7 +146,7 @@ func addChannelsContents(db *sql.DB, channels []*common.Channel) error {
 	return nil
 }
 
-func addChannelsContentsTags(db *sql.DB, channels []*common.Channel) error {
+func addChannelsContentsTags(db *sql.DB, channels []common.Channel) error {
 	insertCols := []string{
 		constants.SQL_TABLE_CONTENT_TAG_REL__C_ID,
 		constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID,
@@ -191,7 +191,7 @@ func addChannelsContentsTags(db *sql.DB, channels []*common.Channel) error {
 	return nil
 }
 
-func addChannelsPlaylistsTemps(db *sql.DB, channels []*common.Channel, height int) error {
+func addChannelsPlaylistsTemps(db *sql.DB, channels []common.Channel, height uint32) error {
 	insertCols := []string{
 		constants.SQL_TABLE_PLAYLIST_TEMP__TITLE,
 		constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT,
@@ -228,7 +228,7 @@ func addChannelsPlaylistsTemps(db *sql.DB, channels []*common.Channel, height in
 	return nil
 }
 
-func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
+func FlushPlaylistTempTable(db *sql.DB, currentHeight uint32) error {
 	rowQuery := "SELECT COUNT(" + constants.SQL_TABLE_PLAYLIST_TEMP__ID + ") " +
 		" FROM " + constants.SQL_PLAYLIST_TEMP +
 		" WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " = ?"

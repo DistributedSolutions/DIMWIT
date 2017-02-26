@@ -112,7 +112,7 @@ func TestManageEntries(t *testing.T) {
 		}
 
 		chainID := mc.String()
-		for _, e := range cc.MetaData.Entries {
+		for _, e := range cc.MetaData.Entries { // Line below this paniced
 			if len(e.Content) > constants.ENTRY_MAX_SIZE || len(e.Content) == 0 {
 				t.Errorf("Entry content length is bad. It is %d", len(e.Content))
 			}
