@@ -13,6 +13,7 @@ import (
 // StartConstructor has the constructor continuously check the next blocks for more information
 func (c *Constructor) StartConstructor() {
 	InitEnginePrometheus()
+	go c.SqlGuy.DrainChannelQueue()
 	for {
 		select {
 		case <-c.quit:
@@ -21,11 +22,15 @@ func (c *Constructor) StartConstructor() {
 			constructorEngineHeight.Set(float64(c.CompletedHeight))
 			err := c.ApplyHeight(c.CompletedHeight + 1)
 			if err != nil {
-				// log.Println("[ConstructorError] ", err.Error())
 				time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)
+			} else {
+				// Height X was applied
+				// Flush Height X
 			}
 		}
 	}
+	// If I die, so does the SQLGuy. He should be dead at this point, but gatta be sure
+	c.quit <- 0
 }
 
 func (c *Constructor) Kill() {
