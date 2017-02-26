@@ -17,6 +17,7 @@ func (c *Constructor) StartConstructor() {
 		case <-c.quit:
 			return
 		default:
+			constructorEngineHeight.Set(float64(c.CompletedHeight))
 			err := c.ApplyHeight(c.CompletedHeight + 1)
 			if err != nil {
 				// log.Println("[ConstructorError] ", err.Error())

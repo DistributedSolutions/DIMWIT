@@ -24,3 +24,6 @@ testImport:
 - package: github.com/adams-sarah/test2doc
 - package: github.com/gorilla/mux
   version: v1.3.0
+- package: github.com/prometheus/client_golang
+  subpackages:
+  - prometheus
