@@ -19,6 +19,7 @@ var _ = fmt.Sprintf("")
 var _ = time.Second
 
 func TestConstructor(t *testing.T) {
+	constants.CHECK_FACTOM_FOR_UPDATES = time.Millisecond * 100
 	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
 	fake := lite.NewFakeDumbLite()
 	m := creation.NewMasterChain()
@@ -32,6 +33,8 @@ func TestConstructor(t *testing.T) {
 		t.Error(err)
 	}
 	con.SetReader(fake)
+	authList := make([]channelTool.AuthChannel, 0)
+	totalStuff := 0
 
 	for i := 0; i < 5; i++ {
 		ch := common.RandomNewChannel()
@@ -51,6 +54,7 @@ func TestConstructor(t *testing.T) {
 		}
 
 		for _, c := range chains {
+			totalStuff++
 			_, _, err := fake.SubmitChain(*c, *ec)
 			if err != nil {
 				t.Error(err)
@@ -59,6 +63,7 @@ func TestConstructor(t *testing.T) {
 
 		eHashes := make([]string, 0)
 		for _, e := range entries {
+			totalStuff++
 			_, ehash, err := fake.SubmitEntry(*e, *ec)
 			if err != nil {
 				t.Error(err)
@@ -73,29 +78,35 @@ func TestConstructor(t *testing.T) {
 				t.Error(err)
 			}
 		}
-
-		// Constructor finished!
-		cw, err := con.RetrieveChannel(auth.Channel.RootChainID)
-		if err != nil {
-			t.Error(err)
-		}
-
-		if !cw.Channel.IsSameAs(&auth.Channel) {
-			t.Error("Channels not the same", cw.Channel.RootChainID.String(), auth.Channel.RootChainID.String())
-		}
+		authList = append(authList, *auth)
 
 		// Jesse Test Assertions
 
 		// END JESSE ASSERTIONS
 	}
-
+	//fmt.Println(con.CompletedHeight)
 	go con.StartConstructor()
-
+	time.Sleep(1 * time.Second)
 	max, _ := con.Reader.GetReadyHeight()
 	for con.CompletedHeight < max-1 {
+		//fmt.Println(con.CompletedHeight, max-1, totalStuff-1)
 		time.Sleep(200 * time.Millisecond)
 		// fmt.Println(con.CompletedHeight, max)
 	}
+	//fmt.Println(con.CompletedHeight, max-1, totalStuff-1)
+
+	for _, a := range authList {
+		// Constructor finished!
+		cw, err := con.RetrieveChannel(a.Channel.RootChainID)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !cw.Channel.IsSameAs(&a.Channel) {
+			t.Error("Channels not the same", cw.Channel.RootChainID.String(), a.Channel.RootChainID.String())
+		}
+	}
+
 	// Close constructor
 	con.Close()
 
