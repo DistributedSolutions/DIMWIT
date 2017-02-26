@@ -13,7 +13,6 @@ import (
 // StartConstructor has the constructor continuously check the next blocks for more information
 func (c *Constructor) StartConstructor() {
 	InitEnginePrometheus()
-	go c.SqlGuy.DrainChannelQueue()
 	for {
 		select {
 		case <-c.quit:
@@ -25,7 +24,6 @@ func (c *Constructor) StartConstructor() {
 				time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)
 			} else {
 				// Height X was applied
-				// Flush Height X
 			}
 		}
 	}

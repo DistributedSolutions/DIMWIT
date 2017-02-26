@@ -97,7 +97,7 @@ var CREATE_TABLE = []string{
 		constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL)",
 }
 
-func CreateDB(dbName string, tableCreate []string) (*DB, error) {
+func CreateDB(dbName string, tableCreate []string) (*SqlDBWrapper, error) {
 	dir := util.GetHomeDir() + constants.HIDDEN_DIR
 	_, err := os.Stat(dir)
 	// create directory if not exists
@@ -133,7 +133,7 @@ func CreateDB(dbName string, tableCreate []string) (*DB, error) {
 		return nil, fmt.Errorf("Error creating tables: %s", err.Error())
 	}
 
-	dbStruct := DB{db, dbName}
+	dbStruct := SqlDBWrapper{db, dbName}
 	return &dbStruct, nil
 }
 

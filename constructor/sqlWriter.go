@@ -17,7 +17,7 @@ const (
 type SqlWriter struct {
 	// Incoming channels to write to sql db
 	channelQueue chan objects.ChannelWrapper
-	db           *database.DB
+	db           *database.SqlDBWrapper
 	// Stop goroutine
 	quit chan int
 }
@@ -33,7 +33,7 @@ func NewSqlWriter() *SqlWriter {
 	if err != nil {
 		fmt.Printf("Error creating DB!! AAAHHH: %s", err)
 	}
-	err = database.AddTags(db.DB)
+	err = sw.db.AddTags()
 	if err != nil {
 		fmt.Printf("Error adding in tags: %s", err)
 	}
@@ -59,9 +59,13 @@ func (sw *SqlWriter) Close() {
 	sw.quit <- 0
 }
 
+func (sw *SqlWriter) AddChannelArr(channels []common.Channel, height uint32) error {
+	return sw.db.AddChannelArr(channels, height)
+}
+
 // Called to run SQLWriter
 func (sw *SqlWriter) DrainChannelQueue() {
-	for {
+	/*for {
 		// Closeing sqlwrite
 		select {
 		case <-sw.quit:
@@ -119,5 +123,5 @@ func (sw *SqlWriter) DrainChannelQueue() {
 
 		// Don't starve other routines
 		time.Sleep(LOOP_DELAY)
-	}
+	}*/
 }

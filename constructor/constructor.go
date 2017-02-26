@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/FactomProject/factom"
-	//"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	"github.com/FactomProject/factom"
 )
 
 // Constructor builds the level 2 cache using factom-lite
@@ -115,10 +115,13 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 		c.applyEntryToCache(e)
 	}
 
+	chanList := make([]common.Channel, 0)
+
+	// Level 2 Cache Write
 	// TODO: Batch write
 	for _, channel := range c.ChannelCache {
+		chanList = append(chanList, channel.Channel)
 		channel.CurrentHeight = c.CompletedHeight
-		c.SqlGuy.SendChannelDownQueue(channel)
 		data, err := channel.MarshalBinary()
 		if err != nil {
 			continue
@@ -141,8 +144,12 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 			}
 		}
 	}
+	// Update State
 	c.CompletedHeight = height
 	c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, primitives.Uint32ToBytes(c.CompletedHeight))
+
+	// Write to SQL
+	err = c.SqlGuy.AddChannelArr(chanList, height)
 	return nil
 }
 

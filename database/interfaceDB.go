@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/mattn/go-sqlite3"
 
@@ -27,24 +26,23 @@ func (sqlDB *SqlDBWrapper) DeleteTags() error {
 }
 
 func (sqlDB *SqlDBWrapper) AddChannelArr(channels []common.Channel, height uint32) error {
-	db := sqlDB.DB
-	err := addChannels(db, channels)
+	err := sqlDB.addChannels(channels)
 	if err != nil {
 		return err
 	}
-	err = addChannelsTags(db, channels)
+	err = sqlDB.addChannelsTags(channels)
 	if err != nil {
 		return err
 	}
-	err = addChannelsContents(db, channels)
+	err = sqlDB.addChannelsContents(channels)
 	if err != nil {
 		return err
 	}
-	err = addChannelsContentsTags(db, channels)
+	err = sqlDB.addChannelsContentsTags(channels)
 	if err != nil {
 		return err
 	}
-	err = addChannelsPlaylistsTemps(db, channels, height)
+	err = sqlDB.addChannelsPlaylistsTemps(channels, height)
 	if err != nil {
 		return err
 	}
@@ -235,7 +233,7 @@ func (sqlDB *SqlDBWrapper) addChannelsPlaylistsTemps(channels []common.Channel, 
 	return nil
 }
 
-func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(db *sql.DB, currentHeight uint32) error {
+func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(currentHeight uint32) error {
 	db := sqlDB.DB
 	rowQuery := "SELECT COUNT(" + constants.SQL_TABLE_PLAYLIST_TEMP__ID + ") " +
 		" FROM " + constants.SQL_PLAYLIST_TEMP +
@@ -332,7 +330,7 @@ func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(db *sql.DB, currentHeight uint
 	return nil
 }
 
-func (sqlDB *SqlDBWrapper) AddTags(db *sql.DB) error {
+func (sqlDB *SqlDBWrapper) AddTags() error {
 	db := sqlDB.DB
 	insertColsChannel := []string{constants.SQL_TABLE_CHANNEL_TAG__NAME}
 	insertColsContent := []string{constants.SQL_TABLE_CONTENT_TAG__NAME}
