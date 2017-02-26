@@ -42,6 +42,13 @@ func (cl *ContentList) AddContent(c Content) {
 	cl.ContentList = append(cl.ContentList, c)
 }
 
+func NewContent() *Content {
+	c := new(Content)
+	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CONTENT_TAGS))
+	return c
+
+}
+
 func RandomNewContent() *Content {
 	c := new(Content)
 

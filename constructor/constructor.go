@@ -7,17 +7,11 @@ import (
 
 	"github.com/FactomProject/factom"
 	//"github.com/DistributedSolutions/DIMWIT/common"
-	// "github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
-)
-
-var (
-	CHANNEL_BUCKET    []byte = []byte("Channels")
-	STATE_BUCKET      []byte = []byte("State")
-	STATE_COMP_HEIGHT []byte = []byte("CompletedHeight")
 )
 
 // Constructor builds the level 2 cache using factom-lite
@@ -80,7 +74,7 @@ func (c *Constructor) SetReader(r lite.FactomLiteReader) {
 func (c *Constructor) loadStateFromDB() error {
 	c.CompletedHeight = 0
 	if c.Level2Cache != nil {
-		data, err := c.Level2Cache.Get(STATE_BUCKET, STATE_COMP_HEIGHT)
+		data, err := c.Level2Cache.Get(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT)
 		if err == nil {
 			u, err := primitives.BytesToUint32(data)
 			if err == nil {
@@ -93,7 +87,7 @@ func (c *Constructor) loadStateFromDB() error {
 		if c.CompletedHeight == 0 {
 			// TODO: Might want to check if data exists, if it does
 			// then we have data, but the height is 0. This might cause issues
-			err = c.Level2Cache.Put(STATE_BUCKET, STATE_COMP_HEIGHT, []byte{0x00, 0x00, 0x00, 0x00})
+			err = c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, []byte{0x00, 0x00, 0x00, 0x00})
 			if err != nil {
 				return err
 			}
@@ -134,13 +128,25 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 			continue
 		}
 
-		err = c.Level2Cache.Put(CHANNEL_BUCKET, channel.Channel.RootChainID.Bytes(), data)
+		err = c.Level2Cache.Put(constants.CHANNEL_BUCKET, channel.Channel.RootChainID.Bytes(), data)
 		if err != nil {
 			continue
 		}
+
+		for _, content := range channel.Channel.Content.GetContents() {
+			data, err = content.MarshalBinary()
+			if err != nil {
+				continue
+			}
+
+			err = c.Level2Cache.Put(constants.CONTENT_BUCKET, content.ContentID.Bytes(), data)
+			if err != nil {
+				continue
+			}
+		}
 	}
 	c.CompletedHeight = height
-	c.Level2Cache.Put(STATE_BUCKET, STATE_COMP_HEIGHT, primitives.Uint32ToBytes(c.CompletedHeight))
+	c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, primitives.Uint32ToBytes(c.CompletedHeight))
 	return nil
 }
 
@@ -290,7 +296,7 @@ func (c *Constructor) saveChannel(ch objects.ChannelWrapper) error {
 	if err != nil {
 		return err
 	}
-	err = c.Level2Cache.Put(CHANNEL_BUCKET, ch.Channel.RootChainID.Bytes(), data)
+	err = c.Level2Cache.Put(constants.CHANNEL_BUCKET, ch.Channel.RootChainID.Bytes(), data)
 	if err != nil {
 		return err
 	}
@@ -312,7 +318,7 @@ func (c *Constructor) retrieveChannel(chainID string) (*objects.ChannelWrapper, 
 
 // RetrieveChannel retrieves the channel from the Level2Cache
 func (c *Constructor) RetrieveChannel(chainID primitives.Hash) (*objects.ChannelWrapper, error) {
-	data, err := c.Level2Cache.Get(CHANNEL_BUCKET, chainID.Bytes())
+	data, err := c.Level2Cache.Get(constants.CHANNEL_BUCKET, chainID.Bytes())
 	if err != nil {
 		return nil, err
 	}
