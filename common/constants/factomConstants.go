@@ -1,6 +1,8 @@
 package constants
 
-import ()
+import (
+	"time"
+)
 
 //
 // Constants used only inside Factom
@@ -32,4 +34,9 @@ const (
 // Window we will allow a timestamp in an entry to differ from the dblock
 const (
 	ENTRY_TIMESTAMP_WINDOW int64 = 24 * 60 * 60 // in seconds
+)
+
+// Constructor Settings
+const (
+	CHECK_FACTOM_FOR_UPDATES time.Duration = time.Duration(5 * time.Second)
 )

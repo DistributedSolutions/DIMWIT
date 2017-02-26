@@ -3,6 +3,7 @@ package constructor_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/channelTool"
 	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
@@ -12,6 +13,7 @@ import (
 )
 
 var _ = fmt.Sprintf("")
+var _ = time.Second
 
 func TestBitbucket(t *testing.T) {
 	fake := lite.NewFakeDumbLite()
@@ -60,11 +62,19 @@ func TestBitbucket(t *testing.T) {
 		con.SetReader(fake)
 		//con.
 
-		for i := 0; ; i++ {
+		/*for i := 0; ; i++ {
 			err := con.ApplyHeight(uint32(i))
 			if err != nil {
 				break
 			}
+			fmt.Println(i)
+		}*/
+		//time.Sleep(10 * time.Second)
+		go con.StartConstructor()
+		max, _ := con.Reader.GetReadyHeight()
+		for con.CompletedHeight < max-1 {
+			time.Sleep(200 * time.Millisecond)
+			// fmt.Println(con.CompletedHeight, max)
 		}
 
 		cw, err := con.RetrieveChannel(auth.Channel.RootChainID)

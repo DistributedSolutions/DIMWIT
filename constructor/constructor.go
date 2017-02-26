@@ -30,6 +30,9 @@ type Constructor struct {
 
 	// Constructor only reads from Factom
 	Reader lite.FactomLiteReader
+
+	// Managing
+	quit chan int
 }
 
 func NewContructor(dbType string) (*Constructor, error) {
@@ -42,12 +45,18 @@ func NewContructor(dbType string) (*Constructor, error) {
 	case "Map":
 		db = database.NewMapDB()
 	default:
-		return nil, fmt.Errorf("DBType given not valid. Found %s, expected either: Bolt, Map, LDB", dbType)
+		return nil, fmt.Errorf("DBType given not valid. Found '%s', expected either: Bolt, Map, LDB", dbType)
 	}
 
 	c.Level2Cache = db
 	c.LoadStateFromDB()
+	c.quit = make(chan int, 20)
 	return c, nil
+}
+
+func (c *Constructor) Close() error {
+	c.quit <- 0 // Kill routine
+	return c.Level2Cache.Close()
 }
 
 // SetReader takes in a FactomLiteReader, this is where the contructor will get it's data
