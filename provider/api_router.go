@@ -23,6 +23,7 @@ func NewRouter() *mux.Router {
 	// Api's Available
 	jsonRPC.RegisterService(new(api.HelloService), "")
 	jsonRPC.RegisterService(new(api.Arith), "")
+	jsonRPC.RegisterCodec(codec, contentType)
 
 	r.Handle("/api", jsonRPC)
 	return r
