@@ -8,6 +8,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/channelTool"
 	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	. "github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
@@ -54,6 +55,14 @@ func TestBitbucket(t *testing.T) {
 				t.Error(err)
 			}
 			eHashes = append(eHashes, ehash)
+		}
+
+		for _, h := range eHashes {
+			hash, _ := primitives.HexToHash(h)
+			_, err := fake.GetEntry(*hash)
+			if err != nil {
+				t.Error(err)
+			}
 		}
 
 		db := database.NewMapDB()

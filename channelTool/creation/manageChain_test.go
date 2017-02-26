@@ -82,8 +82,8 @@ func TestMetaData(t *testing.T) {
 }
 
 func TestManageEntries(t *testing.T) {
-	for i := 0; i < 1; i++ {
-		fmt.Println(".")
+	for i := 0; i < 45; i++ {
+		//fmt.Println(".")
 
 		rc := primitives.RandomHash()
 		mc := primitives.RandomHash()
