@@ -55,6 +55,7 @@ func (sw *SqlWriter) SendChannelDownQueue(c objects.ChannelWrapper) {
 
 // Close sqlwriter
 func (sw *SqlWriter) Close() {
+	database.CloseDB(sw.db.DB)
 	sw.quit <- 0
 }
 
