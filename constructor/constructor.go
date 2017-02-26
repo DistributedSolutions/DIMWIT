@@ -36,7 +36,11 @@ type Constructor struct {
 func NewContructor(db database.IDatabase) (*Constructor, error) {
 	c := new(Constructor)
 
-	c.SqlGuy = NewSqlWriter()
+	var err error
+	c.SqlGuy, err = NewSqlWriter()
+	if err != nil {
+		return nil, err
+	}
 	c.Level2Cache = db
 	c.loadStateFromDB()
 	c.quit = make(chan int, 20)
@@ -144,9 +148,6 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 			}
 		}
 	}
-	// Update State
-	c.CompletedHeight = height
-	c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, primitives.Uint32ToBytes(c.CompletedHeight))
 
 	// Write to SQL
 	err = c.SqlGuy.AddChannelArr(chanList, height)
@@ -158,6 +159,10 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	if err != nil {
 		return err
 	}
+
+	// Update State
+	c.CompletedHeight = height
+	c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, primitives.Uint32ToBytes(height))
 	return nil
 }
 
