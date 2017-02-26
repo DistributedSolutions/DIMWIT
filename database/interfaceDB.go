@@ -230,9 +230,10 @@ func addChannelsPlaylistsTemps(db *sql.DB, channels []*common.Channel, height in
 
 func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 	rowQuery := "SELECT COUNT(" + constants.SQL_TABLE_PLAYLIST_TEMP__ID + ") " +
-		" FROM " + constants.SQL_PLAYLIST_TEMP
+		" FROM " + constants.SQL_PLAYLIST_TEMP +
+		" WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " = ?"
 	var rowCount int
-	err := db.QueryRow(rowQuery).Scan(&rowCount)
+	err := db.QueryRow(rowQuery, currentHeight).Scan(&rowCount)
 	if err != nil {
 		return fmt.Errorf("Error retrieving row count for flush playlist [%s]: %s", rowQuery, err.Error())
 	}
@@ -241,7 +242,8 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		constants.SQL_TABLE_PLAYLIST_TEMP__CHANNEL_ID + ", " +
 		constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID + ", " +
 		constants.SQL_TABLE_PLAYLIST_TEMP__ID +
-		" FROM " + constants.SQL_PLAYLIST_TEMP
+		" FROM " + constants.SQL_PLAYLIST_TEMP +
+		" WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " = ?"
 	rows, err := db.Query(s)
 	if err != nil {
 		return fmt.Errorf("Error select all from playlistTemp with query [%s]: %s", s, err.Error())
@@ -271,8 +273,6 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		fmt.Printf("TempPlaylist rows went through [%d]\n", nRows)
 	}
 	rows.Close()
-	deleteQuery := "DELETE FROM " + constants.SQL_PLAYLIST_TEMP +
-		" WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__ID + " IN("
 
 	for i := 0; i < nRows; i++ {
 		//Insert into playlist table
@@ -313,17 +313,12 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		if err != nil {
 			fmt.Printf("WARNING 'MOST LIKELY FOREIGN KEY CONSTRAINT FAIL' inserting into playlist rel table with title[%s] and channelId[%s] and contentID[%s] error message is [%s]\n", title, channelId, contentId, err.Error())
 		}
-
-		deleteQuery += fmt.Sprintf("%d", id) + ","
-	}
-	if nRows > 0 {
-		deleteQuery = deleteQuery[0:(len(deleteQuery) - 1)]
 	}
 
-	deleteQuery += ")"
-	_, err = db.Exec(deleteQuery)
+	deleteQuery += "DELETE FROM " + constants.SQL_PLAYLIST_TEMP + " WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " <= ?"
+	_, err = db.Exec(deleteQuery, currentHeight)
 	if err != nil {
-		fmt.Printf("ERROR!! CRUCIAL problems deleting index's with query [%s]: Error [%s]\n", deleteQuery, err.Error())
+		fmt.Printf("ERROR!! CRUCIAL problems delete query deleting playlsit temp index's with query [%s]: Error [%s]\n", deleteQuery, err.Error())
 	}
 
 	return nil
