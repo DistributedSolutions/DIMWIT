@@ -17,7 +17,7 @@ type BoltDB struct {
 }
 
 func NewBoltDB(filename string) IDatabase {
-	db := new(BoltDB)
+	db := new(BoltDB)BoltDB
 
 	if db.db == nil {
 		if filename == "" {

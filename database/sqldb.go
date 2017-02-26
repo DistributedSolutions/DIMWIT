@@ -10,7 +10,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
 
-type DB struct {
+type SqlDBWrapper struct {
 	DB   *sql.DB
 	Name string
 }
