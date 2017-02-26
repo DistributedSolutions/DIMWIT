@@ -26,8 +26,14 @@ func TestConstructor(t *testing.T) {
 	fake.SubmitChain(*m.Chain, *ec)
 	//fake := lite.NewDumbLite()
 
+	db := database.NewMapDB()
+	con, err := NewContructor(db)
+	if err != nil {
+		t.Error(err)
+	}
+	con.SetReader(fake)
+
 	for i := 0; i < 5; i++ {
-		fmt.Println("Start!")
 		ch := common.RandomNewChannel()
 		auth, err := channelTool.NewAuthChannel(ch, ec)
 		if err != nil {
@@ -68,21 +74,6 @@ func TestConstructor(t *testing.T) {
 			}
 		}
 
-		db := database.NewMapDB()
-		con, err := NewContructor(db)
-		if err != nil {
-			t.Error(err)
-		}
-
-		con.SetReader(fake)
-		go con.StartConstructor()
-
-		max, _ := con.Reader.GetReadyHeight()
-		for con.CompletedHeight < max-1 {
-			time.Sleep(200 * time.Millisecond)
-			// fmt.Println(con.CompletedHeight, max)
-		}
-
 		// Constructor finished!
 		cw, err := con.RetrieveChannel(auth.Channel.RootChainID)
 		if err != nil {
@@ -96,11 +87,16 @@ func TestConstructor(t *testing.T) {
 		// Jesse Test Assertions
 
 		// END JESSE ASSERTIONS
-
-		// Close constructor
-		fmt.Println("close")
-		con.Close()
-		fmt.Println("Stop!")
 	}
+
+	go con.StartConstructor()
+
+	max, _ := con.Reader.GetReadyHeight()
+	for con.CompletedHeight < max-1 {
+		time.Sleep(200 * time.Millisecond)
+		// fmt.Println(con.CompletedHeight, max)
+	}
+	// Close constructor
+	con.Close()
 
 }
