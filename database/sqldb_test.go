@@ -190,13 +190,13 @@ func TestAddChannel(t *testing.T) {
 	//NO need to check if the playlist was inserted, would have thrown an error if it was not inserted correctly
 }
 
-func TestFlushPlaylistTemp(t *testing.T, height int) {
-	err := FlushPlaylistTempTable(testDB.DB, height) //HEIGHT PLACEHOLDER IN SECONd VALUE CURRENT IS TEMPORARY
-	if err != nil {
-		t.Error(err)
-	}
-	//*************WILL HAVE TO CHANGE IN FUTURE WHEN HEIGHT MANEGEMENT IS CHANGED******************
-}
+// func TestFlushPlaylistTemp(t *testing.T, height int) {
+// 	err := FlushPlaylistTempTable(testDB.DB, height) //HEIGHT PLACEHOLDER IN SECONd VALUE CURRENT IS TEMPORARY
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+// 	//*************WILL HAVE TO CHANGE IN FUTURE WHEN HEIGHT MANEGEMENT IS CHANGED******************
+// }
 
 func TestCloseDB(t *testing.T) {
 	CloseDB(testDB.DB)
