@@ -12,7 +12,7 @@ var (
 	})
 )
 
-func InitPrometheus() {
+func InitEnginePrometheus() {
 	// Constructor-Engine
 	prometheus.MustRegister(constructorEngineHeight)
 }

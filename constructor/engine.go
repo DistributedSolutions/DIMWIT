@@ -12,6 +12,7 @@ import (
 
 // StartConstructor has the constructor continuously check the next blocks for more information
 func (c *Constructor) StartConstructor() {
+	InitEnginePrometheus()
 	for {
 		select {
 		case <-c.quit:
