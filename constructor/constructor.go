@@ -127,6 +127,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	// TODO: Batch write
 	for _, channel := range c.ChannelCache {
+		c.SqlGuy.SendChannelDownQueue(channel)
 		data, err := channel.MarshalBinary()
 		if err != nil {
 			continue
