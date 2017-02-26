@@ -37,6 +37,6 @@ const (
 )
 
 // Constructor Settings
-const (
+var (
 	CHECK_FACTOM_FOR_UPDATES time.Duration = time.Duration(5 * time.Second)
 )
