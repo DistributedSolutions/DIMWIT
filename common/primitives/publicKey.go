@@ -2,6 +2,7 @@ package primitives
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
@@ -124,4 +125,21 @@ func (a *PublicKey) IsSameAs(b *PublicKey) bool {
 
 func (p *PublicKey) Verify(msg []byte, sig []byte) bool {
 	return ed.Verify(p.Bytes(), msg, sig)
+}
+
+func (h *PublicKey) MarshalJSON() ([]byte, error) {
+	return json.Marshal(h.String())
+}
+
+func (h *PublicKey) UnmarshalJSON(b []byte) error {
+	var hexS string
+	if err := json.Unmarshal(b, &hexS); err != nil {
+		return err
+	}
+	data, err := hex.DecodeString(hexS)
+	if err != nil {
+		return err
+	}
+	h.SetBytes(data)
+	return nil
 }

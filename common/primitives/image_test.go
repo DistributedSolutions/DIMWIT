@@ -1,6 +1,7 @@
 package primitives_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -34,6 +35,21 @@ func TestImage(t *testing.T) {
 
 		if h.Empty() && h.GetImageSize() != 0 {
 			t.Error("Should not be empty")
+		}
+
+		jdata, err := json.Marshal(h)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(Image)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !h.IsSameAs(j) {
+			t.Errorf("Should be same. ")
 		}
 	}
 }

@@ -3,13 +3,15 @@ package common
 import (
 	"bytes"
 	"fmt"
-	//"log"
+	"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 )
+
+var _ = log.Prefix()
 
 type Channel struct {
 	RootChainID       primitives.Hash `json:"rootchain"`

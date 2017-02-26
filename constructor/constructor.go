@@ -62,7 +62,7 @@ func (c *Constructor) LoadStateFromDB() error {
 	if c.Level2Cache != nil {
 		data, err := c.Level2Cache.Get(STATE_BUCKET, STATE_COMP_HEIGHT)
 		if err == nil {
-			u, err = primitives.BytesToUint32(data)
+			u, err := primitives.BytesToUint32(data)
 			if err == nil {
 				c.CompletedHeight = u
 			}

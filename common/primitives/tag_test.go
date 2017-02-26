@@ -2,6 +2,7 @@ package primitives_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -36,6 +37,21 @@ func TestSingleTags(t *testing.T) {
 
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
+		}
+
+		j := new(Tag)
+		jdata, err := json.Marshal(l)
+		if err != nil {
+			t.Error(err)
+		}
+
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !n.IsSameAs(j) {
+			t.Error("[JsonMarshal] Should match.")
 		}
 	}
 

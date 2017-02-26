@@ -3,6 +3,7 @@ package primitives
 import (
 	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -10,7 +11,7 @@ import (
 )
 
 type HashList struct {
-	list []Hash
+	List []Hash `json:"hashlist"`
 }
 
 type Hash [constants.HASH_BYTES_LENGTH]byte
@@ -18,10 +19,10 @@ type Hash [constants.HASH_BYTES_LENGTH]byte
 func RandomHashList(max uint32) *HashList {
 	h := NewHashList()
 	l := random.RandomUInt32Between(0, max)
-	h.list = make([]Hash, l)
+	h.List = make([]Hash, l)
 
-	for i := range h.list {
-		h.list[i] = *RandomHash()
+	for i := range h.List {
+		h.List[i] = *RandomHash()
 	}
 
 	return h
@@ -34,31 +35,31 @@ func NewZeroHash() *Hash {
 
 func NewHashList() *HashList {
 	h := new(HashList)
-	h.list = make([]Hash, 0)
+	h.List = make([]Hash, 0)
 
 	return h
 }
 
 func (a *HashList) Combine(b *HashList) *HashList {
 	x := new(HashList)
-	x.list = append(a.list, b.list...)
+	x.List = append(a.List, b.List...)
 	return x
 }
 
 func (a *HashList) Empty() bool {
-	if len(a.list) == 0 {
+	if len(a.List) == 0 {
 		return true
 	}
 	return false
 }
 
 func (a *HashList) IsSameAs(b *HashList) bool {
-	if len(a.list) != len(b.list) {
+	if len(a.List) != len(b.List) {
 		return false
 	}
 
-	for i := range a.list {
-		if a.list[i] != b.list[i] {
+	for i := range a.List {
+		if a.List[i] != b.List[i] {
 			return false
 		}
 	}
@@ -67,23 +68,23 @@ func (a *HashList) IsSameAs(b *HashList) bool {
 }
 
 func (h *HashList) GetHashes() []Hash {
-	return h.list
+	return h.List
 }
 
 func (h *HashList) AddHash(hash *Hash) {
-	h.list = append(h.list, *hash)
+	h.List = append(h.List, *hash)
 }
 
 func (h *HashList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data := Uint32ToBytes(uint32(len(h.list)))
+	data := Uint32ToBytes(uint32(len(h.List)))
 
 	buf.Write(data)
 
-	for i := range h.list {
+	for i := range h.List {
 		// This cannot actually error out
-		data, _ := h.list[i].MarshalBinary()
+		data, _ := h.List[i].MarshalBinary()
 		buf.Write(data)
 	}
 
@@ -110,10 +111,10 @@ func (h *HashList) UnmarshalBinaryData(data []byte) (newData []byte, err error) 
 	}
 	newData = newData[4:]
 
-	h.list = make([]Hash, u)
+	h.List = make([]Hash, u)
 	var i uint32
 	for i = 0; i < u; i++ {
-		newData, err = h.list[i].UnmarshalBinaryData(newData)
+		newData, err = h.List[i].UnmarshalBinaryData(newData)
 		if err != nil {
 			return data, err
 		}
@@ -226,4 +227,21 @@ func (a *Hash) IsSameAs(b *Hash) bool {
 	}
 
 	return true
+}
+
+func (h *Hash) MarshalJSON() ([]byte, error) {
+	return json.Marshal(h.String())
+}
+
+func (h *Hash) UnmarshalJSON(b []byte) error {
+	var hexS string
+	if err := json.Unmarshal(b, &hexS); err != nil {
+		return err
+	}
+	data, err := hex.DecodeString(hexS)
+	if err != nil {
+		return err
+	}
+	h.SetBytes(data)
+	return nil
 }

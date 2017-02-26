@@ -1,6 +1,7 @@
 package primitives_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -39,6 +40,21 @@ func TestHash(t *testing.T) {
 
 		if h.Empty() {
 			t.Error("Should not be empty")
+		}
+
+		jdata, err := json.Marshal(h)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(Hash)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !h.IsSameAs(j) {
+			t.Errorf("Should be same. Found %s, expected %s", j.String(), h.String())
 		}
 	}
 
@@ -123,6 +139,21 @@ func TestHashList(t *testing.T) {
 
 		if l.Empty() && len(l.GetHashes()) != 0 {
 			t.Error("Should not be empty")
+		}
+
+		jdata, err := json.Marshal(n)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(HashList)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !n.IsSameAs(j) {
+			t.Errorf("Should be same. ")
 		}
 	}
 

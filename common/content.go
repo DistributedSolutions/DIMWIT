@@ -12,26 +12,26 @@ import (
 
 type Content struct {
 	// Content Metadada
-	Type             byte
-	ContentID        primitives.Hash
-	RootChainID      primitives.Hash
-	ContentTitle     primitives.Title
-	InfoHash         primitives.InfoHash
-	LongDescription  primitives.LongDescription
-	ShortDescription primitives.ShortDescription
-	ActionFiles      primitives.FileList
-	Thumbnail        primitives.Image
-	Series           byte
+	Type             byte                        `json:"type"`
+	ContentID        primitives.Hash             `json:"contentchain"`
+	RootChainID      primitives.Hash             `json:"rootchain"`
+	ContentTitle     primitives.Title            `json:"title"`
+	InfoHash         primitives.InfoHash         `json:"infohash"`
+	LongDescription  primitives.LongDescription  `json:"longdesc"`
+	ShortDescription primitives.ShortDescription `json:"shortdesc"`
+	ActionFiles      primitives.FileList         `json:"actionfiles"`
+	Thumbnail        primitives.Image            `json:"thumbnail"`
+	Series           byte                        `json:"series"`
 	// There can be lots of parts
-	Part [2]byte
-	Tags primitives.TagList
+	Part [2]byte            `json:"part"`
+	Tags primitives.TagList `json:"tags"`
 
 	// Retrieved from Blockchain
-	CreationTime time.Time
+	CreationTime time.Time `json:"creationtime"`
 
 	// Torrent Metadata
-	Trackers primitives.TrackerList
-	FileList primitives.FileList
+	Trackers primitives.TrackerList `json:"trackerlist"`
+	FileList primitives.FileList    `json:"filelist"`
 }
 
 func (cl *ContentList) GetContents() []Content {

@@ -2,7 +2,10 @@ package common_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common"
@@ -11,26 +14,43 @@ import (
 )
 
 var _ = fmt.Sprintf("")
+var _ = log.Prefix()
+var _ = ioutil.Discard
 
 func TestChannel(t *testing.T) {
-	for i := 0; i < 2000; i++ {
+	for i := 0; i < 700; i++ {
 		l := RandomNewChannel()
 		data, err := l.MarshalBinary()
 		if err != nil {
 			t.Error(err)
 		}
 
-		n := new(Channel)
+		n := NewChannel()
 		newData, err := n.UnmarshalBinaryData(data)
 		if err != nil {
 			t.Error(err)
 		}
 		if !n.IsSameAs(l) {
-			t.Error("Should match.")
+			t.Error("[BytesMarshal] Should match.")
 		}
 
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
+		}
+
+		j := new(Channel)
+		jdata, err := json.Marshal(l)
+		if err != nil {
+			t.Error(err)
+		}
+
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !n.IsSameAs(j) {
+			t.Error("[JsonMarshal] Should match.")
 		}
 	}
 
@@ -40,7 +60,7 @@ func TestChannel(t *testing.T) {
 		t.Error(err)
 	}
 
-	b := new(Channel)
+	b := NewChannel()
 	_, err = b.UnmarshalBinaryData(data)
 	if err != nil {
 		t.Error(err)
@@ -211,7 +231,7 @@ func TestChannel(t *testing.T) {
 func TestBadUnmarshalChannel(t *testing.T) {
 	badData := []byte{}
 
-	n := new(Channel)
+	n := NewChannel()
 
 	_, err := n.UnmarshalBinaryData(badData)
 	if err == nil {

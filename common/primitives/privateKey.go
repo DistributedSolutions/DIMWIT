@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -130,4 +131,35 @@ func (pk *PrivateKey) MarshalBinary() ([]byte, error) {
 
 	buf.Write(data)
 	return buf.Next(buf.Len()), nil
+}
+
+func (h *PrivateKey) Length() int {
+	return ed.PrivateKeySize
+}
+
+func (p *PrivateKey) Bytes() []byte {
+	b := make([]byte, p.Length())
+	copy(b, p.Secret[:])
+	return b
+}
+
+func (p *PrivateKey) String() string {
+	return hex.EncodeToString(p.Secret[:])
+}
+
+func (h *PrivateKey) MarshalJSON() ([]byte, error) {
+	return json.Marshal(h.String())
+}
+
+func (h *PrivateKey) UnmarshalJSON(b []byte) error {
+	var hexS string
+	if err := json.Unmarshal(b, &hexS); err != nil {
+		return err
+	}
+	data, err := hex.DecodeString(hexS)
+	if err != nil {
+		return err
+	}
+	h.SetBytes(data)
+	return nil
 }

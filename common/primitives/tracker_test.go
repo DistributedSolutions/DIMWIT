@@ -1,6 +1,7 @@
 package primitives_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -52,6 +53,21 @@ func TestTrackerList(t *testing.T) {
 		}
 		if len(newData) != 0 {
 			t.Error("Failed, should have no bytes left")
+		}
+
+		j := new(TrackerList)
+		jdata, err := json.Marshal(l)
+		if err != nil {
+			t.Error(err)
+		}
+
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !n.IsSameAs(j) {
+			t.Error("[JsonMarshal] Should match.")
 		}
 	}
 }

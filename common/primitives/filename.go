@@ -10,14 +10,12 @@ import (
 )
 
 type FileList struct {
-	length   uint32
-	fileList []File
+	FileList []File
 }
 
 func NewFileList() *FileList {
 	af := new(FileList)
-	af.fileList = make([]File, 0)
-	af.length = 0
+	af.FileList = make([]File, 0)
 
 	return af
 }
@@ -25,18 +23,16 @@ func NewFileList() *FileList {
 func RandomFileList(max uint32) *FileList {
 	fl := NewFileList()
 	l := random.RandomUInt32Between(0, max)
-	fl.fileList = make([]File, l)
+	fl.FileList = make([]File, l)
 
-	for i := range fl.fileList {
-		fl.fileList[i] = *(RandomFile())
+	for i := range fl.FileList {
+		fl.FileList[i] = *(RandomFile())
 	}
-
-	fl.length = l
 	return fl
 }
 
 func (af *FileList) Empty() bool {
-	if af.length == 0 {
+	if len(af.FileList) == 0 {
 		return true
 	}
 
@@ -49,22 +45,21 @@ func (af *FileList) AddFile(filename string, size int64) error {
 		return err
 	}
 
-	af.length++
-	af.fileList = append(af.fileList, *f)
+	af.FileList = append(af.FileList, *f)
 	return nil
 }
 
 func (fl *FileList) GetFiles() []File {
-	return fl.fileList
+	return fl.FileList
 }
 
 func (a *FileList) IsSameAs(b *FileList) bool {
-	if a.length != b.length {
+	if len(a.FileList) != len(b.FileList) {
 		return false
 	}
 
-	for i := range a.fileList {
-		if !a.fileList[i].IsSameAs(&(b.fileList[i])) {
+	for i := range a.FileList {
+		if !a.FileList[i].IsSameAs(&(b.FileList[i])) {
 			return false
 		}
 	}
@@ -75,10 +70,10 @@ func (a *FileList) IsSameAs(b *FileList) bool {
 func (fl *FileList) MarshalBinary() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	data := Uint32ToBytes(fl.length)
+	data := Uint32ToBytes(uint32(len(fl.FileList)))
 	buf.Write(data)
 
-	for _, f := range fl.fileList {
+	for _, f := range fl.FileList {
 		data, err := f.MarshalBinary()
 		if err != nil {
 			return nil, err
@@ -110,13 +105,12 @@ func (fl *FileList) UnmarshalBinaryData(data []byte) (newData []byte, err error)
 	}
 
 	newData = newData[4:]
-	fl.length = u
 
-	fl.fileList = make([]File, fl.length)
+	fl.FileList = make([]File, u)
 
 	var i uint32 = 0
-	for ; i < fl.length; i++ {
-		newData, err = fl.fileList[i].UnmarshalBinaryData(newData)
+	for ; i < u; i++ {
+		newData, err = fl.FileList[i].UnmarshalBinaryData(newData)
 		if err != nil {
 			return data, err
 		}
@@ -126,9 +120,9 @@ func (fl *FileList) UnmarshalBinaryData(data []byte) (newData []byte, err error)
 }
 
 type File struct {
-	fileName string // includes extension
-	size     int64
-	checksum MD5Checksum
+	FileName string // includes extension
+	Size     int64
+	Checksum MD5Checksum
 }
 
 func NewFile(filename string, size int64) (*File, error) {
@@ -139,7 +133,7 @@ func NewFile(filename string, size int64) (*File, error) {
 		return nil, err
 	}
 
-	f.size = size
+	f.Size = size
 
 	return f, nil
 }
@@ -155,7 +149,7 @@ func RandomFile() *File {
 }
 
 func (af *File) Empty() bool {
-	if af.fileName == "" || af.checksum.Empty() {
+	if af.FileName == "" || af.Checksum.Empty() {
 		return true
 	}
 
@@ -167,7 +161,7 @@ func (af *File) Empty() bool {
 }*/
 
 func (f *File) GetFullPath() string {
-	return f.fileName
+	return f.FileName
 }
 
 func (f *File) SetFileName(filename string) error {
@@ -175,20 +169,20 @@ func (f *File) SetFileName(filename string) error {
 		return fmt.Errorf("Name given is too long, length must be under %d, given length is %d", constants.FILE_NAME_MAX_LENGTH, len(filename))
 	}
 
-	f.fileName = filename
+	f.FileName = filename
 	return nil
 }
 
 func (f *File) SetSize(size int64) {
-	f.size = size
+	f.Size = size
 }
 
 func (f *File) GetSize() int64 {
-	return f.size
+	return f.Size
 }
 
 func (f *File) String() string {
-	return fmt.Sprintf("%s (%s)", f.fileName, humanize.Bytes(uint64(f.size)))
+	return fmt.Sprintf("%s (%s)", f.FileName, humanize.Bytes(uint64(f.Size)))
 }
 
 func (d *File) MaxLength() int {
@@ -196,11 +190,11 @@ func (d *File) MaxLength() int {
 }
 
 func (a *File) IsSameAs(b *File) bool {
-	if a.fileName != b.fileName {
+	if a.FileName != b.FileName {
 		return false
 	}
 
-	if a.size != b.size {
+	if a.Size != b.Size {
 		return false
 	}
 
@@ -216,13 +210,13 @@ func (f *File) MarshalBinary() ([]byte, error) {
 	}
 	buf.Write(data)
 
-	data, err = Int64ToBytes(f.size)
+	data, err = Int64ToBytes(f.Size)
 	if err != nil {
 		return nil, err
 	}
 	buf.Write(data)
 
-	data, err = f.checksum.MarshalBinary()
+	data, err = f.Checksum.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +258,7 @@ func (f *File) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 
 	newData = newData[8:]
 
-	newData, err = f.checksum.UnmarshalBinaryData(newData)
+	newData, err = f.Checksum.UnmarshalBinaryData(newData)
 	if err != nil {
 		return data, err
 	}

@@ -1,6 +1,7 @@
 package primitives_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	. "github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -47,6 +48,21 @@ func TestPrivateKeyMarshal(t *testing.T) {
 
 		if h.Empty() {
 			t.Error("Should not be empty")
+		}
+
+		jdata, err := json.Marshal(h)
+		if err != nil {
+			t.Error(err)
+		}
+
+		j := new(PrivateKey)
+		err = json.Unmarshal(jdata, j)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if !h.IsSameAs(j) {
+			t.Errorf("Should be same. Found %s, expected %s", j.String(), h.String())
 		}
 	}
 }
