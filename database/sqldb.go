@@ -6,18 +6,9 @@ import (
 	"github.com/mattn/go-sqlite3"
 	"os"
 
-	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
-	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
-
-type PlayListTempStoreEntry struct {
-	Title     string
-	ChannelId string
-	ContentId string
-	Id        string
-}
 
 type DB struct {
 	DB   *sql.DB
@@ -90,13 +81,13 @@ var CREATE_TABLE = []string{
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
 
 	constants.SQL_PLAYLIST_CONTENT_REL + "(" +
-		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID + " CHAR(" + fmt.Sprintf("%d", constants.HASH_BYTES_LENGTH*2) + ") NOT NULL, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID + ") REFERENCES " + constants.SQL_PLAYLIST +
 		"(" + constants.SQL_TABLE_PLAYLIST__ID + ") ON DELETE CASCADE ON UPDATE CASCADE, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID + ") REFERENCES " + constants.SQL_CONTENT +
-		"(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
+		"(" + constants.SQL_TABLE_CONTENT__CONTENT_HASH + ") ON DELETE CASCADE ON UPDATE CASCADE," +
+		"PRIMARY KEY (" + constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID + "," + constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID + "))",
 
 	constants.SQL_PLAYLIST_TEMP + "(" +
 		constants.SQL_TABLE_PLAYLIST_TEMP__ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -209,315 +200,61 @@ func DeleteTable(db *sql.DB, tableName string) error {
 	return nil
 }
 
-func InsertIntoTable(db *sql.DB, tableName string, insertCols []string, insertData []string) (sql.Result, error) {
+func insertUpdateIntoTablePrepareString(tableName string, insertCols []string) string {
+	s := "INSERT OR REPLACE INTO " + tableName + " ("
+	s += CommaDelimiterArray(insertCols, false)
+	s += ") values("
+	s += QuestionString(len(insertCols))
+	s += ");"
+	return s
+}
+
+func PrepareStmtInsertUpdate(db *sql.DB, tableName string, insertCols []string, insertData []string) (*sql.Stmt, error) {
 	icl := len(insertCols)
 	idl := len(insertData)
 	if idl != icl {
 		return nil, fmt.Errorf("Error in argument lengths while inserting into %s (%d != %d)", tableName, icl, idl)
 	}
-
-	s := "INSERT INTO " + tableName + " ("
-	for i, e := range insertCols {
-		s += e
-		if i < icl-1 && icl > 1 {
-			s += ","
-		}
-	}
-	s += ") values("
-
-	for i := 0; i < idl; i++ {
-		s += "?"
-		if i < idl-1 && idl > 1 {
-			s += ","
-		}
-	}
-	s += ")"
-
+	s := insertUpdateIntoTablePrepareString(tableName, insertCols)
 	stmt, err := db.Prepare(s)
 	if err != nil {
 		return nil, fmt.Errorf("Error preparing inserting into table [%s] with query [%s]: %s", tableName, s, err.Error())
 	}
-	defer stmt.Close()
+	return stmt, nil
+}
 
-	insertDataInterface := make([]interface{}, len(insertData))
-	for index, value := range insertData {
+func ExecStmt(stmt *sql.Stmt, data []string) error {
+	insertDataInterface := make([]interface{}, len(data))
+	for index, value := range data {
 		insertDataInterface[index] = value
 	}
 
-	res, err := stmt.Exec(insertDataInterface...)
+	_, err := stmt.Exec(insertDataInterface...)
 	if err != nil {
-		return nil, fmt.Errorf("Error exec inserting into [%s] with query[%s]: %s", tableName, s, err.Error())
-	}
-	return res, nil
-}
-
-func AddTags(db *sql.DB) error {
-	insertColsChannel := []string{constants.SQL_TABLE_CHANNEL_TAG__NAME}
-	insertColsContent := []string{constants.SQL_TABLE_CONTENT_TAG__NAME}
-	for _, e := range constants.ALLOWED_TAGS {
-		insertData := []string{e}
-		_, err := InsertIntoTable(db, constants.SQL_CHANNEL_TAG, insertColsChannel, insertData)
-		if err != nil {
-			return fmt.Errorf("Error inserting tags: %s", err.Error())
-		}
-		_, err = InsertIntoTable(db, constants.SQL_CONTENT_TAG, insertColsContent, insertData)
-		if err != nil {
-			return fmt.Errorf("Error inserting tags: %s", err.Error())
-		}
+		return fmt.Errorf("Error stmt exec: %s", err.Error())
 	}
 	return nil
 }
 
-func DeleteTags(db *sql.DB) error {
-	err := DeleteTable(db, constants.SQL_CHANNEL_TAG)
-	if err != nil {
-		return nil
-	}
-	return DeleteTable(db, constants.SQL_CONTENT_TAG)
-}
+// func InsertIntoTable(db *sql.DB, insertCols,) (sql.Result, error) {
 
-//NOT GOING TO CHECK IF IN DB ALREADY
-func AddChannel(db *sql.DB, channel *common.Channel, height int) error {
-	insertCols := []string{
-		constants.SQL_TABLE_CHANNEL__HASH,
-		constants.SQL_TABLE_CHANNEL__TITLE,
-	}
-	insertData := []string{
-		channel.RootChainID.String(),
-		channel.ChannelTitle.String(),
-	}
-	_, err := InsertIntoTable(db, constants.SQL_CHANNEL, insertCols, insertData)
-	if err != nil {
-		return fmt.Errorf("Error adding channel: %s", err.Error())
-	}
+// 	stmt, err := db.Prepare(s)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("Error preparing inserting into table [%s] with query [%s]: %s", tableName, s, err.Error())
+// 	}
+// 	defer stmt.Close()
 
-	//Add channel tags for channel
-	tags := channel.Tags.GetTags()
-	for _, t := range tags {
-		tag, err := SelectSingleFromTable(db,
-			constants.SQL_TABLE_CHANNEL_TAG__ID,
-			constants.SQL_CHANNEL_TAG,
-			constants.SQL_TABLE_CHANNEL_TAG__NAME,
-			t.String())
-		if err != nil {
-			return fmt.Errorf("Error retrieving tag id: %s", err.Error())
-		}
-		insertCols = []string{
-			constants.SQL_TABLE_CHANNEL_TAG_REL__C_ID,
-			constants.SQL_TABLE_CHANNEL_TAG_REL__CT_ID,
-		}
-		insertData = []string{
-			channel.RootChainID.String(),
-			tag,
-		}
-		_, err = InsertIntoTable(db, constants.SQL_CHANNEL_TAG_REL, insertCols, insertData)
-		if err != nil {
-			return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
-		}
-	}
+// 	insertDataInterface := make([]interface{}, len(insertData))
+// 	for index, value := range insertData {
+// 		insertDataInterface[index] = value
+// 	}
 
-	//Add Content for Channel
-	contents := channel.Content.GetContents()
-	for _, c := range contents {
-		if err != nil {
-			return fmt.Errorf("Error retrieving tag id: %s", err.Error())
-		}
-		insertCols = []string{
-			constants.SQL_TABLE_CONTENT__CONTENT_HASH,
-			constants.SQL_TABLE_CONTENT__TITLE,
-			constants.SQL_TABLE_CONTENT__SERIES_NAME,
-			constants.SQL_TABLE_CONTENT__PART_NAME,
-			constants.SQL_TABLE_CONTENT__CH_ID,
-		}
-		s, err := primitives.BytesToUint32(append([]byte{0x00, 0x00, 0x00}, c.Series))
-		if err != nil {
-			return fmt.Errorf("FUCK YOUR BYTES s: %s", err.Error())
-		}
-		p, err := primitives.BytesToUint32(append([]byte{0x00, 0x00}, c.Part[:]...))
-		if err != nil {
-			return fmt.Errorf("FUCK YOUR BYTES p: %s", err.Error())
-		}
-
-		insertData = []string{
-			c.ContentID.String(),
-			c.ShortDescription.String(),
-			fmt.Sprintf("%d", s),
-			fmt.Sprintf("%d", p),
-			channel.RootChainID.String(),
-		}
-		_, err = InsertIntoTable(db, constants.SQL_CONTENT, insertCols, insertData)
-		if err != nil {
-			return fmt.Errorf("Error inserting content with hash[%s]: %s", c.ContentID.String(), err.Error())
-		}
-
-		//Add Content Tags for content
-		tags := c.Tags.GetTags()
-		for _, t := range tags {
-			tag, err := SelectSingleFromTable(db,
-				constants.SQL_TABLE_CONTENT_TAG__ID,
-				constants.SQL_CONTENT_TAG,
-				constants.SQL_TABLE_CONTENT_TAG__NAME,
-				t.String())
-			if err != nil {
-				return fmt.Errorf("Error retrieving tag id: %s", err.Error())
-			}
-			insertCols = []string{
-				constants.SQL_TABLE_CONTENT_TAG_REL__C_ID,
-				constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID,
-			}
-			insertData = []string{
-				c.ContentID.String(),
-				tag,
-			}
-			_, err = InsertIntoTable(db, constants.SQL_CONTENT_TAG_REL, insertCols, insertData)
-			if err != nil {
-				if err == sqlite3.ErrConstraintUnique {
-					fmt.Printf("WARNING attempted to insert duplicate tag for content: %s\n", err.Error())
-				} else {
-					return fmt.Errorf("Error inserting channel tag [%s] with length [%s]: %s", tag, t, err.Error())
-				}
-			}
-		}
-	}
-
-	//Add PlaylistsTemp for Channel
-	playlists := channel.Playlist.GetPlaylists()
-	for _, p := range playlists {
-		//go through the content hash list for each playlist
-		for _, ph := range p.Playlist.GetHashes() {
-
-			insertCols = []string{
-				constants.SQL_TABLE_PLAYLIST_TEMP__TITLE,
-				constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT,
-				constants.SQL_TABLE_PLAYLIST_TEMP__CHANNEL_ID,
-				constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID,
-			}
-			insertData = []string{
-				p.Title.String(),
-				fmt.Sprintf("%d", height),
-				channel.RootChainID.String(),
-				ph.String(),
-			}
-			_, err := InsertIntoTable(db, constants.SQL_PLAYLIST_TEMP, insertCols, insertData)
-			if err != nil {
-				return fmt.Errorf("Error inserting playlistTemp title [%s]: %s", p.Title.String(), err.Error())
-			}
-		}
-	}
-
-	return nil
-}
-
-func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
-	rowQuery := "SELECT COUNT(" + constants.SQL_TABLE_PLAYLIST_TEMP__ID + ") " +
-		" FROM " + constants.SQL_PLAYLIST_TEMP
-	var rowCount int
-	err := db.QueryRow(rowQuery).Scan(&rowCount)
-	if err != nil {
-		return fmt.Errorf("Error retrieving row count for flush playlist [%s]: %s", rowQuery, err.Error())
-	}
-
-	s := "SELECT " + constants.SQL_TABLE_PLAYLIST_TEMP__TITLE + ", " +
-		constants.SQL_TABLE_PLAYLIST_TEMP__CHANNEL_ID + ", " +
-		constants.SQL_TABLE_PLAYLIST_TEMP__CONTENT_ID + ", " +
-		constants.SQL_TABLE_PLAYLIST_TEMP__ID +
-		" FROM " + constants.SQL_PLAYLIST_TEMP
-	rows, err := db.Query(s)
-	if err != nil {
-		return fmt.Errorf("Error select all from playlistTemp with query [%s]: %s", s, err.Error())
-	}
-
-	nRows := 0
-	var title string
-	var channelId string
-	var contentId string
-	var id string
-
-	tableEntries := make([]PlayListTempStoreEntry, rowCount)
-
-	//for each row attempt to insert into the playlist table
-	for rows.Next() {
-		err := rows.Scan(&title, &channelId, &contentId, &id)
-		if err != nil {
-			return fmt.Errorf("Error reading from playlistTemp: %s", err.Error())
-		}
-		tE := PlayListTempStoreEntry{title, channelId, contentId, id}
-		tableEntries[nRows] = tE
-		nRows++
-	}
-	if err := rows.Err(); err != nil {
-		fmt.Printf("ERROR when retrieving rows from playlistTemp\n")
-	} else {
-		fmt.Printf("TempPlaylist rows went through [%d]\n", nRows)
-	}
-	rows.Close()
-	deleteQuery := "DELETE FROM " + constants.SQL_PLAYLIST_TEMP +
-		" WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__ID + " IN("
-
-	for i := 0; i < nRows; i++ {
-		//Insert into playlist table
-		insertCols := []string{
-			constants.SQL_TABLE_PLAYLIST__PLAYLIST_TITLE,
-			constants.SQL_TABLE_PLAYLIST__CHANNEL_ID,
-		}
-		insertData := []string{
-			tableEntries[i].Title,
-			tableEntries[i].ChannelId,
-		}
-		res, err := InsertIntoTable(db, constants.SQL_PLAYLIST, insertCols, insertData)
-		if err != nil {
-			return fmt.Errorf("Error adding channel: %s\n", err.Error())
-		}
-
-		//retrieve id
-		id, err := res.LastInsertId()
-		if err != nil {
-			fmt.Printf("WARNING retrieving returned id from temp playlist with title[%s] and channelId[%s] and contentID[%s]\n", title, channelId, contentId)
-		}
-
-		//Insert into playlistRel table
-		insertCols = []string{
-			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__P_ID,
-			constants.SQL_TABLE_PLAYLIST_CONTENT_REL__CT_ID,
-		}
-		insertData = []string{
-			fmt.Sprintf("%d", id),
-			tableEntries[i].ContentId,
-		}
-		_, err = InsertIntoTable(db, constants.SQL_PLAYLIST_CONTENT_REL, insertCols, insertData)
-		if err != nil {
-			fmt.Printf("WARNING 'MOST LIKELY FOREIGN KEY CONSTRAINT FAIL' inserting into playlist rel table with title[%s] and channelId[%s] and contentID[%s] error message is [%s]\n", title, channelId, contentId, err.Error())
-		}
-
-		deleteQuery += fmt.Sprintf("%d", id) + ","
-	}
-	if nRows > 0 {
-		deleteQuery = deleteQuery[0:(len(deleteQuery) - 1)]
-	}
-
-	deleteQuery += ")"
-	_, err = db.Exec(deleteQuery)
-	if err != nil {
-		fmt.Printf("ERROR!! CRUCIAL problems deleting index's with query [%s]: Error [%s]\n", deleteQuery, err.Error())
-	}
-
-	return nil
-}
-
-//NOT GOING TO CHECK IF IN DB ALREADY
-func UpdateChannel(db *sql.DB, channel *common.Channel) error {
-
-	_, err := db.Exec("DELETE FROM channel WHERE channelHash = ?",
-		channel.RootChainID.String())
-	if err != nil {
-		return fmt.Errorf("Error deleting channel: %s", err.Error())
-	}
-	err = AddChannel(db, channel, -1)
-	if err != nil {
-		return fmt.Errorf("Error inserting channel after deleting: %s", err.Error())
-	}
-	return nil
-}
+// 	res, err := stmt.Exec(insertDataInterface...)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("Error exec inserting into [%s] with query[%s]: %s", tableName, s, err.Error())
+// 	}
+// 	return res, nil
+// }
 
 func SelectSingleFromTable(db *sql.DB, colReturn string, tableName string, columnOn string, singleLookup string) (string, error) {
 	s := "SELECT " + colReturn + " FROM " + tableName + " WHERE " + columnOn + " = (?) LIMIT 1"
@@ -540,6 +277,14 @@ func CloseDB(db *sql.DB) {
 	if db != nil {
 		db.Close()
 	}
+}
+
+func QuestionString(length int) string {
+	arr := make([]string, length, length)
+	for i := range arr {
+		arr[i] = "?"
+	}
+	return CommaDelimiterArray(arr, false)
 }
 
 func CommaDelimiterArray(arr []string, isString bool) string {
