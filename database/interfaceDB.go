@@ -275,9 +275,10 @@ func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(currentHeight uint32) error {
 	}
 	if err := rows.Err(); err != nil {
 		fmt.Printf("ERROR when retrieving rows from playlistTemp\n")
-	} else {
-		fmt.Printf("TempPlaylist rows went through [%d]\n", nRows)
 	}
+	// } else {
+	// 	fmt.Printf("TempPlaylist rows went through [%d]\n", nRows)
+	// }
 	rows.Close()
 
 	insertColsPlayList := []string{
@@ -304,26 +305,41 @@ func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(currentHeight uint32) error {
 	defer (*stmtPlayListRel).Close()
 
 	for i := 0; i < nRows; i++ {
-		//Insert into playlist table
-		insertData[0] = tableEntries[i].Title
-		insertData[1] = tableEntries[i].ChannelId
-		res, err := ExecStmtResult(stmtPlayList, insertData)
+		var retValChannel int
+		var retValContent int
+		s := "SELECT 1 FROM " + constants.SQL_CHANNEL + " WHERE " + constants.SQL_TABLE_CHANNEL__HASH + " = ?"
+		err := db.QueryRow(s, tableEntries[i].ChannelId).Scan(&retValChannel)
 		if err != nil {
-			return fmt.Errorf("Error adding playlist from playlistTemp: %s\n", err.Error())
+			fmt.Errorf("Error retrieving rows channel: %s", err.Error())
+			continue
 		}
-
-		//retrieve id
-		id, err := res.LastInsertId()
+		s = "SELECT 1 FROM " + constants.SQL_CONTENT + " WHERE " + constants.SQL_TABLE_CONTENT__CH_ID + " = ?"
+		err = db.QueryRow(s, tableEntries[i].ContentId).Scan(&retValContent)
 		if err != nil {
-			fmt.Printf("WARNING retrieving returned id from temp playlist with title[%s] and channelId[%s] and contentID[%s]\n", title, channelId, contentId)
+			fmt.Errorf("Error retrieving rows content: %s", err.Error())
+			continue
 		}
+		if retValChannel == 1 && retValContent == 1 {
+			//Insert into playlist table
+			insertData[0] = tableEntries[i].Title
+			insertData[1] = tableEntries[i].ChannelId
+			res, err := ExecStmtResult(stmtPlayList, insertData)
+			if err != nil {
+				return fmt.Errorf("Error adding playlist from playlistTemp: %s\n", err.Error())
+			}
+			//retrieve id
+			id, err := res.LastInsertId()
+			if err != nil {
+				fmt.Printf("WARNING retrieving returned id from temp playlist with title[%s] and channelId[%s] and contentID[%s]\n", title, channelId, contentId)
+			}
 
-		//Insert into playlistRel table
-		insertData[0] = fmt.Sprintf("%d", id)
-		insertData[1] = tableEntries[i].ContentId
-		err = ExecStmt(stmtPlayList, insertData)
-		if err != nil {
-			return fmt.Errorf("Error adding playlistRel from playlistTemp: %s\n", err.Error())
+			//Insert into playlistRel table
+			insertData[0] = fmt.Sprintf("%d", id)
+			insertData[1] = tableEntries[i].ContentId
+			err = ExecStmt(stmtPlayListRel, insertData)
+			if err != nil {
+				return fmt.Errorf("Error adding playlistRel from playlistTemp: %s\n", err.Error())
+			}
 		}
 	}
 

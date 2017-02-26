@@ -170,19 +170,19 @@ func TestAddChannel(t *testing.T) {
 		}
 
 		//check if content tags were set
-		tags = content.Tags.GetTagsAsStringArr()
-		q = "SELECT " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " FROM " + constants.SQL_CONTENT_TAG_REL +
-			" WHERE " + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + " NOT IN(" +
-			testSubQueryGetTags(constants.SQL_CONTENT_TAG, constants.SQL_TABLE_CONTENT_TAG__ID,
-				constants.SQL_TABLE_CONTENT_TAG__NAME, tags) +
-			") AND " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " = '" + content.ContentID.String() + "'"
-		rows, err := testDB.DB.Query(q)
-		if err != nil {
-			t.Error(fmt.Errorf("Error retrieving tables with query[%s]: [%s]\n", q, err))
-		}
-		for rows.Next() {
-			t.Error(fmt.Errorf("Error extra content tag rows with query[%s]\n", q))
-		}
+		// tags = content.Tags.GetTagsAsStringArr()
+		// q = "SELECT " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " FROM " + constants.SQL_CONTENT_TAG_REL +
+		// 	" WHERE " + constants.SQL_TABLE_CONTENT_TAG_REL__CT_ID + " NOT IN(" +
+		// 	testSubQueryGetTags(constants.SQL_CONTENT_TAG, constants.SQL_TABLE_CONTENT_TAG__ID,
+		// 		constants.SQL_TABLE_CONTENT_TAG__NAME, tags) +
+		// 	") AND " + constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " = '" + content.ContentID.String() + "'"
+		// rows, err := testDB.DB.Query(q)
+		// if err != nil {
+		// 	t.Error(fmt.Errorf("Error retrieving tables with query[%s]: [%s]\n", q, err))
+		// }
+		// for rows.Next() {
+		// 	t.Error(fmt.Errorf("Error extra content tag rows with query[%s]\n", q))
+		// }
 		rows.Close()
 	}
 
