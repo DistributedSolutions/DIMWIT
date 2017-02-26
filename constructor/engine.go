@@ -1,7 +1,7 @@
 package constructor
 
 import (
-	// "log"
+	"log"
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -9,6 +9,9 @@ import (
 
 // The engine controls the constructor object. It manages the constructor state and go routines
 // that read from the factom reader and update the appropriate databases
+
+var _ = time.Second
+var _ = constants.MAX_CHANNEL_TAGS
 
 // StartConstructor has the constructor continuously check the next blocks for more information
 func (c *Constructor) StartConstructor() {
@@ -21,6 +24,8 @@ func (c *Constructor) StartConstructor() {
 			// constructorEngineHeight.Set(float64(c.CompletedHeight))
 			err := c.ApplyHeight(c.CompletedHeight + 1)
 			if err != nil {
+				log.Println(err.Error())
+				// time.Sleep(10 * time.Millisecond)
 				time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)
 			} else {
 				// Height X was applied

@@ -250,7 +250,7 @@ func (sqlDB *SqlDBWrapper) FlushPlaylistTempTable(currentHeight uint32) error {
 		constants.SQL_TABLE_PLAYLIST_TEMP__ID +
 		" FROM " + constants.SQL_PLAYLIST_TEMP +
 		" WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " = ?"
-	rows, err := db.Query(s)
+	rows, err := db.Query(s, currentHeight)
 	if err != nil {
 		return fmt.Errorf("Error select all from playlistTemp with query [%s]: %s", s, err.Error())
 	}

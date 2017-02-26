@@ -27,6 +27,7 @@ func TestConstructor(t *testing.T) {
 	//fake := lite.NewDumbLite()
 
 	for i := 0; i < 5; i++ {
+		fmt.Println("Start!")
 		ch := common.RandomNewChannel()
 		auth, err := channelTool.NewAuthChannel(ch, ec)
 		if err != nil {
@@ -97,7 +98,9 @@ func TestConstructor(t *testing.T) {
 		// END JESSE ASSERTIONS
 
 		// Close constructor
+		fmt.Println("close")
 		con.Close()
+		fmt.Println("Stop!")
 	}
 
 }
