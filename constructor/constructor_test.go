@@ -24,7 +24,11 @@ func TestConstructor(t *testing.T) {
 	fake := lite.NewFakeDumbLite()
 	m := creation.NewMasterChain()
 	ec := lite.GetECAddress()
-	fake.SubmitChain(*m.Chain, *ec)
+	_, _, err := fake.SubmitChain(*m.Chain, *ec)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(string(m.Chain.FirstEntry.ExtIDs[1]))
 	//fake := lite.NewDumbLite()
 
 	db := database.NewMapDB()

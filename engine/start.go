@@ -12,6 +12,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	"github.com/DistributedSolutions/DIMWIT/provider"
 )
 
 var _ = log.Prefix()
@@ -65,20 +66,17 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	con.SetReader(factomClient)
 	CloseCalls = append(CloseCalls, con.InterruptClose)
 
+	// Provider -> Serves API
+	prov, err := provider.NewProvider(lvl2Cache)
+	if err != nil {
+		return err
+	}
+	CloseCalls = append(CloseCalls, prov.Close)
+
 	// Start Go Routines
 	go con.StartConstructor()
+	go prov.Serve()
 
-	// Safe Close
-	/*c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		log.Println("Safely Closing....")
-		for _, f := range CloseCalls {
-			f()
-		}
-		log.Println("Completed safe close")
-		os.Exit(1)
-	}()*/
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -91,9 +89,11 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 		os.Exit(1)
 	}()
 
+	// Set WholeState
 	w := new(WholeState)
 	w.Constructor = con
 	w.FactomClient = factomClient
+	w.Provider = prov
 
 	// Run the Control
 	Control(w)

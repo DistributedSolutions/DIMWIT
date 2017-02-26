@@ -1,6 +1,7 @@
 package api_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/DistributedSolutions/DIMWIT/provider"
@@ -31,6 +32,7 @@ func TestRunner(t *testing.T) {
 	}
 	defer server.Finish()
 
+	fmt.Printf("Tests running on : %s\n", server.URL)
 	prettytest.RunWithFormatter(
 		t,
 		new(prettytest.TDDFormatter),

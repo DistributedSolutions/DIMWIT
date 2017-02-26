@@ -1,22 +1,39 @@
 package provider
 
 import (
+	"io"
+
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
+	"github.com/gorilla/mux"
 )
 
 type Provider struct {
 	Level2Cache database.IDatabase
+
+	// API
+	Router    *mux.Router
+	apicloser io.Closer
 }
 
 func NewProvider(db database.IDatabase) (*Provider, error) {
 	p := new(Provider)
 	p.Level2Cache = db
+	p.Router = NewRouter()
 
 	return p, nil
+}
+
+func (p *Provider) Serve() {
+	closer := ServeRouter(p.Router)
+	p.apicloser = closer
+}
+
+func (p *Provider) Close() {
+	p.apicloser.Close()
 }
 
 func (p *Provider) GetChannel(channelID string) (*common.Channel, error) {

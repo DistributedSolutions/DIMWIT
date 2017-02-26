@@ -14,18 +14,29 @@
 
             {
                 "jsonrpc": "2.0",
+                "id": 0,
                 "method": "HelloService.Say",
-                "params": {
-                    "Who": "James"
-                }
+                "params": [
+                    {
+                        "Who": "James"
+                    }
+                ]
             }        
 
-+ Response 400 (text/plain; charset=utf-8)
++ Response 200 (application/json; charset=utf-8)
 
-
+    + Headers
+            
+            X-Content-Type-Options: nosniff
 
     + Body
 
-            json: cannot unmarshal object into Go value of type [1]interface {}        
+            {
+                "result": {
+                    "Message": "Hello, James!"
+                },
+                "error": null,
+                "id": 0
+            }        
 
 

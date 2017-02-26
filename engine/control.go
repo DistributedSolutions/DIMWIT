@@ -20,6 +20,8 @@ func Control(w *WholeState) {
 	// Add Helps
 	AddHelp("h || help", "Display help messages")
 	AddHelp("c", "Display Constructor completed height")
+	AddHelp("a", "Turn on api")
+	AddHelp("a", "Shut off api")
 
 	// Start loop
 	for scanner.Scan() {
@@ -33,6 +35,10 @@ func Control(w *WholeState) {
 			fmt.Println("----------------------------------------------------------------------------------------------------")
 		case "c":
 			fmt.Printf("Constructor Completed Height: %d\n", w.Constructor.CompletedHeight)
+		case "a":
+			w.Provider.Close()
+		case "w":
+			w.Provider.Serve()
 		}
 	}
 }
