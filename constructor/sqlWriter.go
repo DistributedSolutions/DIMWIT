@@ -3,7 +3,7 @@ package constructor
 import (
 	"time"
 
-	//"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 )
 
@@ -56,20 +56,36 @@ func (sw *SqlWriter) DrainChannelQueue() {
 		// Take incoming channels
 		select {
 		case channel := <-sw.channelQueue:
-			channelList := make([]objects.ChannelWrapper, 0)
-			channelList = append(channelList, channel)
+			channelList := make([][]common.Channel, 1)
+			heightList := make([]uint32, 0)
+			channelList[0] = append(channelList[0], channel.Channel)
+			heightList = append(heightList, channel.CurrentHeight)
 			// Do stuff
 			length := len(sw.channelQueue)
+			curIndex := 0
 			for i := 0; i < length; i++ {
 				select {
 				case newChan := <-sw.channelQueue:
-					channelList = append(channelList, newChan)
+					if newChan.CurrentHeight == heightList[curIndex] {
+						channelList[curIndex] = append(channelList[curIndex], newChan.Channel)
+					} else {
+						channelList = append(channelList, []common.Channel{newChan.Channel})
+						heightList = append(heightList, newChan.CurrentHeight)
+						curIndex++
+					}
 				default:
 				}
 			}
 
 			// ChannelList, play with it
 			// JESSE! IMPLEMENT
+			// channelList is of type [i][ii]channel. Element i corrolates to heightList[i] which is the
+			// height of all chanels in channelList[i].
+
+			// So batch write loop looks like:
+			// for i in channel list
+			//		batchwrite channelList[i] with height = heightList[i]
+			// endfor
 		default:
 			// Nothing really
 		}

@@ -315,6 +315,7 @@ func FlushPlaylistTempTable(db *sql.DB, currentHeight int) error {
 		}
 	}
 
+	deleteQuery := "" // Jesse I did this so it compiled. deleteQuery was undefined
 	deleteQuery += "DELETE FROM " + constants.SQL_PLAYLIST_TEMP + " WHERE " + constants.SQL_TABLE_PLAYLIST_TEMP__HEIGHT + " <= ?"
 	_, err = db.Exec(deleteQuery, currentHeight)
 	if err != nil {
