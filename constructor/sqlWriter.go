@@ -17,12 +17,10 @@ const (
 type SqlWriter struct {
 	// Incoming channels to write to sql db
 	channelQueue chan objects.ChannelWrapper
-
+	db           *database.DB
 	// Stop goroutine
 	quit chan int
 }
-
-var testDB *database.DB
 
 // Called to make SQLWriter
 func NewSqlWriter() *SqlWriter {
@@ -30,16 +28,19 @@ func NewSqlWriter() *SqlWriter {
 	sw.quit = make(chan int, 5)
 	sw.channelQueue = make(chan objects.ChannelWrapper, 1000)
 
-	fmt.Printf("S: Init SqlWriter, Creating DB\n")
-	testDB, err := database.CreateDB(constants.SQL_DB, database.CREATE_TABLE)
+	fmt.Printf("Init SqlWriter, Creating DB\n")
+	db, err := database.CreateDB(constants.SQL_DB, database.CREATE_TABLE)
 	if err != nil {
 		fmt.Printf("Error creating DB!! AAAHHH: %s", err)
 	}
-	err = database.AddTags(testDB.DB)
+	err = database.AddTags(db.DB)
 	if err != nil {
 		fmt.Printf("Error adding in tags: %s", err)
 	}
-	fmt.Printf("F: Init SqlWriter, Finished Init\n")
+	fmt.Printf("Init SqlWriter, Finished Init\n")
+
+	sw.db = db
+
 	return sw
 }
 
@@ -104,7 +105,7 @@ func (sw *SqlWriter) DrainChannelQueue() {
 
 			// ChannelList, play with it
 			for i := range channelList {
-				err := database.AddChannelArr(testDB.DB, channelList[i], heightList[i])
+				err := database.AddChannelArr(sw.db.DB, channelList[i], heightList[i])
 				if err != nil {
 					fmt.Printf("Error adding channel in SQLWriter :( so sad: %s", err)
 				}
