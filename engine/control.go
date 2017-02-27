@@ -20,7 +20,7 @@ func Control(w *WholeState) {
 	// Add Helps
 	AddHelp("h || help", "Display help messages")
 	AddHelp("c", "Display Constructor completed height")
-	AddHelp("a", "Turn on api")
+	AddHelp("w", "Turn on api")
 	AddHelp("a", "Shut off api")
 
 	// Start loop
