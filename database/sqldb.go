@@ -117,15 +117,30 @@ func CreateDB(dbName string, tableCreate []string) (*SqlDBWrapper, error) {
 		file.Close()
 	}
 
-	db, err := sql.Open("sqlite3", dbPathName)
+	db, err := sql.Open("sqlite3", "file:"+dbPathName+"?cache=shared")
 	if err != nil {
 		return nil, fmt.Errorf("Error opening database: %s", err.Error())
 	}
 
 	_, err = db.Exec("PRAGMA foreign_keys=ON;")
 	if err != nil {
-		return nil, fmt.Errorf("Error setting pragma: %s", err.Error())
+		return nil, fmt.Errorf("Error setting pragma foreign keys: %s", err.Error())
 	}
+
+	// _, err = db.Exec("PRAGMA locking_mode=NORMAL;")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Error setting pragma locking mode: %s", err.Error())
+	// }
+
+	// _, err = db.Exec("PRAGMA read_uncommitted=1;")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Error setting pragma read_uncommitted: %s", err.Error())
+	// }
+
+	// _, err = db.Exec("PRAGMA journal_mode=WAL;")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Error setting pragma read_uncommitted: %s", err.Error())
+	// }
 
 	//create all tables if they do not exist
 	err = createAllTables(db, tableCreate)
