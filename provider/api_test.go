@@ -1,4 +1,4 @@
-package api_test
+package provider_test
 
 import (
 	//"bytes"
@@ -7,18 +7,17 @@ import (
 	//"io/ioutil"
 	//"net/http"
 
-	"github.com/DistributedSolutions/DIMWIT/provider/api"
 	"github.com/DistributedSolutions/DIMWIT/provider/jsonrpc"
 )
 
 func (t *mainSuite) TestHelloService() {
 	// Make Args
-	helloArgs := api.HelloArgs{"James"}
+	helloArgs := HelloArgs{"James"}
 
 	// Pack into JsonRPC
 	req := jsonrpc.NewJSONRPCRequest("HelloService.Say", helloArgs, 0)
 
-	respObj, jsonError, err := req.POSTRequest(server.URL+"/api", new(api.HelloReply))
+	respObj, jsonError, err := req.POSTRequest(server.URL+"/api", new(HelloReply))
 	if err != nil { // Go Error
 		t.Error(err)
 	}
@@ -27,7 +26,7 @@ func (t *mainSuite) TestHelloService() {
 	}
 
 	if err == nil && jsonError == nil { // If no errors, check the reponse
-		resp := respObj.(*api.HelloReply)
+		resp := respObj.(*HelloReply)
 		fmt.Println(resp.Message) // The reponse!
 	}
 }

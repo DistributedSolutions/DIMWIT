@@ -6,7 +6,6 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/DistributedSolutions/DIMWIT/provider/api"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/rpc/v2"
 	"github.com/gorilla/rpc/v2/json"
@@ -21,7 +20,7 @@ func NewRouter() *mux.Router {
 	jsonRPC.RegisterCodec(jsonCodec, "application/json; charset=UTF-8")
 
 	// Api's Available
-	jsonRPC.RegisterService(new(api.HelloService), "")
+	jsonRPC.RegisterService(new(HelloService), "")
 
 	r.Handle("/api", jsonRPC)
 	return r

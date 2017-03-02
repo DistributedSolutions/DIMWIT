@@ -14,6 +14,10 @@ import (
 
 var _ = log.Prefix()
 
+type ChannelList struct {
+	List []Channel `json:"channellist"`
+}
+
 type Channel struct {
 	RootChainID       primitives.Hash `json:"rootchain"`
 	ManagementChainID primitives.Hash `json:"managechain"`
