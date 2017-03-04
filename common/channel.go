@@ -49,6 +49,42 @@ func NewChannel() *Channel {
 	return c
 }
 
+func RandomNewSmallChannel() *Channel {
+	c := new(Channel)
+
+	c.RootChainID = *primitives.RandomHash()
+	c.ManagementChainID = *primitives.RandomHash()
+	c.ContentChainID = *primitives.RandomHash()
+	c.LV1PublicKey = *primitives.RandomPublicKey()
+	c.LV2PublicKey = *primitives.RandomPublicKey()
+	c.LV3PublicKey = *primitives.RandomPublicKey()
+	c.ContentSingingKey = *primitives.RandomPublicKey()
+
+	c.ChannelTitle = *primitives.RandomTitle()
+	c.Website = *primitives.RandomSiteURL()
+	c.LongDescription = *primitives.RandomLongDescription()
+	c.ShortDescription = *primitives.RandomShortDescription()
+	c.Content = *SmartRandomContentList(random.RandomUInt32Between(0, 2),
+		c.RootChainID,
+		c.ContentChainID)
+	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
+	c.Playlist = *SmartRandomManyPlayList(random.RandomUInt32Between(0, 2), c.Content)
+	c.Thumbnail = *primitives.RandomImage()
+	c.Thumbnail.SetImage([]byte{0x00, 0x01, 0x02})
+	c.Banner = *primitives.RandomImage()
+	c.Banner.SetImage([]byte{0x00, 0x01, 0x02})
+	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
+	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 2))
+	c.CreationTime = time.Now()
+
+	for i, con := range c.Content.ContentList {
+		con.Thumbnail.SetImage([]byte{0xFF})
+		c.Content.ContentList[i] = con
+	}
+
+	return c
+}
+
 func RandomNewChannel() *Channel {
 	c := new(Channel)
 
@@ -78,47 +114,112 @@ func RandomNewChannel() *Channel {
 	return c
 }
 
-type customJSONMarshalChannel struct {
+type CustomJSONMarshalChannel struct {
 	RootChainID       string `json:"rootchain"`
 	ManagementChainID string `json:"managechain"`
 	ContentChainID    string `json:"contentchain"`
 	// They are not an array, because they are never referenced as an array
-	LV1PublicKey      string           `json:"pubkey1"`    // Critical
-	LV2PublicKey      string           `json:"pubkey2"`    // Critical
-	LV3PublicKey      string           `json:"pubkey3"`    // Critical
-	ContentSingingKey string           `json:"contentkey"` // Critical
-	ChannelTitle      primitives.Title `json:"title"`      // Critical
+	LV1PublicKey      string            `json:"pubkey1"`    // Critical
+	LV2PublicKey      string            `json:"pubkey2"`    // Critical
+	LV3PublicKey      string            `json:"pubkey3"`    // Critical
+	ContentSingingKey string            `json:"contentkey"` // Critical
+	ChannelTitle      *primitives.Title `json:"title"`      // Critical
 
-	Website          primitives.SiteURL             `json:"site"`              // Not-Critical
-	LongDescription  primitives.LongDescription     `json:"longdesc"`          // Not-Critical
-	ShortDescription primitives.ShortDescription    `json:"shortdesc"`         // Not-Critical
-	Playlist         ManyPlayList                   `json:"playlist"`          // Not-Critical
-	Thumbnail        primitives.Image               `json:"thumbnail"`         // Not-Critical
-	Banner           primitives.Image               `json:"banner"`            // Not-Critical
-	Tags             primitives.TagList             `json:"tags"`              // Not-Critical
-	SuggestedChannel primitives.HashList            `json:"suggestedchannels"` // Not-Critical
-	Content          []customJSONMarshalContentList `json:"contentlist"`       // Not-Critical
+	Website          *primitives.SiteURL             `json:"site"`              // Not-Critical
+	LongDescription  *primitives.LongDescription     `json:"longdesc"`          // Not-Critical
+	ShortDescription *primitives.ShortDescription    `json:"shortdesc"`         // Not-Critical
+	Playlist         *ManyPlayList                   `json:"playlist"`          // Not-Critical
+	Thumbnail        *primitives.Image               `json:"thumbnail"`         // Not-Critical
+	Banner           *primitives.Image               `json:"banner"`            // Not-Critical
+	Tags             *primitives.TagList             `json:"tags"`              // Not-Critical
+	SuggestedChannel *primitives.HashList            `json:"suggestedchannels"` // Not-Critical
+	Content          []*CustomJSONMarshalContentList `json:"contentlist"`       // Not-Critical
 
 	CreationTime time.Time `json:"creationtime"` // Not-Critical
 }
 
-type customJSONMarshalContentList struct {
+func (a *CustomJSONMarshalChannel) IsSimilarTo(b CustomJSONMarshalChannel) bool {
+	if a.RootChainID != b.RootChainID {
+		return false
+	}
+
+	if a.ManagementChainID != b.ManagementChainID {
+		return false
+	}
+
+	if a.ContentChainID != b.ContentChainID {
+		return false
+	}
+
+	if a.LV1PublicKey != b.LV1PublicKey {
+		return false
+	}
+
+	if a.LV2PublicKey != b.LV2PublicKey {
+		return false
+	}
+
+	if a.LV3PublicKey != b.LV3PublicKey {
+		return false
+	}
+
+	if !a.ChannelTitle.IsSameAs(b.ChannelTitle) {
+		return false
+	}
+
+	if !a.Website.IsSameAs(b.Website) {
+		return false
+	}
+
+	if !a.LongDescription.IsSameAs(b.LongDescription) {
+		return false
+	}
+
+	if !a.ShortDescription.IsSameAs(b.ShortDescription) {
+		return false
+	}
+
+	if !a.Playlist.IsSameAs(b.Playlist) {
+		return false
+	}
+
+	if !a.Thumbnail.IsSameAs(b.Thumbnail) {
+		return false
+	}
+
+	if !a.Tags.IsSameAs(b.Tags) {
+		return false
+	}
+
+	if !a.SuggestedChannel.IsSameAs(b.SuggestedChannel) {
+		return false
+	}
+
+	if len(a.Content) != len(b.Content) {
+		return false
+	}
+	// TODO: Compare content lists
+
+	return true
+}
+
+type CustomJSONMarshalContentList struct {
 	ContentID string `json:"contentid"`
 	Title     string `json:"title"`
 }
 
-// CustomMarshalJSON reduces overhead of contentlist
-func (a *Channel) CustomMarshalJSON() ([]byte, error) {
-	con := make([]customJSONMarshalContentList, 0)
+func (a *Channel) ToCustomMarsalStruct() CustomJSONMarshalChannel {
+	con := make([]*CustomJSONMarshalContentList, 0)
 	for _, h := range a.Content.GetContents() {
-		ci := new(customJSONMarshalContentList)
+		ci := new(CustomJSONMarshalContentList)
 		ci.Title = h.ContentTitle.String()
 		ci.ContentID = h.ContentID.String()
-		con = append(con, *ci)
+		con = append(con, ci)
 		//hashList = append(hashList, h.ContentID.String())
 		//titleList = append(titleList, h.ContentTitle.String())
 	}
-	custom := customJSONMarshalChannel{
+
+	custom := CustomJSONMarshalChannel{
 		RootChainID:       a.RootChainID.String(),
 		ManagementChainID: a.ManagementChainID.String(),
 		ContentChainID:    a.ContentChainID.String(),
@@ -126,18 +227,24 @@ func (a *Channel) CustomMarshalJSON() ([]byte, error) {
 		LV2PublicKey:      a.LV2PublicKey.String(),
 		LV3PublicKey:      a.LV3PublicKey.String(),
 		ContentSingingKey: a.ContentSingingKey.String(),
-		ChannelTitle:      a.ChannelTitle,
-		Website:           a.Website,
-		LongDescription:   a.LongDescription,
-		ShortDescription:  a.ShortDescription,
-		Playlist:          a.Playlist,
-		Thumbnail:         a.Thumbnail,
-		Banner:            a.Banner,
-		Tags:              a.Tags,
-		SuggestedChannel:  a.SuggestedChannel,
+		ChannelTitle:      &a.ChannelTitle,
+		Website:           &a.Website,
+		LongDescription:   &a.LongDescription,
+		ShortDescription:  &a.ShortDescription,
+		Playlist:          &a.Playlist,
+		Thumbnail:         &a.Thumbnail,
+		Banner:            &a.Banner,
+		Tags:              &a.Tags,
+		SuggestedChannel:  &a.SuggestedChannel,
 		Content:           con,
 		CreationTime:      a.CreationTime,
 	}
+	return custom
+}
+
+// CustomMarshalJSON reduces overhead of contentlist
+func (a *Channel) CustomMarshalJSON() ([]byte, error) {
+	custom := a.ToCustomMarsalStruct()
 	return json.Marshal(custom)
 }
 

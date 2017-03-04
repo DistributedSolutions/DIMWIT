@@ -4,15 +4,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"time"
 )
+
+var _ = log.Prefix()
 
 // Helper for jsonrpc calls
 type JSONRPCRequest struct {
-	JsonRpc string        `json:"jsonrpc"`
-	ID      uint32        `json:"id"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
+	JsonRpc string          `json:"jsonrpc"`
+	ID      uint32          `json:"id"`
+	Method  string          `json:"method"`
+	Params  json.RawMessage `json:"params"`
 }
 
 func NewEmptyJSONRPCRequest() *JSONRPCRequest {
@@ -25,17 +29,12 @@ func NewEmptyJSONRPCRequest() *JSONRPCRequest {
 }
 
 func NewJSONRPCRequest(method string, params interface{}, id uint32) *JSONRPCRequest {
-	paramSet := make([]interface{}, 1)
-	paramSet[0] = params
-	return NewJSONRPCRequestArray(method, paramSet, id)
-}
-
-func NewJSONRPCRequestArray(method string, params []interface{}, id uint32) *JSONRPCRequest {
 	j := new(JSONRPCRequest)
 	j.JsonRpc = "2.0"
 	j.ID = id
 	j.Method = method
-	j.Params = params
+	data, _ := json.Marshal(params)
+	j.Params = data
 	return j
 }
 
@@ -53,10 +52,24 @@ func (j *JSONRPCRequest) POSTRequest(url string, obj interface{}) (interface{}, 
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
+
+	c := http.Client{Timeout: 3 * time.Second}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, nil, err
 	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	/*resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		return nil, nil, err
+	}*/
+
 	respData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, nil, err
@@ -91,7 +104,7 @@ type JSONRPCReponse struct {
 }
 
 type JSONError struct {
-	Code    int         `json:"code"`
+	Code    uint32      `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }

@@ -9,7 +9,7 @@ import (
 )
 
 type TrackerList struct {
-	Trackers []Tracker
+	Trackers []Tracker `json:"trackers"`
 }
 
 func NewTrackerList() *TrackerList {

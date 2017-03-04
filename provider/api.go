@@ -1,66 +1,163 @@
 package provider
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
-	"log"
-	"net/http"
+	"github.com/DistributedSolutions/DIMWIT/provider/jsonrpc"
+	"github.com/fatih/color"
 )
 
-type HelloArgs struct {
-	Who string `json: "who"`
-}
-
-type HelloReply struct {
-	Message string
-}
-
-type HelloService struct{}
-
-func (h *HelloService) Say(r *http.Request, args *HelloArgs, reply *HelloReply) error {
-	log.Printf(args.Who)
-	reply.Message = "Hello, " + args.Who + "!"
-	log.Printf(reply.Message)
-	return nil
-}
-
-type ChannelsReturn struct {
-}
-
-var TEST_CONST = "TEST_CONST"
-
-type EmptyRequest struct {
-}
-
 type ApiService struct {
-	Provider Provider
+	Provider *Provider
 }
 
-func (apiService *ApiService) GetChannels(r *http.Request, hashList *primitives.HashList, reply *common.ChannelList) error {
-	for i, channelHash := range hashList.List {
+func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Request) {
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		jErr := jsonrpc.NewInternalRPCSError("Error reading the body of the request", 0)
+		data, _ := jErr.CustomMarshalJSON()
+		w.Write(data)
+		return
+	}
+
+	var extra string
+	var errorID uint32
+	jErr := new(jsonrpc.JSONRPCReponse)
+
+	req := jsonrpc.NewEmptyJSONRPCRequest()
+	err = json.Unmarshal(data, req)
+	if err != nil {
+		jErr := jsonrpc.NewParseError(err.Error(), 0)
+		data, _ := jErr.CustomMarshalJSON()
+		w.Write(data)
+		return
+	}
+
+	resp := new(jsonrpc.JSONRPCReponse)
+	resp.Id = req.ID
+	var result json.RawMessage
+
+	color.Green(fmt.Sprintf("%s: %s", r.Method, req.Method))
+	switch req.Method {
+	case "get-channel":
+		hash := new(primitives.Hash)
+		err = json.Unmarshal(req.Params, hash)
+		if err != nil {
+			extra = "Invalid request object, " + err.Error()
+			goto InvalidRequest // Bad request data
+		}
+		channel, err := apiService.GetChannel(*hash)
+		if err != nil {
+			extra = "Channel not found"
+			errorID = 1
+			goto CustomError
+		}
+
+		data, err = channel.CustomMarshalJSON()
+		if err != nil {
+			extra = "Failed to unmarshal channel"
+			goto InternalError
+		}
+		goto Success
+	case "get-content":
+		hash := new(primitives.Hash)
+		err = json.Unmarshal(req.Params, hash)
+		if err != nil {
+			extra = "Invalid request object, " + err.Error()
+			goto InvalidRequest // Bad request data
+		}
+		content, err := apiService.GetContent(*hash)
+		if err != nil {
+			extra = "Content not found"
+			errorID = 1
+			goto CustomError
+		}
+
+		data, err = json.Marshal(content)
+		if err != nil {
+			extra = "Failed to unmarshal content"
+			goto InternalError
+		}
+		goto Success
+	case "get-stats":
+		stats, err := apiService.GetStats()
+		if err != nil {
+			extra = err.Error()
+			errorID = 1
+			goto CustomError
+		}
+
+		data, err = json.Marshal(stats)
+		if err != nil {
+			extra = "Failed to unmarshal stats"
+			goto InternalError
+		}
+		goto Success
+	default:
+		extra = req.Method
+		goto MethodNotFound
+	}
+
+	return
+
+	// Easier to handle general here
+Success:
+	result = json.RawMessage(data)
+	resp.Result = &result
+	data, _ = resp.CustomMarshalJSON()
+	w.Write(data)
+	return
+MethodNotFound:
+	jErr = jsonrpc.NewMethodNotFoundError(extra, req.ID)
+	data, _ = jErr.CustomMarshalJSON()
+	w.Write(data)
+	return
+InvalidRequest:
+	jErr = jsonrpc.NewInvalidRequestError(extra, req.ID)
+	data, _ = jErr.CustomMarshalJSON()
+	w.Write(data)
+	return
+CustomError:
+	jErr = jsonrpc.NewCustomError(extra, req.ID, errorID)
+	data, _ = jErr.CustomMarshalJSON()
+	w.Write(data)
+	return
+InternalError:
+	jErr = jsonrpc.NewInternalRPCSError(extra, req.ID)
+	data, _ = jErr.CustomMarshalJSON()
+	w.Write(data)
+	return
+}
+
+func (apiService *ApiService) GetChannel(hash primitives.Hash) (*common.Channel, error) {
+	return apiService.Provider.GetChannel(hash.String())
+}
+
+func (apiService *ApiService) GetChannels(hashes primitives.HashList) ([]common.Channel, error) {
+	channelList := make([]common.Channel, 0)
+	for _, channelHash := range hashes.GetHashes() {
 		channel, err := apiService.Provider.GetChannel(channelHash.String())
 		if err != nil {
-			return err
+			return channelList, err
 		}
-		reply.List[i] = *channel
+		channelList = append(channelList, *channel)
 	}
-	return nil
+	return channelList, nil
 }
 
-func (apiService *ApiService) GetContent(r *http.Request, hash *primitives.Hash, reply *common.Content) error {
-	content, err := apiService.Provider.GetContent(hash.String())
-	if err != nil {
-		return err
-	}
-	reply = content
-	return nil
+func (apiService *ApiService) GetContent(hash primitives.Hash) (*common.Content, error) {
+	return apiService.Provider.GetContent(hash.String())
 }
 
-func (apiService *ApiService) GetCompleteHeight(r *http.Request, empty *EmptyRequest, reply *uint32) error {
-	height, err := apiService.Provider.GetCompleteHeight()
-	if err != nil {
-		return err
-	}
-	reply = &height
-	return nil
+func (apiService *ApiService) GetStats() (*DatabaseStats, error) {
+	return apiService.Provider.GetStats()
+}
+
+func (apiService *ApiService) GetCompleteHeight() (uint32, error) {
+	return apiService.Provider.GetCompleteHeight()
 }

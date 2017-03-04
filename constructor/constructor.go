@@ -122,7 +122,6 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	chanList := make([]common.Channel, 0)
 
 	// Level 2 Cache Write
-	// TODO: Batch write
 	for _, channel := range c.ChannelCache {
 		if channel.Channel.Status() == constants.CHANNEL_READY {
 			chanList = append(chanList, channel.Channel)
@@ -260,7 +259,7 @@ func (c *Constructor) applyEntryToCache(e *lite.EntryHolder) (bool, error) {
 	// The iae has everything it needs, let's see what it decided
 	cw, wr := iae.ApplyEntry()
 	if wr {
-		// Ok, it told us to write this to the db. Let's put it in the map for a batch write
+		// Ok, it told us to write this to the db. Let's put it in the map for a write
 		c.ChannelCache[cw.Channel.RootChainID.String()] = *cw
 	}
 
@@ -324,7 +323,7 @@ func (c *Constructor) saveChannel(ch objects.ChannelWrapper) error {
 }
 
 // retrieveChannel will try to retrieve from our local map first. The local map is the channels
-// we are currently working with before a batch write. This is only used internally
+// we are currently working with before a write. This is only used internally
 func (c *Constructor) retrieveChannel(chainID string) (*objects.ChannelWrapper, error) {
 	if cw, ok := c.ChannelCache[chainID]; ok {
 		return &cw, nil

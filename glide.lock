@@ -1,5 +1,5 @@
-hash: 4b30dfd14f4f912a793883229a32e41365baa6a5fc858f40e6386c61c069ba0f
-updated: 2017-02-26T16:20:06.795501195-06:00
+hash: 1fc9b488f401f72612d2f68f22d77f4cd265ed0688b6a3b4e594e406de51bc08
+updated: 2017-03-04T00:36:27.690675031-06:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -37,15 +37,6 @@ imports:
   version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
   subpackages:
   - proto
-- name: github.com/gorilla/context
-  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
-- name: github.com/gorilla/mux
-  version: 392c28fe23e1c45ddba891b0320b3b5df220beea
-- name: github.com/gorilla/rpc
-  version: 22c016f3df3febe0c1f6727598b6389507e03a18
-  subpackages:
-  - v2
-  - v2/json
 - name: github.com/mattn/go-sqlite3
   version: ca5e3819723d8eeaf170ad510e7da1d6d2e94a08
 - name: github.com/matttproud/golang_protobuf_extensions
@@ -98,6 +89,16 @@ testImports:
   - doc
   - doc/parse
   - test
+- name: github.com/fatih/color
+  version: 7824417a424b65227be8ac9b14d545a7f3e6c3f0
+- name: github.com/gorilla/mux
+  version: 392c28fe23e1c45ddba891b0320b3b5df220beea
+  subpackages:
+  - v2
+- name: github.com/gorilla/rpc
+  version: 22c016f3df3febe0c1f6727598b6389507e03a18
+  subpackages:
+  - v2
 - name: github.com/leanovate/gopter
   version: 43cf95bdcf8d4b73624e7e71fec73765eb0a92dc
   subpackages:

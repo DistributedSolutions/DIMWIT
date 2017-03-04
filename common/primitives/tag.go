@@ -9,8 +9,8 @@ import (
 )
 
 type TagList struct {
-	Max  uint32 // Max amount of tags
-	Tags []Tag
+	Max  uint32 `json:"max"` // Max amount of tags
+	Tags []Tag  `json:"tags"`
 }
 
 func NewTagList(max uint32) *TagList {

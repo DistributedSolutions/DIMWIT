@@ -5,28 +5,29 @@ import (
 	"log"
 	"net"
 	"net/http"
-
-	"github.com/gorilla/mux"
-	"github.com/gorilla/rpc/v2"
-	"github.com/gorilla/rpc/v2/json"
 )
 
-func NewRouter() *mux.Router {
-	r := mux.NewRouter()
-	// Start Server and codec for JSON-RPC 2.0
-	jsonRPC := rpc.NewServer()
-	jsonCodec := json.NewCodec()
-	jsonRPC.RegisterCodec(jsonCodec, "application/json")
-	jsonRPC.RegisterCodec(jsonCodec, "application/json; charset=UTF-8")
+func NewRouter(srv *ApiService) *http.ServeMux {
+	r := http.NewServeMux()
+	r.HandleFunc("/api", srv.HandleAPICalls)
 
-	// Api's Available
-	jsonRPC.RegisterService(new(HelloService), "")
-
-	r.Handle("/api", jsonRPC)
 	return r
+	/*
+		r := mux.NewRouter()
+		// Start Server and codec for JSON-RPC 2.0
+		jsonRPC := rpc.NewServer()
+		jsonCodec := json.NewCodec()
+		jsonRPC.RegisterCodec(jsonCodec, "application/json")
+		jsonRPC.RegisterCodec(jsonCodec, "application/json; charset=UTF-8")
+
+		// Api's Available
+		jsonRPC.RegisterService(srv, "")
+
+		r.Handle("/api", jsonRPC)
+		return r*/
 }
 
-func ServeRouter(r *mux.Router) io.Closer {
+func ServeRouter(r *http.ServeMux) io.Closer {
 	port := ":8080"
 	log.Println("Serving API on localhost" + port)
 	closer, err := ListenAndServeWithClose(port, r)

@@ -13,8 +13,8 @@ import (
 )
 
 type PrivateKey struct {
-	Secret [ed.PrivateKeySize]byte
-	Public PublicKey
+	Secret [ed.PrivateKeySize]byte `json:"secret"`
+	Public PublicKey               `json:"publickey"`
 }
 
 func RandomPrivateKey() (*PrivateKey, error) {
