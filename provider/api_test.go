@@ -28,6 +28,8 @@ func (t *mainSuite) TestProviderChannel() {
 			if !resp.IsSimilarTo(c.ToCustomMarsalStruct()) {
 				t.Error("Channel returned does not match", err)
 			}
+			t.True(resp.IsSimilarTo(c.ToCustomMarsalStruct()))
 		}
+
 	}
 }
