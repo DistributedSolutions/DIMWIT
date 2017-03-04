@@ -6,6 +6,7 @@ import (
 	//"net/http"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/provider"
 	"github.com/DistributedSolutions/DIMWIT/provider/jsonrpc"
 )
 
@@ -71,5 +72,19 @@ func (t *mainSuite) TestProviderContent() {
 			}
 			t.True(resp.IsSameAs(&con))
 		}
+	}
+}
+
+func (t *mainSuite) TestGetStats() {
+	req := jsonrpc.NewJSONRPCRequest("get-stats", "", 0)
+	respObj, jsonError, err := req.POSTRequest(URL+"/api", new(provider.DatabaseStats))
+	t.Nil(err)
+	if jsonError != nil {
+		t.Error(jsonError.Message)
+	}
+
+	resp := respObj.(*provider.DatabaseStats)
+	if resp == nil {
+		t.Error("Why is this nil")
 	}
 }
