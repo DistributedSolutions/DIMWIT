@@ -64,17 +64,17 @@ func RandomNewSmallChannel() *Channel {
 	c.Website = *primitives.RandomSiteURL()
 	c.LongDescription = *primitives.RandomLongDescription()
 	c.ShortDescription = *primitives.RandomShortDescription()
-	c.Content = *SmartRandomContentList(random.RandomUInt32Between(0, 2),
+	c.Content = *SmartRandomContentList(random.RandomUInt32Between(1, 3),
 		c.RootChainID,
 		c.ContentChainID)
 	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
-	c.Playlist = *SmartRandomManyPlayList(random.RandomUInt32Between(0, 2), c.Content)
+	c.Playlist = *SmartRandomManyPlayList(random.RandomUInt32Between(1, 2), c.Content)
 	c.Thumbnail = *primitives.RandomImage()
 	c.Thumbnail.SetImage([]byte{0x00, 0x01, 0x02})
 	c.Banner = *primitives.RandomImage()
 	c.Banner.SetImage([]byte{0x00, 0x01, 0x02})
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
-	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 2))
+	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(1, 2))
 	c.CreationTime = time.Now()
 
 	for i, con := range c.Content.ContentList {
@@ -410,10 +410,14 @@ func (a *Channel) IsSameAs(b *Channel) bool {
 		return false
 	}
 
-	/*if a.CreationTime.Unix() != b.CreationTime.Unix() {
-		fmt.Println("Exit 16")
+	diff := a.CreationTime.Unix() - b.CreationTime.Unix()
+	if diff < 0 {
+		diff = -1 * diff
+	}
+	if diff > 60*60*24 { // 1 day difference
+		//log.Println("Content IsSameAs Exit 15")
 		return false
-	}*/
+	}
 
 	return true
 }
