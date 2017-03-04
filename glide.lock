@@ -1,5 +1,5 @@
-hash: 1fc9b488f401f72612d2f68f22d77f4cd265ed0688b6a3b4e594e406de51bc08
-updated: 2017-03-04T00:36:27.690675031-06:00
+hash: 0d1e29776460fcff051da711d2c787d761599a02d38dfca7910eb9064a5b1305
+updated: 2017-03-04T11:52:30.434457977-06:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -33,10 +33,18 @@ imports:
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
 - name: github.com/FactomProject/netki-go-partner-client
   version: 426acb535e66cc2f9e6226ae254555e3572fd142
+- name: github.com/fatih/color
+  version: 7824417a424b65227be8ac9b14d545a7f3e6c3f0
 - name: github.com/golang/protobuf
   version: 1f49d83d9aa00e6ce4fc8258c71cc7786aec968a
   subpackages:
   - proto
+- name: github.com/mattn/go-colorable
+  version: 5411d3eea5978e6cdc258b30de592b60df6aba96
+  repo: https://github.com/mattn/go-colorable
+- name: github.com/mattn/go-isatty
+  version: dda3de49cbfcec471bd7a70e6cc01fcc3ff90109
+  repo: https://github.com/mattn/go-isatty
 - name: github.com/mattn/go-sqlite3
   version: ca5e3819723d8eeaf170ad510e7da1d6d2e94a08
 - name: github.com/matttproud/golang_protobuf_extensions
@@ -86,11 +94,12 @@ testImports:
 - name: github.com/adams-sarah/test2doc
   version: e96044288938931a6a83c9aac8913aa47bce72ab
   subpackages:
-  - doc
   - doc/parse
+- name: github.com/Emyrk/test2doc
+  version: 1eccdc05c440f819077ad6b30365c94296e9567f
+  subpackages:
+  - doc
   - test
-- name: github.com/fatih/color
-  version: 7824417a424b65227be8ac9b14d545a7f3e6c3f0
 - name: github.com/gorilla/mux
   version: 392c28fe23e1c45ddba891b0320b3b5df220beea
   subpackages:

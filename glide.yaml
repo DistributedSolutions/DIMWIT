@@ -22,6 +22,7 @@ testImport:
   - prop
 - package: github.com/adams-sarah/prettytest
 - package: github.com/adams-sarah/test2doc
+- package: github.com/Emyrk/test2doc
 - package: github.com/gorilla/mux
   subpackages:
     - v2
