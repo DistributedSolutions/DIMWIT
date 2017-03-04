@@ -16,7 +16,12 @@ type ApiService struct {
 	Provider *Provider
 }
 
+func Vars(r *http.Request) map[string]string {
+	return make(map[string]string)
+}
+
 func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		jErr := jsonrpc.NewInternalRPCSError("Error reading the body of the request", 0)

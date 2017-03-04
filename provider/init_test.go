@@ -10,11 +10,12 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/provider"
 	"github.com/DistributedSolutions/DIMWIT/testhelper"
 
+	"github.com/Emyrk/test2doc/test"
 	"github.com/adams-sarah/prettytest"
-	"github.com/adams-sarah/test2doc/test"
 	// "github.com/gorilla/mux"
 )
 
+var PRINT_API_DOCS bool = false
 var DataList []common.Channel
 var router *http.ServeMux
 var server *test.Server
@@ -57,19 +58,20 @@ func TestRunner(t *testing.T) {
 		}
 	}
 
-	/*router = prov.Router // provider.NewRouter()
+	router = prov.Router // provider.NewRouter()
 	//router.KeepContext = true
 
-	test.RegisterURLVarExtractor(mux.Vars)
+	test.RegisterURLVarExtractor(provider.Vars)
 
 	server, err = test.NewServer(router)
 	if err != nil {
 		panic(err.Error())
 	}
-	defer server.Finish()*/
-	prov.Serve()
+	defer server.Finish()
+	/*prov.Serve()
 	defer prov.Close()
-	URL = "http://localhost:8080"
+	URL = "http://localhost:8080"*/
+	URL = server.URL
 
 	fmt.Printf("Tests running on : %s\n", URL)
 	prettytest.RunWithFormatter(

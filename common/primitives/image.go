@@ -2,7 +2,7 @@ package primitives
 
 import (
 	"bytes"
-	"encoding/hex"
+	//"encoding/hex"
 	"encoding/json"
 	"fmt"
 
@@ -128,7 +128,7 @@ func (i *Image) MarshalJSON() ([]byte, error) {
 	}{
 		ImgType: i.imgType,
 		Length:  i.length,
-		Image:   hex.EncodeToString(i.image),
+		Image:   string(i.image),
 	})
 }
 
@@ -144,10 +144,11 @@ func (i *Image) UnmarshalJSON(b []byte) error {
 	}
 
 	i.SetImageType(obj.ImgType)
-	img, err := hex.DecodeString(obj.Image)
+	/*img, err := hex.DecodeString(obj.Image)
 	if err != nil {
 		return err
-	}
+	}*/
+	img := []byte(obj.Image)
 	i.SetImage(img)
 	return nil
 }

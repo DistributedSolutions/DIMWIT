@@ -59,6 +59,7 @@ func (j *JSONRPCRequest) POSTRequest(url string, obj interface{}) (interface{}, 
 	if err != nil {
 		return nil, nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.Do(req)
 	if err != nil {

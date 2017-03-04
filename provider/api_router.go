@@ -12,19 +12,6 @@ func NewRouter(srv *ApiService) *http.ServeMux {
 	r.HandleFunc("/api", srv.HandleAPICalls)
 
 	return r
-	/*
-		r := mux.NewRouter()
-		// Start Server and codec for JSON-RPC 2.0
-		jsonRPC := rpc.NewServer()
-		jsonCodec := json.NewCodec()
-		jsonRPC.RegisterCodec(jsonCodec, "application/json")
-		jsonRPC.RegisterCodec(jsonCodec, "application/json; charset=UTF-8")
-
-		// Api's Available
-		jsonRPC.RegisterService(srv, "")
-
-		r.Handle("/api", jsonRPC)
-		return r*/
 }
 
 func ServeRouter(r *http.ServeMux) io.Closer {

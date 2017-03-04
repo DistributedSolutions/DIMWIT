@@ -12,7 +12,12 @@ import (
 var _ = fmt.Sprintf("")
 
 func (t *mainSuite) TestProviderChannel() {
-	for _, c := range DataList {
+	for i, c := range DataList {
+		if PRINT_API_DOCS {
+			if i != 0 {
+				break
+			}
+		}
 		req := jsonrpc.NewJSONRPCRequest("get-channel", c.RootChainID.String(), 0)
 
 		respObj, jsonError, err := req.POSTRequest(URL+"/api", new(common.CustomJSONMarshalChannel))

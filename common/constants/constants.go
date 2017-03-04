@@ -125,4 +125,4 @@ const (
 )
 
 // Constant Tags
-var ALLOWED_TAGS = []string{"DIMWIT", "CLIT", "FRUIT", "Jesse", "Steve", "Go", "Node", "PEEEEEENNNNNIIIIIISSSSSS"}
+var ALLOWED_TAGS = []string{"action", "drama", "comedy", "sports", "classic", "crime", "horror"}
