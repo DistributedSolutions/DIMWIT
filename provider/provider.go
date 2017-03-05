@@ -102,6 +102,10 @@ func (p *Provider) GetChannel(channelID string) (*common.Channel, error) {
 		return nil, err
 	}
 
+	if len(data) == 0 {
+		return nil, nil
+	}
+
 	cw := objects.NewChannelWrapper()
 	err = cw.UnmarshalBinary(data)
 	if err != nil {
@@ -120,6 +124,10 @@ func (p *Provider) GetContent(contentID string) (*common.Content, error) {
 	data, err := p.Level2Cache.Get(constants.CONTENT_BUCKET, key.Bytes())
 	if err != nil {
 		return nil, err
+	}
+
+	if len(data) == 0 {
+		return nil, nil
 	}
 
 	con := common.NewContent()

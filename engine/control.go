@@ -84,6 +84,7 @@ func Control(w *WholeState) {
 			var resp string
 			var con *common.Content
 			c, err := w.Provider.GetChannel(cmd[1:])
+			fmt.Println(c, err)
 			if err == nil && c != nil {
 				buf := new(bytes.Buffer)
 				data, _ := c.CustomMarshalJSON()
@@ -91,11 +92,13 @@ func Control(w *WholeState) {
 				resp = fmt.Sprintf("Channel found with that hash\n%s\n", string(buf.Bytes()))
 				goto Found
 			}
-			fmt.Println(err, c)
 
 			con, err = w.Provider.GetContent(cmd[1:])
 			if err == nil && con != nil {
-				resp = fmt.Sprintf("Channel found with that hash\n")
+				buf := new(bytes.Buffer)
+				data, _ := json.Marshal(con)
+				json.Indent(buf, data, "-", "\t")
+				resp = fmt.Sprintf("Content found with that hash\n%s\n", string(buf.Bytes()))
 				goto Found
 			}
 
