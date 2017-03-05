@@ -8,7 +8,6 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/channelTool"
 	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
-	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/database"
