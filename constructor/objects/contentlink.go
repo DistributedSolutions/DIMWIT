@@ -12,6 +12,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	log "github.com/DistributedSolutions/logrus"
 )
 
 // Factom Entry
@@ -146,6 +147,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	m.ContentType = ex[2][0]
 	u, err := primitives.BytesToUint32(ex[3])
 	if err != nil {
+		log.Debug("[ContentLink] (1): Cannot unmarshal into uint32", err.Error())
 		m.ErrorAndStop = true
 		return
 	}
@@ -153,17 +155,20 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 
 	r, err := primitives.BytesToHash(ex[4])
 	if err != nil {
+		log.Debug("[ContentLink] (2): Cannot unmarshal into hash", err.Error())
 		m.ErrorAndStop = true
 		return
 	}
 	// Root chain in Link does not match.
 	if !m.RootChainID.IsSameAs(r) {
+		log.Debug("[ContentLink] (3): Root Chain ID does not match:")
 		m.ErrorAndStop = true
 		return
 	}
 
 	i, err := primitives.BytesToInfoHash(ex[5])
 	if err != nil {
+		log.Debug("[ContentLink] (4): Cannot unmarshal into infohash:", err.Error())
 		m.ErrorAndStop = true
 		return
 	}
@@ -172,12 +177,14 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	var t time.Time
 	err = t.UnmarshalBinary(ex[6])
 	if err != nil {
+		log.Debug("[ContentLink] (5): Cannot unmarshal into time:", err.Error())
 		m.ErrorAndStop = true
 		return
 	}
 	m.Timestamp = t
 	// Check Time window
 	if !InsideTimeWindow(m.LinkTimestamp, m.Timestamp, constants.ENTRY_TIMESTAMP_WINDOW) {
+		log.Debug("[ContentLink] (6): Time outside valid window")
 		m.ErrorAndStop = true
 		return
 	}
@@ -186,6 +193,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 
 	err = m.ContentSigKey.UnmarshalBinary(ex[8])
 	if err != nil {
+		log.Debug("[ContentLink] (7): Cannot unmarshal into content signing key")
 		m.ErrorAndStop = true
 		return
 	}
@@ -198,11 +206,13 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	m.Signature = ex[9]
 
 	if !m.ContentSigKey.IsSameAs(&m.Channel.Channel.ContentSingingKey) {
+		log.Debug("[ContentLink] (8): Content signing key does not match")
 		m.ErrorAndStop = true
 		return
 	}
 
 	if valid := m.ContentSigKey.Verify(m.Message, m.Signature); !valid {
+		log.Debug("[ContentLink] (9): Content verify failed")
 		m.ErrorAndStop = true
 		return
 	}
@@ -245,6 +255,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 			var _ = in
 		}
 		if !found {
+			log.Debug("[ContentLink] (10): Missing data in content link")
 			m.ErrorAndStop = true
 			return
 		}
@@ -253,6 +264,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	// Woo! Stiched up!
 	err = m.ContentData.UnmarshalBinary(content)
 	if err != nil {
+		log.Debug("[ContentLink] (11): Cannot unmarshal into ContentData")
 		m.ErrorAndStop = true
 		return
 	}

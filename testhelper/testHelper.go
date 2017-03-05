@@ -12,6 +12,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	"github.com/FactomProject/factom"
 )
 
 var _ = fmt.Sprintf("")
@@ -59,6 +60,10 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 			}
 			eHashes = append(eHashes, ehash)
 		}
+
+		inc := new(factom.Entry)
+		inc.Content = []byte("Increment")
+		fake.SubmitEntry(*inc, *ec)
 
 		for _, h := range eHashes {
 			hash, _ := primitives.HexToHash(h)

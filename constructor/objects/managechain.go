@@ -6,6 +6,7 @@ import (
 
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	log "github.com/DistributedSolutions/logrus"
 )
 
 //// Factom Chain
@@ -63,7 +64,7 @@ func (r *ManageChainApplyEntry) RequestChannel() (string, bool) {
 
 func (r *ManageChainApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) error {
 	if cw == nil {
-		return fmt.Errorf("Channel must exisit for ManageChainApplyEntry")
+		return fmt.Errorf("Channel must exist for ManageChainApplyEntry")
 	}
 	r.Channel = cw
 	return nil
@@ -73,15 +74,18 @@ func (r *ManageChainApplyEntry) NeedIsFirstEntry() bool { return true }
 
 func (m *ManageChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	if !m.PubKey3.IsSameAs(&m.Channel.Channel.LV3PublicKey) {
+		log.Debug("[ManageChain] (1): Public key does not match")
 		return m.Channel, false // Invalid key
 	}
 
 	if valid := m.PubKey3.Verify(m.Message, m.Signature); !valid {
+		log.Debug("[ManageChain] (2): Bad signature")
 		return m.Channel, false // Bad signature
 	}
 
 	hash, err := primitives.HexToHash(m.Entry.Entry.ChainID)
 	if err != nil {
+		log.Debug("[ManageChain] (3): Cannot unmarshal into hex")
 		return nil, false
 	}
 

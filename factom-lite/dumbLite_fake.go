@@ -1,6 +1,7 @@
 package lite
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"sync"
@@ -42,6 +43,10 @@ func NewFakeDumbLite() FactomLite {
 //
 
 func (d *FakeDumbLite) SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId string, eHash string, err error) {
+	if bytes.Compare(e.Content, []byte("Increment")) == 0 {
+		d.height++
+		return "", "", nil
+	}
 	data, err := e.MarshalJSON()
 	if err != nil {
 		return "", "", err
@@ -52,7 +57,6 @@ func (d *FakeDumbLite) SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId s
 	d.heightlist[d.height] = append(d.heightlist[d.height], e)
 	d.chainlists[e.ChainID] = append(d.chainlists[e.ChainID], e)
 	d.Unlock()
-	d.height++
 	return "", hex.EncodeToString(e.Hash()), nil
 }
 
@@ -68,7 +72,6 @@ func (d *FakeDumbLite) SubmitChain(c factom.Chain, ec factom.ECAddress) (comId s
 	d.heightlist[d.height] = append(d.heightlist[d.height], *e)
 	d.chainlists[e.ChainID] = append([]factom.Entry{*e}, d.chainlists[e.ChainID]...)
 	d.Unlock()
-	d.height++
 	return "", c.FirstEntry.ChainID, nil
 }
 
