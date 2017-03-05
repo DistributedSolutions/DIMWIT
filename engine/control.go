@@ -37,11 +37,14 @@ func Control(w *WholeState) {
 	var chanList []common.Channel
 	// Start loop
 	for scanner.Scan() {
+		err = nil
+
 		cmd := scanner.Text()
 		if cmd == "!!" {
 			cmd = last
 		}
 		last = cmd
+		chanList = nil
 
 		switch {
 		case cmd == "exit":

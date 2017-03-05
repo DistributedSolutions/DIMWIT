@@ -3,7 +3,6 @@ package constructor
 import (
 	"bytes"
 	"fmt"
-	"log"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
@@ -11,6 +10,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	log "github.com/DistributedSolutions/logrus"
 	"github.com/FactomProject/factom"
 )
 
@@ -97,6 +97,7 @@ func (c *Constructor) loadStateFromDB() error {
 func (c *Constructor) ApplyHeight(height uint32) error {
 	rh, err := c.Reader.GetReadyHeight()
 	if err != nil {
+		log.Error("Constructor failed to get ready height from Factom Lite")
 		return err
 	}
 
@@ -106,6 +107,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	ents, err := c.Reader.GrabAllEntriesAtHeight(height)
 	if err != nil {
+		log.Error("Constructor failed to grab entries from factom client")
 		return err
 	}
 
@@ -116,7 +118,10 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 	c.ChannelCache = make(map[string]objects.ChannelWrapper)
 	// Make a channel map, and get a batch apply map
 	for _, e := range ents {
-		c.applyEntryToCache(e)
+		_, err := c.applyEntryToCache(e)
+		if err != nil {
+			log.Debug(err)
+		}
 	}
 
 	chanList := make([]common.Channel, 0)
@@ -165,8 +170,9 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	// Update State
 	c.CompletedHeight = height
-	c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, primitives.Uint32ToBytes(height))
-	return nil
+	err = c.Level2Cache.Put(constants.STATE_BUCKET, constants.STATE_COMP_HEIGHT, primitives.Uint32ToBytes(height))
+	c.ChannelCache = nil
+	return err
 }
 
 // applyEntryToCache will take an entry, and apply it to the channels we have in our cache. If
