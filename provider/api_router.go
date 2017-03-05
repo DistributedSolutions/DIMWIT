@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"github.com/DistributedSolutions/logrus"
 	"io"
 	"log"
 	"net"
@@ -19,7 +20,8 @@ func ServeRouter(r *http.ServeMux) io.Closer {
 	log.Println("Serving API on localhost" + port)
 	closer, err := ListenAndServeWithClose(port, r)
 	if err != nil {
-		panic(err)
+		logrus.Warn("Oh no you got an error trying to open the server :( [" + err.Error() + "]")
+		return nil
 	}
 	return closer
 }
