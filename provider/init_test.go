@@ -28,7 +28,7 @@ type mainSuite struct {
 func TestRunner(t *testing.T) {
 	var err error
 
-	fake, dataList, err := testhelper.PopulateFakeClient(true)
+	fake, dataList, err := testhelper.PopulateFakeClient(true, 5)
 	if err != nil {
 		t.Error(err)
 	}

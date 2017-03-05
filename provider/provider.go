@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
@@ -13,6 +14,8 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
 )
+
+var _ = log.Prefix()
 
 type Provider struct {
 	Level2Cache database.IDatabase

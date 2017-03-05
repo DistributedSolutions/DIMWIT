@@ -17,16 +17,10 @@ import (
 var _ = fmt.Sprintf("")
 var _ = time.Second
 
-func PopulateFakeClient(small bool) (lite.FactomLite, []common.Channel, error) {
-	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
-	fake := lite.NewFakeDumbLite()
-	m := creation.NewMasterChain()
+func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Channel, error) {
 	ec := lite.GetECAddress()
-	fake.SubmitChain(*m.Chain, *ec)
-
 	chanList := make([]common.Channel, 0)
-
-	for i := 0; i < 5; i++ {
+	for i := 0; i < amt; i++ {
 		var ch *common.Channel
 		if small {
 			ch = common.RandomNewSmallChannel()
@@ -35,25 +29,25 @@ func PopulateFakeClient(small bool) (lite.FactomLite, []common.Channel, error) {
 		}
 		auth, err := channelTool.NewAuthChannel(ch, ec)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		chanList = append(chanList, auth.Channel)
 
 		chains, err := auth.ReturnFactomChains()
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		entries, err := auth.ReturnFactomEntries()
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		for _, c := range chains {
 			_, _, err := fake.SubmitChain(*c, *ec)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 		}
 
@@ -61,7 +55,7 @@ func PopulateFakeClient(small bool) (lite.FactomLite, []common.Channel, error) {
 		for _, e := range entries {
 			_, ehash, err := fake.SubmitEntry(*e, *ec)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			eHashes = append(eHashes, ehash)
 		}
@@ -70,12 +64,22 @@ func PopulateFakeClient(small bool) (lite.FactomLite, []common.Channel, error) {
 			hash, _ := primitives.HexToHash(h)
 			_, err := fake.GetEntry(*hash)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 		}
 	}
+	return chanList, nil
+}
 
-	return fake, chanList, nil
+func PopulateFakeClient(small bool, amt int) (lite.FactomLite, []common.Channel, error) {
+	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
+	fake := lite.NewFakeDumbLite()
+	m := creation.NewMasterChain()
+	ec := lite.GetECAddress()
+	fake.SubmitChain(*m.Chain, *ec)
+
+	chanList, err := AddChannelsToClient(fake, 5, small)
+	return fake, chanList, err
 }
 
 func PopulateLevel2Cache(fake lite.FactomLite) (*constructor.Constructor, database.IDatabase, error) {

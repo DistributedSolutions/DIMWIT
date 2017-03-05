@@ -13,6 +13,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 	"github.com/DistributedSolutions/DIMWIT/provider"
+	"github.com/DistributedSolutions/DIMWIT/util"
 )
 
 var _ = log.Prefix()
@@ -50,7 +51,7 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	var lvl2Cache database.IDatabase
 	switch lvl2CacheType {
 	case "Bolt":
-		lvl2Cache = database.NewBoltDB(constants.HIDDEN_DIR + constants.LVL2_CACHE)
+		lvl2Cache = database.NewBoltDB(util.GetHomeDir() + constants.HIDDEN_DIR + constants.LVL2_CACHE)
 	case "LDB":
 	case "Map":
 		lvl2Cache = database.NewMapDB()
