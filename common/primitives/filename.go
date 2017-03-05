@@ -10,7 +10,7 @@ import (
 )
 
 type FileList struct {
-	FileList []File
+	FileList []File `json:"filelist"`
 }
 
 func NewFileList() *FileList {
@@ -120,9 +120,9 @@ func (fl *FileList) UnmarshalBinaryData(data []byte) (newData []byte, err error)
 }
 
 type File struct {
-	FileName string // includes extension
-	Size     int64
-	Checksum MD5Checksum
+	FileName string      `json:"file"` // includes extension
+	Size     int64       `json:"size"`
+	Checksum MD5Checksum `json:"checksum"`
 }
 
 func NewFile(filename string, size int64) (*File, error) {

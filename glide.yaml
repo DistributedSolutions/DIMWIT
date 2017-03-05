@@ -26,9 +26,6 @@ testImport:
 - package: github.com/gorilla/mux
   subpackages:
     - v2
-- package: github.com/gorilla/rpc
-  subpackages:
-    - v2
 - package: github.com/prometheus/client_golang
   subpackages:
   - prometheus
