@@ -2,6 +2,8 @@ package engine
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -83,7 +85,10 @@ func Control(w *WholeState) {
 			var con *common.Content
 			c, err := w.Provider.GetChannel(cmd[1:])
 			if err == nil && c != nil {
-				resp = fmt.Sprintf("Channel found with that hash\n")
+				buf := new(bytes.Buffer)
+				data, _ := c.CustomMarshalJSON()
+				json.Indent(buf, data, "-", "\t")
+				resp = fmt.Sprintf("Channel found with that hash\n%s\n", string(buf.Bytes()))
 				goto Found
 			}
 			fmt.Println(err, c)
@@ -106,7 +111,10 @@ func Control(w *WholeState) {
 			}
 			c, err := w.Constructor.RetrieveChannel(*hash)
 			if err == nil && c != nil {
-				resp = fmt.Sprintf("Channel found with that hash\n")
+				buf := new(bytes.Buffer)
+				data, _ := c.Channel.CustomMarshalJSON()
+				json.Indent(buf, data, "-", "\t")
+				resp = fmt.Sprintf("Channel found with that hash\n%s\n", string(buf.Bytes()))
 			} else {
 				resp = "Nothing found by that hash\n"
 			}

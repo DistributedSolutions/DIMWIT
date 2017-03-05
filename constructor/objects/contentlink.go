@@ -206,7 +206,7 @@ func (m *ContentLinkApplyEntry) AnswerChainEntriesInOther(first *lite.EntryHolde
 	m.Signature = ex[9]
 
 	if !m.ContentSigKey.IsSameAs(&m.Channel.Channel.ContentSingingKey) {
-		log.Debug("[ContentLink] (8): Content signing key does not match")
+		log.Debugf("[ContentLink] (8): Content signing key does not match. \n    Found %s, expect %s", m.ContentSigKey.String(), m.Channel.Channel.ContentSingingKey.String())
 		m.ErrorAndStop = true
 		return
 	}

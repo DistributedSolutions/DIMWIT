@@ -21,7 +21,11 @@ var _ = time.Second
 func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Channel, error) {
 	ec := lite.GetECAddress()
 	chanList := make([]common.Channel, 0)
+	inc := new(factom.Entry)
+	inc.Content = []byte("Increment")
 	for i := 0; i < amt; i++ {
+		fake.SubmitEntry(*inc, *ec)
+
 		var ch *common.Channel
 		if small {
 			ch = common.RandomNewSmallChannel()
@@ -46,6 +50,7 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 		}
 
 		for _, c := range chains {
+			fake.SubmitEntry(*inc, *ec)
 			_, _, err := fake.SubmitChain(*c, *ec)
 			if err != nil {
 				return nil, err
@@ -53,7 +58,29 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 		}
 
 		eHashes := make([]string, 0)
+
+		//"Content Signing Key"
+		choose := func(match string, incr bool) {
+			for i, e := range entries {
+				if string(e.ExtIDs[1]) == match {
+					if incr {
+						fake.SubmitEntry(*inc, *ec) // Increment height
+					}
+					_, ehash, _ := fake.SubmitEntry(*e, *ec)
+					entries[i] = entries[len(entries)-1]
+					entries = entries[:len(entries)-1]
+					eHashes = append(eHashes, ehash)
+				}
+			}
+		}
+
+		choose("Content Signing Key", true)
+		choose("Register Management Chain", true)
+		choose("Register Content Chain", true)
+		//fake.SubmitEntry(*inc, *ec)
+
 		for _, e := range entries {
+			fake.SubmitEntry(*inc, *ec)
 			_, ehash, err := fake.SubmitEntry(*e, *ec)
 			if err != nil {
 				return nil, err
@@ -61,9 +88,7 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 			eHashes = append(eHashes, ehash)
 		}
 
-		inc := new(factom.Entry)
-		inc.Content = []byte("Increment")
-		fake.SubmitEntry(*inc, *ec)
+		//fake.SubmitEntry(*inc, *ec) // Increment height
 
 		for _, h := range eHashes {
 			hash, _ := primitives.HexToHash(h)
@@ -72,7 +97,13 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 				return nil, err
 			}
 		}
+		//fake.SubmitEntry(*inc, *ec) // Increment height
+		//fake.SubmitEntry(*inc, *ec) // Increment height
+		fake.SubmitEntry(*inc, *ec)
 	}
+
+	fake.SubmitEntry(*inc, *ec)
+	fake.SubmitEntry(*inc, *ec)
 	return chanList, nil
 }
 

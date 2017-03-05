@@ -8,6 +8,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	log "github.com/DistributedSolutions/logrus"
 )
 
 type ContentSigningKeyApplyEntry struct {
@@ -90,6 +91,7 @@ func (m *ContentSigningKeyApplyEntry) AnswerChannelRequest(cw *ChannelWrapper) e
 
 func (m *ContentSigningKeyApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	if !m.PubKey3.IsSameAs(&m.Channel.Channel.LV3PublicKey) {
+		log.Debugf("[ContentSigKey] (1): Public key does not match\n   Found %s, Expect %s", m.PubKey3.String(), m.Channel.Channel.LV3PublicKey.String())
 		return m.Channel, false // Invalid key
 	}
 
