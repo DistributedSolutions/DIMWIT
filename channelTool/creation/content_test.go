@@ -13,11 +13,6 @@ import (
 
 var _ = fmt.Sprintf("")
 
-func init() {
-	// So tests are quick, the normal prefix check length takes too long
-	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
-}
-
 func TestContentChain(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		rc := primitives.RandomHash()

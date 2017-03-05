@@ -20,7 +20,6 @@ var _ = fmt.Sprintf("")
 var _ = time.Second
 
 func TestProvider(t *testing.T) {
-	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
 	fake := lite.NewFakeDumbLite()
 	m := creation.NewMasterChain()
 	ec := lite.GetECAddress()

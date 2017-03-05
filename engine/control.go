@@ -64,12 +64,12 @@ func Control(w *WholeState) {
 			w.Provider.Serve()
 		case cmd == "ms":
 			fmt.Println("Adding small channels....")
-			chanList, err = testhelper.AddChannelsToClient(w.FactomClient, 1, false)
+			chanList, err = testhelper.AddChannelsToClient(w.FactomClient, 1, true)
 			fallthrough
 		case cmd == "ml":
 			if chanList == nil && err == nil {
 				fmt.Println("Adding large channels....")
-				chanList, err = testhelper.AddChannelsToClient(w.FactomClient, 1, true)
+				chanList, err = testhelper.AddChannelsToClient(w.FactomClient, 1, false)
 			}
 			if err != nil {
 				fmt.Printf("Error: " + err.Error())

@@ -21,7 +21,6 @@ var _ = time.Second
 
 func TestConstructor(t *testing.T) {
 	constants.CHECK_FACTOM_FOR_UPDATES = time.Millisecond * 100
-	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
 	fake := lite.NewFakeDumbLite()
 	m := creation.NewMasterChain()
 	ec := lite.GetECAddress()

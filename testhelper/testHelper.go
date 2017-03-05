@@ -108,7 +108,6 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 }
 
 func PopulateFakeClient(small bool, amt int) (lite.FactomLite, []common.Channel, error) {
-	constants.CHAIN_PREFIX_LENGTH_CHECK = 1
 	fake := lite.NewFakeDumbLite()
 	m := creation.NewMasterChain()
 	ec := lite.GetECAddress()
