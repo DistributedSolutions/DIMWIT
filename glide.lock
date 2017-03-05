@@ -1,5 +1,5 @@
-hash: 0d1e29776460fcff051da711d2c787d761599a02d38dfca7910eb9064a5b1305
-updated: 2017-03-04T11:52:30.434457977-06:00
+hash: 993411dd26aa931945acecd04490060b71068d3806e5531349b6b5f5b830af5c
+updated: 2017-03-04T21:21:22.861767181-06:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -95,17 +95,17 @@ testImports:
   version: e96044288938931a6a83c9aac8913aa47bce72ab
   subpackages:
   - doc/parse
+- name: github.com/coreos/libtorrent-go
+  version: 85dc8ea11bfbf64071af365e3a8d4000a83dc34b
+- name: github.com/DistributedSolutions/logrus
+  version: d26492970760ca5d33129d2d799e34be5c4782eb
 - name: github.com/Emyrk/test2doc
-  version: 1eccdc05c440f819077ad6b30365c94296e9567f
+  version: 2da5c5d864172adaa2bacaff52337ac930bce2db
   subpackages:
   - doc
   - test
 - name: github.com/gorilla/mux
   version: 392c28fe23e1c45ddba891b0320b3b5df220beea
-  subpackages:
-  - v2
-- name: github.com/gorilla/rpc
-  version: 22c016f3df3febe0c1f6727598b6389507e03a18
   subpackages:
   - v2
 - name: github.com/leanovate/gopter

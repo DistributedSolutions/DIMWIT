@@ -30,3 +30,5 @@ testImport:
   subpackages:
   - prometheus
 - package: github.com/fatih/color
+- package: github.com/DistributedSolutions/logrus
+  version: v0.11.0
