@@ -88,6 +88,10 @@ func SmartRandomNewContent(root primitives.Hash, content primitives.Hash) *Conte
 }
 
 func (a *Content) IsSameAs(b *Content) bool {
+	if (a == nil && b != nil) || (b == nil && a != nil) {
+		return false
+	}
+
 	if a.Type != b.Type {
 		//fmt.Println(a.Type, b.Type)
 		//log.Println("Content IsSameAs Exit 1")

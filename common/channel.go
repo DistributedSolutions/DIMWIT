@@ -323,6 +323,10 @@ func (a *Channel) ready() bool {
 }
 
 func (a *Channel) IsSameAs(b *Channel) bool {
+	if (a == nil && b != nil) || (b == nil && a != nil) {
+		return false
+	}
+
 	if !a.ChannelTitle.IsSameAs(&b.ChannelTitle) {
 		//log.Println("Exit 0")
 		return false

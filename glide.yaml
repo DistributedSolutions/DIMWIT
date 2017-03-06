@@ -14,21 +14,18 @@ import:
 - package: golang.org/x/crypto
   subpackages:
   - ed25519
+- package: github.com/fatih/color
+- package: github.com/DistributedSolutions/logrus
+  version: v0.11.0
+- package: github.com/adams-sarah/prettytest
+- package: github.com/adams-sarah/test2doc
+- package: github.com/Emyrk/test2doc
+- package: github.com/prometheus/client_golang
+  subpackages:
+  - prometheus
 testImport:
 - package: github.com/leanovate/gopter
   version: v0.1
   subpackages:
   - gen
   - prop
-- package: github.com/adams-sarah/prettytest
-- package: github.com/adams-sarah/test2doc
-- package: github.com/Emyrk/test2doc
-- package: github.com/gorilla/mux
-  subpackages:
-    - v2
-- package: github.com/prometheus/client_golang
-  subpackages:
-  - prometheus
-- package: github.com/fatih/color
-- package: github.com/DistributedSolutions/logrus
-  version: v0.11.0

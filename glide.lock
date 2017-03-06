@@ -1,14 +1,27 @@
-hash: 993411dd26aa931945acecd04490060b71068d3806e5531349b6b5f5b830af5c
-updated: 2017-03-04T21:21:22.861767181-06:00
+hash: 388ebe6064987afc4ee3f29bed144fc3ec57946345aeaaecc306d0921e6f26b1
+updated: 2017-03-05T18:17:20.926438369-06:00
 imports:
+- name: github.com/adams-sarah/prettytest
+  version: 2880862ae7f579fe57d0a6ddcaabcadb228102e0
+- name: github.com/adams-sarah/test2doc
+  version: e96044288938931a6a83c9aac8913aa47bce72ab
+  subpackages:
+  - doc/parse
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
   subpackages:
   - quantile
 - name: github.com/boltdb/bolt
   version: 583e8937c61f1af6513608ccc75c97b6abdf4ff9
+- name: github.com/DistributedSolutions/logrus
+  version: d26492970760ca5d33129d2d799e34be5c4782eb
 - name: github.com/dustin/go-humanize
   version: 7a41df006ff9af79a29f0ffa9c5f21fbe6314a2d
+- name: github.com/Emyrk/test2doc
+  version: 2da5c5d864172adaa2bacaff52337ac930bce2db
+  subpackages:
+  - doc
+  - test
 - name: github.com/FactomProject/basen
   version: fe3947df716ebfda9847eb1b9a48f9592e06478c
 - name: github.com/FactomProject/btcutil
@@ -89,25 +102,6 @@ imports:
   subpackages:
   - unix
 testImports:
-- name: github.com/adams-sarah/prettytest
-  version: 2880862ae7f579fe57d0a6ddcaabcadb228102e0
-- name: github.com/adams-sarah/test2doc
-  version: e96044288938931a6a83c9aac8913aa47bce72ab
-  subpackages:
-  - doc/parse
-- name: github.com/coreos/libtorrent-go
-  version: 85dc8ea11bfbf64071af365e3a8d4000a83dc34b
-- name: github.com/DistributedSolutions/logrus
-  version: d26492970760ca5d33129d2d799e34be5c4782eb
-- name: github.com/Emyrk/test2doc
-  version: 2da5c5d864172adaa2bacaff52337ac930bce2db
-  subpackages:
-  - doc
-  - test
-- name: github.com/gorilla/mux
-  version: 392c28fe23e1c45ddba891b0320b3b5df220beea
-  subpackages:
-  - v2
 - name: github.com/leanovate/gopter
   version: 43cf95bdcf8d4b73624e7e71fec73765eb0a92dc
   subpackages:
