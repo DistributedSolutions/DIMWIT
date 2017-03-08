@@ -90,7 +90,6 @@ func (sqlDB *SqlDBWrapper) addChannelsTags(channels []common.Channel) error {
 	defer (*stmt).Close()
 	for _, c := range channels {
 		tags := c.Tags.GetTags()
-		fmt.Printf("Tags found amount [%d]\n", len(tags))
 		for _, t := range tags {
 			tag, err := SelectSingleFromTable(db,
 				constants.SQL_TABLE_CHANNEL_TAG__ID,

@@ -23,7 +23,7 @@ func NewTagList(max uint32) *TagList {
 
 func RandomTagList(max uint32) *TagList {
 	tl := NewTagList(max)
-	l := uint32(1)
+	l := random.RandomUInt32Between(0, max)
 	tl.Tags = make([]Tag, l)
 
 	c := uint32(0)
