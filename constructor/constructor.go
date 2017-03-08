@@ -159,6 +159,11 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	if len(chanList) > 0 {
 		log.Debugf("DEBUG: Executing %d Channels", len(chanList))
+		count := 0
+		for _, c := range chanList {
+			count += len(c.Tags.GetTags())
+		}
+		log.Debugf("DEBUG: chanList total tags lengh are: %d", count)
 	}
 	// Write to SQL
 	err = c.SqlGuy.AddChannelArr(chanList, height)
