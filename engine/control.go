@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -29,14 +31,16 @@ func Control(w *WholeState) {
 	AddHelp("s", "Show current Channel/Content count")
 	AddHelp("w", "Turn on api")
 	AddHelp("a", "Shut off api")
-	AddHelp("m[s/l]", "Add a random channel. S -> Small amount of data. L-> Large amount")
+	AddHelp("m[s/l] [-a <amount>]", "Add a random channel. S -> Small amount of data. L-> Large amount data. A for amount of times to add new channels.")
 	AddHelp("F[HASH]", "Finds value by given hash from Provider")
 	AddHelp("F[HASH]", "Finds value by given hash from Constructor")
 	AddHelp("aC", "Prints out root chain ids of all channels")
+	AddHelp("wdb", "Wipes db channels clean cascades to almost all other tables. Keeps tags.")
 
 	var last string
 	var err error
 	var chanList []common.Channel
+	var amount int
 	// Start loop
 	for scanner.Scan() {
 		err = nil
@@ -47,6 +51,17 @@ func Control(w *WholeState) {
 		}
 		last = cmd
 		chanList = nil
+		amount = 1
+
+		if strings.Contains(cmd, "ms -a ") || strings.Contains(cmd, "ml -a ") {
+			strArr := strings.Split(cmd, " -a ")
+			cmd = strArr[0]
+			amount, err = strconv.Atoi(strArr[1])
+			if err != nil {
+				fmt.Printf("Error coverting string [%s] to number. Setting amount to 1.", strArr[1])
+				amount = 1
+			}
+		}
 
 		switch {
 		case cmd == "exit":
@@ -64,12 +79,12 @@ func Control(w *WholeState) {
 			w.Provider.Serve()
 		case cmd == "ms":
 			fmt.Println("Adding small channels....")
-			chanList, err = testhelper.AddChannelsToClient(w.FactomClient, 1, true)
+			chanList, err = testhelper.AddChannelsToClient(w.FactomClient, amount, true)
 			fallthrough
 		case cmd == "ml":
 			if chanList == nil && err == nil {
 				fmt.Println("Adding large channels....")
-				chanList, err = testhelper.AddChannelsToClient(w.FactomClient, 1, false)
+				chanList, err = testhelper.AddChannelsToClient(w.FactomClient, amount, false)
 			}
 			if err != nil {
 				fmt.Printf("Error: " + err.Error())
@@ -140,6 +155,13 @@ func Control(w *WholeState) {
 			}
 
 			fmt.Printf("%d Channels -- %d Content\n", stats.TotalChannels, stats.TotalContent)
+		case cmd == "wdb":
+			err := w.Constructor.SqlGuy.DeleteDBChannels()
+			if err != nil {
+				fmt.Println("Error deleting DB Channels: " + err.Error())
+				break
+			}
+			fmt.Printf("DB channels deleted. Note cascading effect.\n")
 		default:
 			fmt.Printf("No command found\n")
 		}

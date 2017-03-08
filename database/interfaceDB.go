@@ -7,6 +7,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	// "github.com/DistributedSolutions/logrus"
 )
 
 type PlayListTempStoreEntry struct {
@@ -89,6 +90,7 @@ func (sqlDB *SqlDBWrapper) addChannelsTags(channels []common.Channel) error {
 	defer (*stmt).Close()
 	for _, c := range channels {
 		tags := c.Tags.GetTags()
+		fmt.Printf("Tags found amount [%d]\n", len(tags))
 		for _, t := range tags {
 			tag, err := SelectSingleFromTable(db,
 				constants.SQL_TABLE_CHANNEL_TAG__ID,
@@ -101,6 +103,7 @@ func (sqlDB *SqlDBWrapper) addChannelsTags(channels []common.Channel) error {
 			}
 			insertData[0] = c.RootChainID.String()
 			insertData[1] = tag
+			fmt.Printf("Inserting tag [%s] for hash [%s]\n", insertData[1], insertData[0])
 			err = ExecStmt(stmt, insertData)
 			if err != nil {
 				return fmt.Errorf("Error insert/update channel tag [%s] with length [%s]: %s", tag, t, err.Error())
@@ -376,6 +379,16 @@ func (sqlDB *SqlDBWrapper) AddTags() error {
 		if err != nil {
 			return fmt.Errorf("Error inserting table tags content: %s", err.Error())
 		}
+	}
+	return nil
+}
+
+func (sqlDB *SqlDBWrapper) DeleteDBChannels() error {
+	db := sqlDB.DB
+	s := "DELETE FROM " + constants.SQL_CHANNEL
+	_, err := db.Exec(s)
+	if err != nil {
+		return fmt.Errorf("Error deleting items from db with query[%s]: %s", s, err.Error())
 	}
 	return nil
 }

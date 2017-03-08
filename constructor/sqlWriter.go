@@ -50,3 +50,7 @@ func (sw *SqlWriter) AddChannelArr(channels []common.Channel, height uint32) err
 func (sw *SqlWriter) FlushTempPlaylists(height uint32) error {
 	return sw.db.FlushPlaylistTempTable(height)
 }
+
+func (sw *SqlWriter) DeleteDBChannels() error {
+	return sw.db.DeleteDBChannels()
+}
