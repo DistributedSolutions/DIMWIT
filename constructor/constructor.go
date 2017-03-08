@@ -128,14 +128,14 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 
 	// Level 2 Cache Write
 	for _, channel := range c.ChannelCache {
-		if channel.Channel.Status() == constants.CHANNEL_READY {
-			chanList = append(chanList, channel.Channel)
-		}
-
 		channel.CurrentHeight = c.CompletedHeight
 		data, err := channel.MarshalBinary()
 		if err != nil {
 			continue
+		}
+
+		if channel.Channel.Status() >= constants.CHANNEL_READY {
+			chanList = append(chanList, channel.Channel)
 		}
 
 		//fmt.Println(channel.Channel.RootChainID.String())
