@@ -1,7 +1,7 @@
 package provider_test
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	//"io/ioutil"
 	//"net/http"
@@ -52,8 +52,7 @@ func (t *mainSuite) TestProviderChannels() {
 		List: channelsHashList,
 	}
 
-	jsonChannelsHashList, _ := json.Marshal(temp)
-	req := jsonrpc.NewJSONRPCRequest("get-channels", string(jsonChannelsHashList), 0)
+	req := jsonrpc.NewJSONRPCRequest("get-channels", temp, 0)
 
 	channelList := common.ChannelList{
 		List: DataList,
