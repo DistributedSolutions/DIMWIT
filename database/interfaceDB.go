@@ -102,7 +102,6 @@ func (sqlDB *SqlDBWrapper) addChannelsTags(channels []common.Channel) error {
 			}
 			insertData[0] = c.RootChainID.String()
 			insertData[1] = tag
-			fmt.Printf("Inserting tag [%s] for hash [%s]\n", insertData[1], insertData[0])
 			err = ExecStmt(stmt, insertData)
 			if err != nil {
 				return fmt.Errorf("Error insert/update channel tag [%s] with length [%s]: %s", tag, t, err.Error())

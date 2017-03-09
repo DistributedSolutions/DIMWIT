@@ -1,11 +1,13 @@
 package provider_test
 
 import (
+	"encoding/json"
 	"fmt"
 	//"io/ioutil"
 	//"net/http"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/provider"
 	"github.com/DistributedSolutions/DIMWIT/provider/jsonrpc"
 )
@@ -37,6 +39,39 @@ func (t *mainSuite) TestProviderChannel() {
 			t.True(resp.IsSimilarTo(c.ToCustomMarsalStruct()))
 		}
 
+	}
+}
+
+func (t *mainSuite) TestProviderChannels() {
+	channelsHashList := make([]primitives.Hash, len(DataList))
+	for i, c := range DataList {
+		channelsHashList[i] = c.RootChainID
+	}
+
+	temp := primitives.HashList{
+		List: channelsHashList,
+	}
+
+	jsonChannelsHashList, _ := json.Marshal(temp)
+	req := jsonrpc.NewJSONRPCRequest("get-channels", string(jsonChannelsHashList), 0)
+
+	channelList := common.ChannelList{
+		List: DataList,
+	}
+	respObj, jsonError, err := req.POSTRequest(URL+"/api", new(common.ChannelList))
+	if err != nil { // Go Error
+		t.Error(err)
+	}
+	if jsonError != nil { // Error in json response
+		t.Error(jsonError.Message)
+	}
+
+	if err == nil && jsonError == nil { // If no errors, check the reponse
+		resp := respObj.(*common.ChannelList)
+		if !resp.IsSimilarTo(channelList) {
+			t.Error("Channels returned does not match", err)
+		}
+		t.True(resp.IsSimilarTo(channelList))
 	}
 }
 

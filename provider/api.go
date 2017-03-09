@@ -69,6 +69,30 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			goto InternalError
 		}
 		goto Success
+	case "get-channels":
+		hashList := new(primitives.HashList)
+		color.Red("HERE: %s", req.Params)
+		err = json.Unmarshal(req.Params, hashList)
+		if err != nil {
+			color.Red("ERRROR :(: %s", err.Error())
+			extra = "Invalid request object, " + err.Error()
+			goto InvalidRequest // Bad request data
+		}
+		color.Red("HERE2")
+		channels, err := apiService.GetChannels(*hashList)
+		if err != nil {
+			extra = "Channels not found"
+			errorID = 1
+			goto CustomError
+		}
+
+		color.Red("HERE3")
+		data, err = channels.CustomMarshalJSON()
+		if err != nil {
+			extra = "Failed to unmarshal channels"
+			goto InternalError
+		}
+		goto Success
 	case "get-content":
 		hash := new(primitives.Hash)
 		err = json.Unmarshal(req.Params, hash)
@@ -143,16 +167,19 @@ func (apiService *ApiService) GetChannel(hash primitives.Hash) (*common.Channel,
 	return apiService.Provider.GetChannel(hash.String())
 }
 
-func (apiService *ApiService) GetChannels(hashes primitives.HashList) ([]common.Channel, error) {
+func (apiService *ApiService) GetChannels(hashes primitives.HashList) (*common.ChannelList, error) {
 	channelList := make([]common.Channel, 0)
 	for _, channelHash := range hashes.GetHashes() {
 		channel, err := apiService.Provider.GetChannel(channelHash.String())
 		if err != nil {
-			return channelList, err
+			return nil, err
 		}
 		channelList = append(channelList, *channel)
 	}
-	return channelList, nil
+	chList := common.ChannelList{
+		List: channelList,
+	}
+	return &chList, nil
 }
 
 func (apiService *ApiService) GetContent(hash primitives.Hash) (*common.Content, error) {

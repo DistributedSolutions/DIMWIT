@@ -18,6 +18,20 @@ type ChannelList struct {
 	List []Channel `json:"channellist"`
 }
 
+func (a *ChannelList) IsSimilarTo(b ChannelList) bool {
+	for i, e := range b.List {
+		if !e.IsSameAs(&a.List[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func (a *ChannelList) CustomMarshalJSON() ([]byte, error) {
+	custom := a.List
+	return json.Marshal(custom)
+}
+
 type Channel struct {
 	RootChainID       primitives.Hash `json:"rootchain"`
 	ManagementChainID primitives.Hash `json:"managechain"`
