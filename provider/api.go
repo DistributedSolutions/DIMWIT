@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -47,7 +48,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 	resp.Id = req.ID
 	var result json.RawMessage
 
-	color.Green(fmt.Sprintf("%s: %s", r.Method, req.Method))
+	color.Green(fmt.Sprintf("%s: %s: %s", time.Now().Format("15:04:05"), r.Method, req.Method))
 	switch req.Method {
 	case "get-channel":
 		hash := new(primitives.Hash)
@@ -110,6 +111,30 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		data, err = json.Marshal(content)
 		if err != nil {
 			extra = "Failed to unmarshal content"
+			goto InternalError
+		}
+		goto Success
+	case "get-contents":
+		hashList := new(primitives.HashList)
+		color.Red("HERE: %s", req.Params)
+		err = json.Unmarshal(req.Params, hashList)
+		if err != nil {
+			color.Red("ERRROR :(: %s", err.Error())
+			extra = "Invalid request object, " + err.Error()
+			goto InvalidRequest // Bad request data
+		}
+		color.Red("HERE2")
+		contents, err := apiService.GetContents(*hashList)
+		if err != nil {
+			extra = "Contents not found"
+			errorID = 1
+			goto CustomError
+		}
+
+		color.Red("HERE3")
+		data, err = contents.MarshalBinary()
+		if err != nil {
+			extra = "Failed to unmarshal contents"
 			goto InternalError
 		}
 		goto Success
@@ -184,6 +209,21 @@ func (apiService *ApiService) GetChannels(hashes primitives.HashList) (*common.C
 
 func (apiService *ApiService) GetContent(hash primitives.Hash) (*common.Content, error) {
 	return apiService.Provider.GetContent(hash.String())
+}
+
+func (apiService *ApiService) GetContents(hashes primitives.HashList) (*common.ContentList, error) {
+	contentList := make([]common.Content, 0)
+	for _, contentHash := range hashes.GetHashes() {
+		content, err := apiService.Provider.GetContent(contentHash.String())
+		if err != nil {
+			return nil, err
+		}
+		contentList = append(contentList, *content)
+	}
+	cList := common.ContentList{
+		ContentList: contentList,
+	}
+	return &cList, nil
 }
 
 func (apiService *ApiService) GetStats() (*DatabaseStats, error) {

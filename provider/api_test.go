@@ -54,10 +54,7 @@ func (t *mainSuite) TestProviderChannels() {
 
 	req := jsonrpc.NewJSONRPCRequest("get-channels", temp, 0)
 
-	channelList := common.ChannelList{
-		List: DataList,
-	}
-	respObj, jsonError, err := req.POSTRequest(URL+"/api", new(common.ChannelList))
+	respObj, jsonError, err := req.POSTRequest(URL+"/api", new([]common.CustomJSONMarshalChannel))
 	if err != nil { // Go Error
 		t.Error(err)
 	}
@@ -66,11 +63,14 @@ func (t *mainSuite) TestProviderChannels() {
 	}
 
 	if err == nil && jsonError == nil { // If no errors, check the reponse
-		resp := respObj.(*common.ChannelList)
-		if !resp.IsSimilarTo(channelList) {
-			t.Error("Channels returned does not match", err)
+		resp := respObj.([]common.CustomJSONMarshalChannel)
+		for i, e := range resp {
+			v := DataList[i].ToCustomMarsalStruct()
+			if !e.IsSimilarTo(v) {
+				t.Error("Channels returned does not match", err)
+			}
+			t.True(e.IsSimilarTo(v))
 		}
-		t.True(resp.IsSimilarTo(channelList))
 	}
 }
 
