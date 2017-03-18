@@ -40,3 +40,8 @@ const (
 var (
 	CHECK_FACTOM_FOR_UPDATES time.Duration = time.Duration(5 * time.Second)
 )
+
+var (
+	MAX_IMAGE_SIZE  uint32 = 1024
+	MAX_BANNER_SIZE uint32 = 1024
+)
