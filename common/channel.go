@@ -32,6 +32,55 @@ func (a *ChannelList) CustomMarshalJSON() ([]byte, error) {
 	return json.Marshal(custom)
 }
 
+func (cl *ChannelList) MarshalBinary() ([]byte, error) {
+	buf := new(bytes.Buffer)
+
+	data := primitives.Uint32ToBytes(uint32(len(cl.List)))
+	buf.Write(data)
+
+	for i := range cl.List {
+		data, err := cl.List[i].MarshalBinary()
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(data)
+	}
+
+	return buf.Next(buf.Len()), nil
+}
+
+func (p *ChannelList) UnmarshalBinary(data []byte) error {
+	_, err := p.UnmarshalBinaryData(data)
+	return err
+}
+
+func (cl *ChannelList) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("A panic has occurred while unmarshaling: %s", r)
+			return
+		}
+	}()
+
+	newData = data
+	u, err := primitives.BytesToUint32(newData[:4])
+	if err != nil {
+		return data, err
+	}
+	newData = newData[4:]
+
+	cl.List = make([]Channel, u)
+	var i uint32
+	for i = 0; i < u; i++ {
+		newData, err = cl.List[i].UnmarshalBinaryData(newData)
+		if err != nil {
+			return data, err
+		}
+	}
+
+	return
+}
+
 type Channel struct {
 	RootChainID       primitives.Hash `json:"rootchain"`
 	ManagementChainID primitives.Hash `json:"managechain"`

@@ -12,7 +12,6 @@ import (
 
 type Image struct {
 	imgType byte
-	length  uint32
 	image   []byte
 }
 
@@ -20,7 +19,6 @@ func NewImage(imageBytes []byte, imageType byte) *Image {
 	i := new(Image)
 	i.image = imageBytes
 	i.imgType = imageType
-	i.length = uint32(len(imageBytes))
 
 	return i
 }
@@ -46,7 +44,6 @@ func (i *Image) Empty() bool {
 
 func (i *Image) SetImage(data []byte) {
 	i.image = data
-	i.length = uint32(len(i.image))
 }
 
 func (i *Image) SetImageType(t byte) {
@@ -62,7 +59,7 @@ func (i *Image) GetImage() []byte {
 }
 
 func (i *Image) GetImageSize() uint32 {
-	return i.length
+	return uint32(len(i.image))
 }
 
 func (i *Image) MarshalBinary() ([]byte, error) {
@@ -70,7 +67,7 @@ func (i *Image) MarshalBinary() ([]byte, error) {
 
 	buf.Write([]byte{i.imgType})
 
-	data := Uint32ToBytes(i.length)
+	data := Uint32ToBytes(uint32(len(i.image)))
 	buf.Write(data)
 
 	buf.Write(i.image)
@@ -100,11 +97,10 @@ func (i *Image) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 	if err != nil {
 		return data, err
 	}
-	i.length = u
 	newData = newData[4:]
 
-	i.image = newData[:i.length]
-	newData = newData[i.length:]
+	i.image = newData[:u]
+	newData = newData[u:]
 	return
 }
 
@@ -113,7 +109,7 @@ func (a *Image) IsSameAs(b *Image) bool {
 		return false
 	}
 
-	if a.length != b.length {
+	if len(a.image) != len(b.image) {
 		return false
 	}
 
@@ -127,7 +123,7 @@ func (i *Image) MarshalJSON() ([]byte, error) {
 		Image   string `json:"image"`
 	}{
 		ImgType: i.imgType,
-		Length:  i.length,
+		Length:  uint32(len(i.image)),
 		Image:   hex.EncodeToString(i.image),
 	})
 }

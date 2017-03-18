@@ -227,10 +227,14 @@ func metaToChannel(ch common.Channel, meta creation.ManageChainMetaData) common.
 		//ch.Playlist = meta.Playlist
 	}
 	if meta.Thumbnail != nil {
-		ch.Thumbnail = *meta.Thumbnail
+		if meta.Thumbnail.GetImageSize() <= constants.MAX_IMAGE_SIZE {
+			ch.Thumbnail = *meta.Thumbnail
+		}
 	}
 	if meta.Banner != nil {
-		ch.Banner = *meta.Banner
+		if meta.Banner.GetImageSize() <= constants.MAX_BANNER_SIZE {
+			ch.Banner = *meta.Banner
+		}
 	}
 	if meta.ChannelTags != nil {
 		ch.Tags = *ch.Tags.Combine(meta.ChannelTags)
