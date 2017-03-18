@@ -193,7 +193,15 @@ func (apiService *ApiService) GetChannels(hashes primitives.HashList) (*common.C
 		if err != nil {
 			return nil, err
 		}
+		if channel == nil {
+			continue
+			// return nil, fmt.Errorf("Content %s not found", contentHash.String())
+		}
 		channelList = append(channelList, *channel)
+	}
+
+	if len(channelList) == 0 {
+		return nil, fmt.Errorf("No channels found by those hashes")
 	}
 	chList := common.ChannelList{
 		List: channelList,
@@ -212,7 +220,14 @@ func (apiService *ApiService) GetContents(hashes primitives.HashList) (*common.C
 		if err != nil {
 			return nil, err
 		}
+		if content == nil {
+			continue
+			// return nil, fmt.Errorf("Content %s not found", contentHash.String())
+		}
 		contentList = append(contentList, *content)
+	}
+	if len(contentList) == 0 {
+		return nil, fmt.Errorf("No content found by those hashes")
 	}
 	cList := common.ContentList{
 		ContentList: contentList,
