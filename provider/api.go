@@ -72,14 +72,12 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		goto Success
 	case "get-channels":
 		hashList := new(primitives.HashList)
-		color.Red("HERE: %s", req.Params)
 		err = json.Unmarshal(req.Params, hashList)
 		if err != nil {
 			color.Red("ERRROR :(: %s", err.Error())
 			extra = "Invalid request object, " + err.Error()
 			goto InvalidRequest // Bad request data
 		}
-		color.Red("HERE2")
 		channels, err := apiService.GetChannels(*hashList)
 		if err != nil {
 			extra = "Channels not found"
@@ -87,7 +85,6 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			goto CustomError
 		}
 
-		color.Red("HERE3")
 		data, err = channels.CustomMarshalJSON()
 		if err != nil {
 			extra = "Failed to unmarshal channels"
@@ -116,14 +113,12 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		goto Success
 	case "get-contents":
 		hashList := new(primitives.HashList)
-		color.Red("HERE: %s", req.Params)
 		err = json.Unmarshal(req.Params, hashList)
 		if err != nil {
 			color.Red("ERRROR :(: %s", err.Error())
 			extra = "Invalid request object, " + err.Error()
 			goto InvalidRequest // Bad request data
 		}
-		color.Red("HERE2")
 		contents, err := apiService.GetContents(*hashList)
 		if err != nil {
 			extra = "Contents not found"
@@ -131,8 +126,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			goto CustomError
 		}
 
-		color.Red("HERE3")
-		data, err = contents.MarshalBinary()
+		data, err = json.Marshal(contents)
 		if err != nil {
 			extra = "Failed to unmarshal contents"
 			goto InternalError
@@ -214,7 +208,7 @@ func (apiService *ApiService) GetContent(hash primitives.Hash) (*common.Content,
 func (apiService *ApiService) GetContents(hashes primitives.HashList) (*common.ContentList, error) {
 	contentList := make([]common.Content, 0)
 	for _, contentHash := range hashes.GetHashes() {
-		content, err := apiService.Provider.GetContent(contentHash.String())
+		content, err := apiService.GetContent(contentHash)
 		if err != nil {
 			return nil, err
 		}

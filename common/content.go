@@ -372,7 +372,7 @@ func (c *Content) UnmarshalBinaryData(data []byte) (newData []byte, err error) {
 //
 
 type ContentList struct {
-	ContentList []Content
+	ContentList []Content `json:"contentlist"`
 }
 
 func RandomContentList(max uint32) *ContentList {
