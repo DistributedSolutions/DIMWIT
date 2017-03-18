@@ -125,8 +125,8 @@ func (p *ManyPlayList) UnmarshalBinaryData(data []byte) (newData []byte, err err
 
 // SinglePlayList
 type SinglePlayList struct {
-	Title    primitives.Title
-	Playlist primitives.HashList
+	Title    primitives.Title    `json:"title"`
+	Playlist primitives.HashList `json:"playlist"`
 }
 
 func SmartRandomSinglePlayList(max uint32, contList ContentList) *SinglePlayList {
