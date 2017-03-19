@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/testhelper"
+	"github.com/fatih/color"
 )
 
 var _ = fmt.Sprintf("")
@@ -32,6 +34,7 @@ func Control(w *WholeState) {
 	AddHelp("w", "Turn on api")
 	AddHelp("a", "Shut off api")
 	AddHelp("m[s/l] [-a <amount>]", "Add a random channel. S -> Small amount of data. L-> Large amount data. A for amount of times to add new channels.")
+	AddHelp("mchlf <url to file>", "Add a channelList from file that is a json.")
 	AddHelp("F[HASH]", "Finds value by given hash from Provider")
 	AddHelp("F[HASH]", "Finds value by given hash from Constructor")
 	AddHelp("aC", "Prints out root chain ids of all channels")
@@ -41,6 +44,7 @@ func Control(w *WholeState) {
 	var err error
 	var chanList []common.Channel
 	var amount int
+	var fileName string
 	// Start loop
 	for scanner.Scan() {
 		err = nil
@@ -52,6 +56,7 @@ func Control(w *WholeState) {
 		last = cmd
 		chanList = nil
 		amount = 1
+		fileName = ""
 
 		if strings.Contains(cmd, "ms -a ") || strings.Contains(cmd, "ml -a ") {
 			strArr := strings.Split(cmd, " -a ")
@@ -61,6 +66,12 @@ func Control(w *WholeState) {
 				fmt.Printf("Error coverting string [%s] to number. Setting amount to 1.", strArr[1])
 				amount = 1
 			}
+		}
+
+		if strings.Contains(cmd, "mchlf") {
+			strArr := strings.Split(cmd, " ")
+			cmd = strArr[0]
+			fileName = strArr[1]
 		}
 
 		switch {
@@ -162,6 +173,20 @@ func Control(w *WholeState) {
 				break
 			}
 			fmt.Printf("DB channels deleted. Note cascading effect.\n")
+		case cmd == "mchlf":
+			data, err := ioutil.ReadFile(fileName)
+			if err != nil {
+				color.Red("Error reading file %s: with error: %s", fileName, err.Error())
+			}
+			chanList := new(common.ChannelList)
+			err = json.Unmarshal(data, &chanList)
+			if err != nil {
+				color.Red("Error unmarshaling binary for chanlist: %s", err.Error())
+			}
+			err = testhelper.AddChannelsFromFileToClient(w.FactomClient, chanList, true)
+			if err != nil {
+				color.Red("Error adding channels from file %s: with error: %s", fileName, err.Error())
+			}
 		default:
 			fmt.Printf("No command found\n")
 		}
