@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -33,8 +34,8 @@ func Control(w *WholeState) {
 	AddHelp("s", "Show current Channel/Content count")
 	AddHelp("w", "Turn on api")
 	AddHelp("a", "Shut off api")
-	AddHelp("m[s/l] [-a <amount>]", "Add a random channel. S -> Small amount of data. L-> Large amount data. A for amount of times to add new channels.")
-	AddHelp("mchlf <url to file>", "Add a channelList from file that is a json.")
+	AddHelp("m[s/l] [-a <amount>]", "Add a random channel. S -> Small amount of data. L-> Large amount data. A -> amount of times to add new channels.")
+	AddHelp("mchlf [-c] <url to file>", "Add a channelList from file that is a json. C -> current working directory of golang.")
 	AddHelp("F[HASH]", "Finds value by given hash from Provider")
 	AddHelp("F[HASH]", "Finds value by given hash from Constructor")
 	AddHelp("aC", "Prints out root chain ids of all channels")
@@ -58,7 +59,7 @@ func Control(w *WholeState) {
 		amount = 1
 		fileName = ""
 
-		if strings.Contains(cmd, "ms -a ") || strings.Contains(cmd, "ml -a ") {
+		if len(cmd) > 5 && cmd[:6] == "ms -a " || len(cmd) > 5 && cmd[:6] == "ml -a " {
 			strArr := strings.Split(cmd, " -a ")
 			cmd = strArr[0]
 			amount, err = strconv.Atoi(strArr[1])
@@ -68,10 +69,15 @@ func Control(w *WholeState) {
 			}
 		}
 
-		if strings.Contains(cmd, "mchlf") {
+		if len(cmd) > 4 && cmd[:5] == "mchlf" {
 			strArr := strings.Split(cmd, " ")
 			cmd = strArr[0]
-			fileName = strArr[1]
+			if len(strArr) > 1 && strings.Contains(strArr[1], "-a") {
+				dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+				fileName = filepath.Join(dir, strArr[2])
+			} else {
+				fileName = strArr[1]
+			}
 		}
 
 		switch {
@@ -175,18 +181,23 @@ func Control(w *WholeState) {
 			fmt.Printf("DB channels deleted. Note cascading effect.\n")
 		case cmd == "mchlf":
 			data, err := ioutil.ReadFile(fileName)
+			color.Blue("About to read from file: %s", fileName)
 			if err != nil {
-				color.Red("Error reading file %s: with error: %s", fileName, err.Error())
+				color.Red("Error reading file: %s with error: %s", fileName, err.Error())
+				break
 			}
 			chanList := new(common.ChannelList)
 			err = json.Unmarshal(data, &chanList)
 			if err != nil {
 				color.Red("Error unmarshaling binary for chanlist: %s", err.Error())
+				break
 			}
 			err = testhelper.AddChannelsFromFileToClient(w.FactomClient, chanList, true)
 			if err != nil {
-				color.Red("Error adding channels from file %s: with error: %s", fileName, err.Error())
+				color.Red("Error adding channels from file: %s with error: %s", fileName, err.Error())
+				break
 			}
+			color.Blue("Finished reading from file: %s", fileName)
 		default:
 			fmt.Printf("No command found\n")
 		}
