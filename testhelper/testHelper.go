@@ -106,12 +106,12 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 	return chanList, nil
 }
 
-func AddChannelsFromFileToClient(fake lite.FactomLite, channels *[]common.Channel, small bool) error {
+func AddChannelsFromFileToClient(fake lite.FactomLite, channels *common.ChannelList, small bool) error {
 	ec := lite.GetECAddress()
 	chanList := make([]common.Channel, 0)
 	inc := new(factom.Entry)
 	inc.Content = []byte("Increment")
-	for _, ch := range *channels {
+	for _, ch := range channels.List {
 		fake.SubmitEntry(*inc, *ec)
 
 		auth, err := channelTool.NewAuthChannel(&ch, ec)
@@ -176,7 +176,7 @@ func AddChannelsFromFileToClient(fake lite.FactomLite, channels *[]common.Channe
 			hash, _ := primitives.HexToHash(h)
 			_, err := fake.GetEntry(*hash)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
 		//fake.SubmitEntry(*inc, *ec) // Increment height

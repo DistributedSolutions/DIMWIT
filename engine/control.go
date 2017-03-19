@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -33,7 +34,7 @@ func Control(w *WholeState) {
 	AddHelp("w", "Turn on api")
 	AddHelp("a", "Shut off api")
 	AddHelp("m[s/l] [-a <amount>]", "Add a random channel. S -> Small amount of data. L-> Large amount data. A for amount of times to add new channels.")
-	AddHelp("mchl", "Add a channelList from file.")
+	AddHelp("mchlf <url to file>", "Add a channelList from file that is a json.")
 	AddHelp("F[HASH]", "Finds value by given hash from Provider")
 	AddHelp("F[HASH]", "Finds value by given hash from Constructor")
 	AddHelp("aC", "Prints out root chain ids of all channels")
@@ -172,17 +173,20 @@ func Control(w *WholeState) {
 				break
 			}
 			fmt.Printf("DB channels deleted. Note cascading effect.\n")
-		// case cmd == "mchlf":
-		// 	data, err := ioutil.ReadFile(fileName)
-		// 	if err != nil {
-		// 		color.Red("Error reading file %s: with error: %s", fileName, err.Error())
-		// 	}
-		// 	chanList := new(common.ChannelList)
-		// 	chanList.
-		// 	err = testhelper.AddChannelsFromFileToClient(w.FactomClient, chanList, true)
-		// 	if err != nil {
-		// 		color.Red("Error adding channels from file %s: with error: %s", fileName, err.Error())
-		// 	}
+		case cmd == "mchlf":
+			data, err := ioutil.ReadFile(fileName)
+			if err != nil {
+				color.Red("Error reading file %s: with error: %s", fileName, err.Error())
+			}
+			chanList := new(common.ChannelList)
+			err = json.Unmarshal(data, &chanList)
+			if err != nil {
+				color.Red("Error unmarshaling binary for chanlist: %s", err.Error())
+			}
+			err = testhelper.AddChannelsFromFileToClient(w.FactomClient, chanList, true)
+			if err != nil {
+				color.Red("Error adding channels from file %s: with error: %s", fileName, err.Error())
+			}
 		default:
 			fmt.Printf("No command found\n")
 		}

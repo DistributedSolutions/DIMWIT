@@ -61,7 +61,6 @@ func (cl *ChannelList) UnmarshalBinaryData(data []byte) (newData []byte, err err
 			return
 		}
 	}()
-
 	newData = data
 	u, err := primitives.BytesToUint32(newData[:4])
 	if err != nil {
