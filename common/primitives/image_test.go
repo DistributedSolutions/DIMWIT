@@ -122,7 +122,7 @@ func TestBadUnmarshalImage(t *testing.T) {
 		t.Error("Should panic or error out")
 	}
 
-	badJson = `{"imgtype":2,"length":6,"image":"T12074657374"}`
+	badJson = `{"imgtype":2,"length":6,"image":"T120\=-_+?><!@#$%^&*(74657374./c,28900342 ~"}`
 	err = n.UnmarshalJSON([]byte(badJson))
 	if err == nil {
 		t.Error("Should panic or error out")
