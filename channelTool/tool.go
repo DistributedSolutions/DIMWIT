@@ -21,6 +21,45 @@ func NewCreationTool() *CreationTool {
 	return ct
 }
 
+func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.Entry, []*factom.Chain, *factom.ECAddress, error) {
+	a, ok := ct.Channels[root.String()]
+	if !ok || a == nil {
+		return nil, nil, nil, fmt.Errorf("channel not found")
+	}
+
+	if a.RootChain == nil {
+		err := a.MakeChannel()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	if a.ManageChain == nil {
+		err := a.MakeManagerChain()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	if a.ContentChain == nil {
+		err := a.MakeContentChain()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
+	chains, err := a.ReturnFactomChains()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	ents, err := a.ReturnFactomEntries()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return ents, chains, a.EntryCreditKey, nil
+}
+
 func (ct *CreationTool) AddNewChannel(ch *common.Channel,
 	filePath string,
 	ec *factom.ECAddress) (*primitives.Hash, error) {

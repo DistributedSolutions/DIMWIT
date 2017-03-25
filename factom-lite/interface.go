@@ -24,5 +24,5 @@ type FactomLiteReader interface {
 type FactomLiteWriter interface {
 	// Does the commit + reveal
 	SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId string, eHash string, err error)
-	SubmitChain(e factom.Chain, ec factom.ECAddress) (comId string, chainID string, err error)
+	SubmitChain(c factom.Chain, ec factom.ECAddress) (comId string, chainID string, err error)
 }

@@ -19,7 +19,7 @@ import (
 type Provider struct {
 	Level2Cache  database.IDatabase
 	CreationTool *channelTool.CreationTool
-	FactomWriter *lite.FactomLiteWriter
+	FactomWriter lite.FactomLiteWriter
 
 	// API
 	Router    *http.ServeMux
@@ -158,4 +158,29 @@ func (p *Provider) GetCompleteHeight() (uint32, error) {
 
 func (p *Provider) CreateChannel(ch *common.Channel, dirPath string) (*primitives.Hash, error) {
 	return p.CreationTool.AddNewChannel(ch, dirPath, nil)
+}
+
+func (p *Provider) SubmitChannel(root primitives.Hash) error {
+	ents, chains, ec, err := p.CreationTool.ReturnFactomElements(root)
+	if err != nil {
+		return err
+	}
+
+	for _, c := range chains {
+		com, chainID, err := p.FactomWriter.SubmitChain(*c, *ec)
+		var _, _, _ = com, chainID, err
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, e := range ents {
+		com, ehash, err := p.FactomWriter.SubmitEntry(*e, *ec)
+		var _, _, _ = com, ehash, err
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
