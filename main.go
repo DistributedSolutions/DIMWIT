@@ -7,6 +7,7 @@ import (
 
 func main() {
 	log.SetLevel(log.DebugLevel)
-	log.Debug(("Debugging on"))
+	log.Debug("Debugging on")
+
 	engine.GrabFlagsAndRun()
 }

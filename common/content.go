@@ -38,10 +38,6 @@ func (cl *ContentList) GetContents() []Content {
 	return cl.ContentList
 }
 
-func (cl *ContentList) AddContent(c Content) {
-	cl.ContentList = append(cl.ContentList, c)
-}
-
 func NewContent() *Content {
 	c := new(Content)
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CONTENT_TAGS))

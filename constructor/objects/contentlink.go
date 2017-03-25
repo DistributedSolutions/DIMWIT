@@ -293,7 +293,7 @@ func (m *ContentLinkApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	}
 
 	m.Content.RootChainID = m.RootChainID
-	m.Channel.Channel.Content.AddContent(m.Content)
+	m.Channel.Channel.Content.ContentList = append(m.Channel.Channel.Content.ContentList, m.Content)
 
 	return m.Channel, true
 }

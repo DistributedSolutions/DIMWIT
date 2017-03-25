@@ -31,7 +31,7 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 		} else {
 			ch = common.RandomNewChannel()
 		}
-		auth, err := channelTool.NewAuthChannel(ch, ec)
+		auth, err := channelTool.MakeNewAuthChannel(ch, ec)
 		if err != nil {
 			return nil, err
 		}
@@ -114,7 +114,7 @@ func AddChannelsFromFileToClient(fake lite.FactomLite, channels *common.ChannelL
 	for _, ch := range channels.List {
 		fake.SubmitEntry(*inc, *ec)
 
-		auth, err := channelTool.NewAuthChannel(&ch, ec)
+		auth, err := channelTool.MakeNewAuthChannel(&ch, ec)
 		if err != nil {
 			return err
 		}

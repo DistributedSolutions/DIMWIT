@@ -41,7 +41,7 @@ func TestConstructor(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		ch := common.RandomNewChannel()
-		auth, err := channelTool.NewAuthChannel(ch, ec)
+		auth, err := channelTool.MakeNewAuthChannel(ch, ec)
 		if err != nil {
 			t.Error(err)
 		}

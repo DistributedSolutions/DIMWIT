@@ -21,6 +21,8 @@ type AuthChannel struct {
 
 	EntryCreditKey *factom.ECAddress
 
+	TorrentUploadPath primitives.FilePath
+
 	// Not marshaled, timestamps in these.
 	// Have all factom entries
 	RootChain    *creation.RootChain
@@ -29,14 +31,17 @@ type AuthChannel struct {
 	Contents     []*creation.ContentChain
 }
 
-// Makes the authority channel and builds all factom components
 func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, error) {
-	if ch.Status() < constants.CHANNEL_READY {
-		return nil, fmt.Errorf("Channel given is not ready, it is missing elements")
-	}
-
 	if !factom.IsValidAddress(ec.String()) {
 		return nil, fmt.Errorf("Entry credit address is invalid")
+	}
+	var err error
+
+	if ec == nil {
+		ec, err = factom.GenerateECAddress()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	a := new(AuthChannel)
@@ -66,6 +71,24 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 	a.ContentSigning = *pk
 	a.Channel.ContentSingingKey = pk.Public
 	a.EntryCreditKey = ec
+
+	return a, nil
+}
+
+// MakeNewAuthChannel makes the authority channel and builds all factom components
+func MakeNewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, error) {
+	if ch.Status() < constants.CHANNEL_READY {
+		return nil, fmt.Errorf("Channel given is not ready, it is missing elements")
+	}
+
+	if !factom.IsValidAddress(ec.String()) {
+		return nil, fmt.Errorf("Entry credit address is invalid")
+	}
+
+	a, err := NewAuthChannel(ch, ec)
+	if err != nil {
+		return nil, err
+	}
 
 	err = a.MakeChannel()
 	if err != nil {
@@ -112,6 +135,8 @@ func RandomAuthChannel() (*AuthChannel, error) {
 
 	c.EntryCreditKey = factom.NewECAddress()
 
+	c.TorrentUploadPath = *primitives.RandomFilePath()
+
 	return c, nil
 }
 
@@ -131,6 +156,10 @@ func (a *AuthChannel) IsSameAs(b *AuthChannel) bool {
 	}
 
 	if !a.ContentSigning.IsSameAs(&b.ContentSigning) {
+		return false
+	}
+
+	if !a.TorrentUploadPath.IsSameAs(&b.TorrentUploadPath) {
 		return false
 	}
 
@@ -178,6 +207,11 @@ func (a *AuthChannel) UnmarshalBinaryData(data []byte) (newData []byte, err erro
 		return data, err
 	}
 
+	newData, err = a.TorrentUploadPath.UnmarshalBinaryData(newData)
+	if err != nil {
+		return data, err
+	}
+
 	return
 }
 
@@ -205,6 +239,12 @@ func (a *AuthChannel) MarshalBinary() ([]byte, error) {
 	buf.Write(data)
 
 	data = a.EntryCreditKey.SecBytes()[:32]
+	buf.Write(data)
+
+	data, err = a.TorrentUploadPath.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
 	buf.Write(data)
 
 	return buf.Next(buf.Len()), nil

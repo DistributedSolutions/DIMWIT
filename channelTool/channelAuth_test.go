@@ -42,7 +42,7 @@ func TestCompleteAuthChannel(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		c := common.RandomNewChannel()
 		ec := factom.NewECAddress()
-		a, err := NewAuthChannel(c, ec)
+		a, err := MakeNewAuthChannel(c, ec)
 		if err != nil {
 			t.Error(err)
 		}

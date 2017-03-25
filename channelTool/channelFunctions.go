@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
+	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/FactomProject/factom"
 )
@@ -152,8 +153,29 @@ func (a *AuthChannel) MakeContents() error {
 			return err
 		}
 		a.Channel.Content.ContentList[i].ContentID = *chainID
-
 	}
 
 	return nil
+}
+
+func (a *AuthChannel) AddContent(c *common.Content) (*creation.ContentChain, error) {
+	cc := new(creation.ContentChain)
+	cont := creation.CommonContentToContentChainContent(c)
+	err := cc.CreateContentChain(c.Type, *cont, a.Channel.RootChainID, a.ContentSigning)
+	if err != nil {
+		return nil, err
+	}
+
+	cc.RegisterNewContentChain(a.Channel.RootChainID, a.Channel.ContentChainID, c.Type, a.ContentSigning)
+	a.Contents = append(a.Contents, cc)
+
+	c.RootChainID = a.Channel.RootChainID
+	chainID, err := primitives.HexToHash(cc.FirstEntry.FirstEntry.ChainID)
+	if err != nil {
+		return nil, err
+	}
+
+	c.ContentID = *chainID
+	a.Channel.Content.ContentList = append(a.Channel.Content.ContentList, *c)
+	return cc, nil
 }

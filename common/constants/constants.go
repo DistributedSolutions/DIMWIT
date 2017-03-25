@@ -17,6 +17,7 @@ const (
 	SHORT_DESCRIPTION_MAX_LENGTH int = 20
 	FILE_NAME_MAX_LENGTH         int = 50
 	TRACKER_URL_MAX_LENGTH       int = 100
+	FILE_PATH_MAX_LENGTH         int = 400
 	TITLE_MAX_LENGTH             int = 100
 	URL_MAX_LENGTH               int = 20
 	TAG_MAX_LENGTH               int = 100
