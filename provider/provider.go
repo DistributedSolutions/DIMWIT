@@ -164,7 +164,42 @@ func (p *Provider) CreateChannel(ch *common.Channel, dirPath string) (*primitive
 }
 
 func (p *Provider) SubmitChannel(root primitives.Hash) error {
-	ents, chains, ec, err := p.CreationTool.ReturnFactomElements(root)
+	ents, chains, err := p.CreationTool.ReturnFactomElements(root)
+	if err != nil {
+		return err
+	}
+
+	ec, err := p.CreationTool.GetECAddress(root)
+	if err != nil {
+		return err
+	}
+
+	for _, c := range chains {
+		com, chainID, err := p.FactomWriter.SubmitChain(*c, *ec)
+		var _, _, _ = com, chainID, err
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, e := range ents {
+		com, ehash, err := p.FactomWriter.SubmitEntry(*e, *ec)
+		var _, _, _ = com, ehash, err
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (p *Provider) AddContent(root primitives.Hash, con *common.Content) error {
+	ents, chains, err := p.CreationTool.AddContent(root, con)
+	if err != nil {
+		return err
+	}
+
+	ec, err := p.CreationTool.GetECAddress(root)
 	if err != nil {
 		return err
 	}

@@ -21,43 +21,52 @@ func NewCreationTool() *CreationTool {
 	return ct
 }
 
-func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.Entry, []*factom.Chain, *factom.ECAddress, error) {
+func (ct *CreationTool) GetECAddress(root primitives.Hash) (*factom.ECAddress, error) {
 	a, ok := ct.Channels[root.String()]
 	if !ok || a == nil {
-		return nil, nil, nil, fmt.Errorf("channel not found")
+		return nil, fmt.Errorf("channel not found")
+	}
+
+	return a.EntryCreditKey, nil
+}
+
+func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.Entry, []*factom.Chain, error) {
+	a, ok := ct.Channels[root.String()]
+	if !ok || a == nil {
+		return nil, nil, fmt.Errorf("channel not found")
 	}
 
 	if a.RootChain == nil {
 		err := a.MakeChannel()
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, err
 		}
 	}
 
 	if a.ManageChain == nil {
 		err := a.MakeManagerChain()
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, err
 		}
 	}
 
 	if a.ContentChain == nil {
 		err := a.MakeContentChain()
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, err
 		}
 	}
 
 	chains, err := a.ReturnFactomChains()
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	ents, err := a.ReturnFactomEntries()
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-	return ents, chains, a.EntryCreditKey, nil
+	return ents, chains, nil
 }
 
 func (ct *CreationTool) AddNewChannel(ch *common.Channel,
@@ -147,8 +156,8 @@ func (ct *CreationTool) CreateAllFactomEntries(root primitives.Hash) error {
 }
 
 func (ct *CreationTool) AddContent(root primitives.Hash,
-	con *common.Content) (chains []*factom.Chain,
-	ents []*factom.Entry,
+	con *common.Content) (ents []*factom.Entry,
+	chains []*factom.Chain,
 	err error) {
 
 	a, ok := ct.Channels[root.String()]
@@ -161,5 +170,5 @@ func (ct *CreationTool) AddContent(root primitives.Hash,
 		return nil, nil, err
 	}
 
-	return cc.ReturnChains(), cc.ReturnEntries(), nil
+	return cc.ReturnEntries(), cc.ReturnChains(), nil
 }
