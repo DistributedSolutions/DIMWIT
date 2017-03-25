@@ -68,7 +68,7 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	CloseCalls = append(CloseCalls, con.InterruptClose)
 
 	// Provider -> Serves API
-	prov, err := provider.NewProvider(lvl2Cache)
+	prov, err := provider.NewProvider(lvl2Cache, factomClient)
 	if err != nil {
 		return err
 	}

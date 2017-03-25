@@ -39,7 +39,7 @@ func TestProvider(t *testing.T) {
 		// fmt.Println(con.CompletedHeight, max)
 	}
 
-	prov, err := NewProvider(db)
+	prov, err := NewProvider(db, fake)
 	if err != nil {
 		t.Error(err)
 	}

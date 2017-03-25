@@ -28,9 +28,12 @@ type Provider struct {
 	apicloser io.Closer
 }
 
-func NewProvider(db database.IDatabase) (*Provider, error) {
+func NewProvider(db database.IDatabase, writer lite.FactomLiteWriter) (*Provider, error) {
 	p := new(Provider)
+	p.CreationTool = channelTool.NewCreationTool()
 	p.Level2Cache = db
+	p.FactomWriter = writer
+
 	randData := make([]byte, 30)
 	rand.Read(randData)
 	hash := sha256.Sum256(randData[:])

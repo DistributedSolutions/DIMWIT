@@ -40,7 +40,7 @@ func TestRunner(t *testing.T) {
 	}
 	defer con.Close()
 
-	prov, err := provider.NewProvider(cache)
+	prov, err := provider.NewProvider(cache, fake)
 	if err != nil {
 		t.Error(err)
 	}
