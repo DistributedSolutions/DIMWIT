@@ -7,15 +7,19 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/DistributedSolutions/DIMWIT/channelTool"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
+	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 )
 
 type Provider struct {
-	Level2Cache database.IDatabase
+	Level2Cache  database.IDatabase
+	CreationTool *channelTool.CreationTool
+	FactomWriter *lite.FactomLiteWriter
 
 	// API
 	Router    *http.ServeMux
@@ -150,4 +154,8 @@ func (p *Provider) GetCompleteHeight() (uint32, error) {
 		return 0, err
 	}
 	return u, nil
+}
+
+func (p *Provider) CreateChannel(ch *common.Channel, dirPath string) (*primitives.Hash, error) {
+	return p.CreationTool.AddNewChannel(ch, dirPath, nil)
 }

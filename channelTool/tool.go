@@ -22,23 +22,22 @@ func NewCreationTool() *CreationTool {
 }
 
 func (ct *CreationTool) AddNewChannel(ch *common.Channel,
-	contentSigKey primitives.PrivateKey,
 	filePath string,
-	ec *factom.ECAddress) error {
+	ec *factom.ECAddress) (*primitives.Hash, error) {
 	if _, ok := ct.Channels[ch.RootChainID.String()]; ok {
-		return fmt.Errorf("Channel already exists in the CreationTool")
+		return nil, fmt.Errorf("Channel already exists in the CreationTool")
 	}
 
-	a, err := NewAuthChannel(ch, ec)
+	a, err := MakeNewAuthChannel(ch, ec)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	a.TorrentUploadPath.SetString(filePath)
 
 	ct.Channels[a.Channel.RootChainID.String()] = a
 
-	return nil
+	return &a.Channel.RootChainID, nil
 }
 
 // AddPrivateKey adds a private key to authority channel

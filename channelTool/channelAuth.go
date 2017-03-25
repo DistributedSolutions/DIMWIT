@@ -72,6 +72,11 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 	a.Channel.ContentSingingKey = pk.Public
 	a.EntryCreditKey = ec
 
+	err = a.MakeChannel()
+	if err != nil {
+		return nil, err
+	}
+
 	return a, nil
 }
 
