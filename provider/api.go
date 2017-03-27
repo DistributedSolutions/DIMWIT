@@ -86,7 +86,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		channels, err := apiService.GetChannels(*hashList)
 		if err != nil {
 			extra = "Channels not found"
-			errorID = 1
+			errorID = 2
 			goto CustomError
 		}
 
@@ -106,7 +106,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		content, err := apiService.GetContent(*hash)
 		if err != nil {
 			extra = "Content not found"
-			errorID = 1
+			errorID = 3
 			goto CustomError
 		}
 
@@ -127,7 +127,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		contents, err := apiService.GetContents(*hashList)
 		if err != nil {
 			extra = "Contents not found"
-			errorID = 1
+			errorID = 4
 			goto CustomError
 		}
 
@@ -141,7 +141,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		stats, err := apiService.GetStats()
 		if err != nil {
 			extra = err.Error()
-			errorID = 1
+			errorID = 5
 			goto CustomError
 		}
 
@@ -162,14 +162,14 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		hash, err := apiService.Provider.CreateChannel(&addChannel.Channel, s)
 		if err != nil {
 			extra = fmt.Sprintf("Error creating new channel with error: %s", err)
-			errorID = 1
+			errorID = 6
 			goto CustomError
 		}
 		color.Blue("Adding new Channel with hash: %s", hash.String())
 		err = apiService.Provider.SubmitChannel(*hash)
 		if err != nil {
 			extra = fmt.Sprintf("Error submiting new channel with error: %s", err)
-			errorID = 1
+			errorID = 7
 			goto CustomError
 		}
 		color.Blue("Finished adding in new Channel")
