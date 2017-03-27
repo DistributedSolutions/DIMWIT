@@ -38,10 +38,7 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 	var err error
 
 	if ec == nil {
-		ec, err = factom.GenerateECAddress()
-		if err != nil {
-			return nil, err
-		}
+		return nil, fmt.Errorf("ECAddress is nil")
 	}
 
 	a := new(AuthChannel)

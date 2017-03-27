@@ -13,6 +13,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 	"github.com/DistributedSolutions/DIMWIT/provider"
+	"github.com/DistributedSolutions/DIMWIT/torrent"
 	"github.com/DistributedSolutions/DIMWIT/util"
 )
 
@@ -73,6 +74,13 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 		return err
 	}
 	CloseCalls = append(CloseCalls, prov.Close)
+
+	// Torrent Client
+	torClient, err := torrent.NewTorrentClient()
+	if err != nil {
+		return err
+	}
+	CloseCalls = append(CloseCalls, torClient.Close)
 
 	// Start Go Routines
 	go con.StartConstructor()

@@ -29,8 +29,13 @@ type Provider struct {
 }
 
 func NewProvider(db database.IDatabase, writer lite.FactomLiteWriter) (*Provider, error) {
+	var err error
+
 	p := new(Provider)
-	p.CreationTool = channelTool.NewCreationTool()
+	p.CreationTool, err = channelTool.NewCreationTool()
+	if err != nil {
+		return nil, err
+	}
 	p.Level2Cache = db
 	p.FactomWriter = writer
 
@@ -160,7 +165,7 @@ func (p *Provider) GetCompleteHeight() (uint32, error) {
 }
 
 func (p *Provider) CreateChannel(ch *common.Channel, dirPath string) (*primitives.Hash, error) {
-	return p.CreationTool.AddNewChannel(ch, dirPath, nil)
+	return p.CreationTool.AddNewChannel(ch, dirPath)
 }
 
 func (p *Provider) SubmitChannel(root primitives.Hash) error {

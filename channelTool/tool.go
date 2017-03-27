@@ -8,17 +8,26 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/FactomProject/factom"
+	"github.com/FactomProject/factom/wallet"
 )
 
 type CreationTool struct {
 	Channels map[string]*AuthChannel
+	Wallet   *wallet.Wallet
 }
 
-func NewCreationTool() *CreationTool {
+func NewCreationTool() (*CreationTool, error) {
 	ct := new(CreationTool)
-	ct.Channels = make(map[string]*AuthChannel)
+	var err error
 
-	return ct
+	ct.Channels = make(map[string]*AuthChannel)
+	// TOOD: Make a saved wallet, right now live in a map
+	ct.Wallet, err = wallet.NewMapDBWallet()
+	if err != nil {
+		return nil, err
+	}
+
+	return ct, nil
 }
 
 func (ct *CreationTool) GetECAddress(root primitives.Hash) (*factom.ECAddress, error) {
@@ -69,20 +78,18 @@ func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.En
 	return ents, chains, nil
 }
 
-func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePath string, ec *factom.ECAddress) (*primitives.Hash, error) {
+func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePath string) (*primitives.Hash, error) {
 	if _, ok := ct.Channels[ch.RootChainID.String()]; ok {
 		return nil, fmt.Errorf("Channel already exists in the CreationTool")
 	}
 
-	if ec == nil {
-		tempEc, err := factom.GenerateECAddress()
-		if err != nil {
-			return nil, err
-		}
-		ec = tempEc
+	// TODO: Refactor to have master EC address
+	tempEc, err := ct.Wallet.GenerateECAddress()
+	if err != nil {
+		return nil, err
 	}
 
-	a, err := MakeNewAuthChannel(ch, ec)
+	a, err := MakeNewAuthChannel(ch, tempEc)
 	if err != nil {
 		return nil, err
 	}
