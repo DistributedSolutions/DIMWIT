@@ -106,6 +106,7 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	w.Constructor = con
 	w.FactomClient = factomClient
 	w.Provider = prov
+	w.TorrentClient = torClient
 
 	// Run the Control
 	Control(w)

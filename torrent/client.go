@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
 )
@@ -16,10 +18,15 @@ type TorrentClient struct {
 }
 
 func NewTorrentClientFromConfig(con *TopLevelConfig) (*TorrentClient, error) {
-	var err error
-	c := new(TorrentClient)
-	c.client, err = torrent.NewClient(con.AConfig)
+	os.MkdirAll(con.AConfig.DataDir, constants.DIRECTORY_PERMISSIONS)
 
+	c := new(TorrentClient)
+	cli, err := torrent.NewClient(con.AConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	c.client = cli
 	return c, err
 }
 
@@ -31,8 +38,23 @@ func (c *TorrentClient) Close() {
 	c.client.Close()
 }
 
-func (c *TorrentClient) AddMagnet(uri string) (*torrent.Torrent, error) {
-	return c.client.AddMagnet(uri)
+func (c *TorrentClient) AddMagnet(uri string, download bool) (*torrent.Torrent, error) {
+	t, err := c.client.AddMagnet(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	downloadTorrent(t, download)
+	return t, nil
+}
+
+func downloadTorrent(t *torrent.Torrent, full bool) {
+	go func(ti *torrent.Torrent, all bool) {
+		<-ti.GotInfo()
+		if all {
+			t.DownloadAll()
+		}
+	}(t, full)
 }
 
 func (c *TorrentClient) GetTorrent(infohash metainfo.Hash) (torrent *torrent.Torrent, ok bool) {
@@ -116,4 +138,15 @@ func (c *TorrentClient) ClientStatus() string {
 	buf := new(bytes.Buffer)
 	c.client.WriteStatus(buf)
 	return string(buf.Next(buf.Len()))
+}
+
+func (c *TorrentClient) ShortStatus() string {
+	tors := c.client.Torrents()
+	resp := fmt.Sprintf("--- Client ---\nTotal Torrents: %d\n", len(tors))
+	for i, t := range tors {
+		resp += fmt.Sprintf(" --- Torrent %d\nInfoHash: %s\nHaveInfo: %t\nProgress: %.2f%s\n",
+			i, t.InfoHash().HexString(), t.Info() != nil, c.percentage(t.InfoHash()), "%")
+	}
+
+	return resp
 }

@@ -40,8 +40,8 @@ func Control(w *WholeState) {
 	AddHelp("F[HASH]", "Finds value by given hash from Constructor")
 	AddHelp("aC", "Prints out root chain ids of all channels")
 	AddHelp("wdb", "Wipes db channels clean cascades to almost all other tables. Keeps tags.")
-	AddHelp("mag [MAG_LINK]", "Torrents a magnet link")
-	AddHelp("ts", "Shows torrent status")
+	AddHelp("[MAG_LINK]", "Torrents a magnet link")
+	AddHelp("ts[l]", "Shows torrent status, 'l' for long")
 
 	var last string
 	var err error
@@ -201,13 +201,15 @@ func Control(w *WholeState) {
 			}
 			color.Blue("Finished reading from file: %s", fileName)
 		case cmd == "ts":
+			fmt.Printf("%s", w.TorrentClient.ShortStatus())
+		case cmd == "tsl":
 			fmt.Printf("%s", w.TorrentClient.ClientStatus())
-		case cmd[:3] == "mag" && len(cmd) > 10:
+		case len(cmd) > 10 && cmd[:6] == "magnet":
 			// Download a torrent magnet link
-			link := cmd[3:]
-			t, err := w.TorrentClient.AddMagnet(link)
+			link := cmd
+			t, err := w.TorrentClient.AddMagnet(link, true)
 			if err != nil {
-				fmt.Printf("Error: %s", err.Error())
+				fmt.Printf("Error: %s\n", err.Error())
 			} else {
 				fmt.Println("Torrent started")
 			}

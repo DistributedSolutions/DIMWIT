@@ -35,7 +35,16 @@ func NewFakeDumbLite() FactomLite {
 	d.db = database.NewMapDB()
 	d.chainlists = make(map[string][]factom.Entry)
 	d.heightlist = make([][]factom.Entry, 50000)
+
+	go d.run()
 	return d
+}
+
+func (f *FakeDumbLite) run() {
+	for {
+		time.Sleep(5 * time.Second)
+		f.height++
+	}
 }
 
 //
