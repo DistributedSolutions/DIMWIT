@@ -36,7 +36,7 @@ func NewFakeDumbLite() FactomLite {
 	d.chainlists = make(map[string][]factom.Entry)
 	d.heightlist = make([][]factom.Entry, 50000)
 
-	go d.run()
+	//go d.run()
 	return d
 }
 

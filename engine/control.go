@@ -42,6 +42,7 @@ func Control(w *WholeState) {
 	AddHelp("wdb", "Wipes db channels clean cascades to almost all other tables. Keeps tags.")
 	AddHelp("[MAG_LINK]", "Torrents a magnet link")
 	AddHelp("ts[l]", "Shows torrent status, 'l' for long")
+	AddHelp("i", "Increment fake factom height")
 
 	var last string
 	var err error
@@ -90,6 +91,12 @@ func Control(w *WholeState) {
 		case cmd == "help":
 			fmt.Println(HelpText[:len(HelpText)-1])
 			fmt.Println("----------------------------------------------------------------------------------------------------")
+		case cmd == "i":
+			h, err := testhelper.IncrementFakeHeight(w.FactomClient)
+			if err != nil {
+				fmt.Println("Error:", err.Error())
+			}
+			fmt.Printf("Incrementing. At height %d", h)
 		case cmd == "c":
 			fmt.Printf("Constructor Completed Height: %d\n", w.Constructor.CompletedHeight)
 		case cmd == "a":

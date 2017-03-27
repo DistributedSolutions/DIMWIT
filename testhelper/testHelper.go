@@ -189,6 +189,15 @@ func AddChannelsFromFileToClient(fake lite.FactomLite, channels *common.ChannelL
 	return nil
 }
 
+func IncrementFakeHeight(fake lite.FactomLite) (uint32, error) {
+	inc := new(factom.Entry)
+	inc.Content = []byte("Increment")
+	ec := lite.GetECAddress()
+	fake.SubmitEntry(*inc, *ec)
+	return fake.GetReadyHeight()
+
+}
+
 func PopulateFakeClient(small bool, amt int) (lite.FactomLite, []common.Channel, error) {
 	fake := lite.NewFakeDumbLite()
 	m := creation.NewMasterChain()
