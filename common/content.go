@@ -8,6 +8,8 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
+
+	"github.com/anacrolix/torrent/metainfo"
 )
 
 type Content struct {
@@ -81,6 +83,28 @@ func SmartRandomNewContent(root primitives.Hash, content primitives.Hash) *Conte
 	c.CreationTime = time.Now()
 
 	return c
+}
+
+func (c *Content) BuildMagnet() (*metainfo.Magnet, error) {
+	if c.InfoHash.Empty() {
+		return nil, fmt.Errorf("infohash is not set")
+	}
+
+	if c.Trackers.Empty() {
+		return nil, fmt.Errorf("missing trackers")
+	}
+
+	m := new(metainfo.Magnet)
+	m.DisplayName = c.ContentID.String()
+	m.InfoHash = metainfo.HashBytes(c.InfoHash.Bytes())
+
+	var trackerList []string
+	for _, tra := range c.Trackers.Trackers {
+		trackerList = append(trackerList, tra.String())
+	}
+	m.Trackers = trackerList
+
+	return m, nil
 }
 
 func (a *Content) IsSameAs(b *Content) bool {
