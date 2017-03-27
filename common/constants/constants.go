@@ -48,9 +48,10 @@ const (
 
 // Hidden File Directory
 const (
-	HIDDEN_DIR = ".DistroSols/"
-	SQL_DB     = "sql.db"
-	LVL2_CACHE = "level_two.cache"
+	HIDDEN_DIR  = ".DistroSols/"
+	SQL_DB      = "sql.db"
+	LVL2_CACHE  = "level_two.cache"
+	TORRENT_DIR = "torrent/"
 )
 
 const (

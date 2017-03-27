@@ -28,7 +28,10 @@ func GrabFlagsAndRun() {
 	)
 	flag.Parse()
 
-	StartEngine(*fct, *cdbt)
+	err := StartEngine(*fct, *cdbt)
+	if err != nil {
+		log.Printf("Error: Failed to start: %s", err.Error())
+	}
 }
 
 // StartEngine is the main start, that launches the appropriate go routines and handles closing.
