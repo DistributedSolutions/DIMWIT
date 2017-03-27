@@ -13,7 +13,7 @@ import (
 var _ = log.Prefix()
 
 type ManyPlayList struct {
-	Playlists []SinglePlayList
+	Playlists []SinglePlayList `json:"playlists"`
 }
 
 func (pl *ManyPlayList) GetPlaylists() []SinglePlayList {

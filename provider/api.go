@@ -13,6 +13,11 @@ import (
 	"github.com/fatih/color"
 )
 
+type AddChannel struct {
+	Channel common.Channel `json:"channel"`
+	Path string `json:"path"`
+}
+
 type ApiService struct {
 	Provider *Provider
 }
@@ -146,11 +151,30 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			goto InternalError
 		}
 		goto Success
+	case "add-channel":
+		addChannel := new(AddChannel)
+		err = json.Unmarshal(req.Params, addChannel)
+		if err != nil {
+			extra = "Invalid request object, " + err.Error()
+			goto InvalidRequest // Bad request data
+		}
+		s := string(addChannel.Path)
+		hash, err := apiService.Provider.CreateChannel(&addChannel.Channel, s)
+		if err != nil {
+			color.Red("ERROR")
+			extra = fmt.Sprintf("Error adding channel with error: %s\n", err)
+			errorID = 1
+			goto CustomError
+		}
+
+		data = []byte(hash.String())
+		color.Blue("Finished adding in channel")
+		goto Success
 	default:
 		extra = req.Method
 		goto MethodNotFound
 	}
-
+	
 	return
 
 	// Easier to handle general here

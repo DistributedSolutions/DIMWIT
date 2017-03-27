@@ -69,11 +69,17 @@ func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.En
 	return ents, chains, nil
 }
 
-func (ct *CreationTool) AddNewChannel(ch *common.Channel,
-	filePath string,
-	ec *factom.ECAddress) (*primitives.Hash, error) {
+func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePath string, ec *factom.ECAddress) (*primitives.Hash, error) {
 	if _, ok := ct.Channels[ch.RootChainID.String()]; ok {
 		return nil, fmt.Errorf("Channel already exists in the CreationTool")
+	}
+
+	if ec == nil {
+		tempEc, err := factom.GenerateECAddress()
+		if err != nil {
+			return nil, err
+		}
+		ec = tempEc
 	}
 
 	a, err := MakeNewAuthChannel(ch, ec)
