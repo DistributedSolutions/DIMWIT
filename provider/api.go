@@ -15,7 +15,7 @@ import (
 
 type AddChannel struct {
 	Channel common.Channel `json:"channel"`
-	Path string `json:"path"`
+	Path    string         `json:"path"`
 }
 
 type ApiService struct {
@@ -161,20 +161,24 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		s := string(addChannel.Path)
 		hash, err := apiService.Provider.CreateChannel(&addChannel.Channel, s)
 		if err != nil {
-			color.Red("ERROR")
-			extra = fmt.Sprintf("Error adding channel with error: %s\n", err)
+			extra = fmt.Sprintf("Error creating new channel with error: %s", err)
 			errorID = 1
 			goto CustomError
 		}
-
-		data = []byte(hash.String())
-		color.Blue("Finished adding in channel")
+		color.Blue("Adding new Channel with hash: %s", hash.String())
+		err = apiService.Provider.SubmitChannel(*hash)
+		if err != nil {
+			extra = fmt.Sprintf("Error submiting new channel with error: %s", err)
+			errorID = 1
+			goto CustomError
+		}
+		color.Blue("Finished adding in new Channel")
 		goto Success
 	default:
 		extra = req.Method
 		goto MethodNotFound
 	}
-	
+
 	return
 
 	// Easier to handle general here

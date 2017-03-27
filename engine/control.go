@@ -96,7 +96,7 @@ func Control(w *WholeState) {
 			if err != nil {
 				fmt.Println("Error:", err.Error())
 			}
-			fmt.Printf("Incrementing. At height %d", h)
+			fmt.Printf("Incrementing. At height %d\n", h)
 		case cmd == "c":
 			fmt.Printf("Constructor Completed Height: %d\n", w.Constructor.CompletedHeight)
 		case cmd == "a":
