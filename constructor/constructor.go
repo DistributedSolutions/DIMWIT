@@ -179,7 +179,7 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 		return err
 	}
 
-	log.Debugf("Finished applying height: %d", height)
+	log.Debugf("Finished applying height: %d, channels added: %d", height, len(chanList))
 
 	// Update State
 	c.CompletedHeight = height

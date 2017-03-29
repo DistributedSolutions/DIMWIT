@@ -161,6 +161,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		s := string(addChannel.Path)
 		hash, err := apiService.Provider.CreateChannel(&addChannel.Channel, s)
 		if err != nil {
+			color.Red("Error creating channel: %s", err.Error())
 			extra = fmt.Sprintf("Error creating new channel with error: %s", err)
 			errorID = 6
 			goto CustomError
@@ -168,6 +169,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		color.Blue("Adding new Channel with hash: %s", hash.String())
 		err = apiService.Provider.SubmitChannel(*hash)
 		if err != nil {
+			color.Red("Error submitting channel: %s", err.Error())
 			extra = fmt.Sprintf("Error submiting new channel with error: %s", err)
 			errorID = 7
 			goto CustomError
