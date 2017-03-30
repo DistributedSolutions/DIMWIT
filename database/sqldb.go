@@ -56,13 +56,13 @@ var CREATE_TABLE = []string{
 		constants.SQL_TABLE_CONTENT__SERIES_NAME + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_CONTENT__PART_NAME + " INTEGER NOT NULL, " +
 		constants.SQL_TABLE_CONTENT__CH_ID + " INTEGER NOT NULL, " +
+		constants.SQL_TABLE_CONTENT__DT + " datetime, " +
 		"FOREIGN KEY (" + constants.SQL_TABLE_CONTENT__CH_ID + ") REFERENCES " + constants.SQL_CHANNEL +
 		"(" + constants.SQL_TABLE_CHANNEL__HASH + ") ON DELETE CASCADE ON UPDATE CASCADE)",
 
 	constants.SQL_CONTENT_TAG + "(" +
 		constants.SQL_TABLE_CONTENT_TAG__ID + " INTEGER PRIMARY KEY, " +
-		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE," +
-		constants.SQL_TABLE_CONTENT_TAG__DT + " datetime)",
+		constants.SQL_TABLE_CONTENT_TAG__NAME + " name VARCHAR(" + fmt.Sprintf("%d", constants.TAG_MAX_LENGTH) + ") NOT NULL UNIQUE)",
 
 	constants.SQL_CONTENT_TAG_REL + "(" +
 		constants.SQL_TABLE_CONTENT_TAG_REL__C_ID + " INTEGER NOT NULL, " +

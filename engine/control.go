@@ -13,6 +13,7 @@ import (
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/testhelper"
 	"github.com/fatih/color"
 )
@@ -43,6 +44,7 @@ func Control(w *WholeState) {
 	AddHelp("[MAG_LINK]", "Torrents a magnet link")
 	AddHelp("ts[l]", "Shows torrent status, 'l' for long")
 	AddHelp("i", "Increment fake factom height")
+	AddHelp("hard-reset-interfaceDB", "Hard reset the db... be sure you want to do this.")
 
 	var last string
 	var err error
@@ -207,6 +209,10 @@ func Control(w *WholeState) {
 				break
 			}
 			color.Blue("Finished reading from file: %s", fileName)
+		case cmd == "hard-reset-interfaceDB":
+			w.Constructor.SqlGuy.DeleteDB()
+			sql, _ := constructor.NewSqlWriter()
+			w.Constructor.SqlGuy = sql
 		case cmd == "ts":
 			fmt.Printf("%s", w.TorrentClient.ShortStatus())
 		case cmd == "tsl":

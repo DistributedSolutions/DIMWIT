@@ -209,8 +209,14 @@ func PopulateFakeClient(small bool, amt int) (lite.FactomLite, []common.Channel,
 }
 
 func PopulateLevel2Cache(fake lite.FactomLite) (*constructor.Constructor, database.IDatabase, error) {
+	// Starts SQL InterfaceDB
+	sql, err := constructor.NewSqlWriter()
+	if err != nil {
+		return nil, nil, err
+	}
+
 	db := database.NewMapDB()
-	con, err := constructor.NewContructor(db)
+	con, err := constructor.NewContructor(db, sql)
 	if err != nil {
 		return nil, nil, err
 	}
