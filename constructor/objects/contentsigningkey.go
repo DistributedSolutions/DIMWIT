@@ -96,19 +96,23 @@ func (m *ContentSigningKeyApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	}
 
 	if valid := m.PubKey3.Verify(m.Message, m.Signature); !valid {
+		log.Debugf("[ContentSigKey] (2): Did not verify\n")
 		return m.Channel, false // Bad signature
 	}
 
 	if !m.Channel.Channel.RootChainID.IsSameAs(&m.RootChain) {
+		log.Debugf("[ContentSigKey] (3): Is same as failed\n")
 		return m.Channel, false
 	}
 
 	if m.RootChain.String() != m.Entry.Entry.ChainID {
+		log.Debugf("[ContentSigKey] (4): Root chain does not match\n")
 		return m.Channel, false // In the wrong chain
 	}
 
 	etime := time.Unix(m.Entry.Timestamp, 0)
 	if !InsideTimeWindow(etime, m.TimeStamp, constants.ENTRY_TIMESTAMP_WINDOW) {
+		log.Debugf("[ContentSigKey] (5): Outside time window\n")
 		return m.Channel, false // Bad timestamp
 	}
 

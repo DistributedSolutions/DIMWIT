@@ -138,7 +138,6 @@ func (c *Constructor) ApplyHeight(height uint32) error {
 			chanList = append(chanList, channel.Channel)
 		}
 
-		//fmt.Println(channel.Channel.RootChainID.String())
 		err = c.Level2Cache.Put(constants.CHANNEL_BUCKET, channel.Channel.RootChainID.Bytes(), data)
 		if err != nil {
 			continue

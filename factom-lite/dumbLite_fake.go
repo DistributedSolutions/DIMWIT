@@ -70,6 +70,7 @@ func (d *FakeDumbLite) SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId s
 }
 
 func (d *FakeDumbLite) SubmitChain(c factom.Chain, ec factom.ECAddress) (comId string, chainID string, err error) {
+	d.height++
 	e := c.FirstEntry
 	data, err := e.MarshalJSON()
 	if err != nil {
@@ -163,7 +164,9 @@ func (d *FakeDumbLite) GrabAllEntriesAtHeight(height uint32) ([]*EntryHolder, er
 	for _, e := range ents {
 		eholder := new(EntryHolder)
 		eholder.Timestamp = time.Now().Unix()
-		eholder.Entry = &e
+		t := new(factom.Entry)
+		*t = e
+		eholder.Entry = t
 		eholder.Height = height
 
 		entries = append(entries, eholder)
