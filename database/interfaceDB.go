@@ -58,7 +58,7 @@ func (sqlDB *SqlDBWrapper) addChannels(channels []common.Channel) error {
 		constants.SQL_TABLE_CHANNEL__TITLE,
 		constants.SQL_TABLE_CHANNEL__DT,
 	}
-	insertData := make([]string, 2, 2)
+	insertData := make([]string, 3, 3)
 
 	stmt, err := PrepareStmtInsertUpdate(db, constants.SQL_CHANNEL, insertCols, insertData)
 	if err != nil {
@@ -125,7 +125,7 @@ func (sqlDB *SqlDBWrapper) addChannelsContents(channels []common.Channel) error 
 		constants.SQL_TABLE_CONTENT__DT,
 	}
 
-	insertData := make([]string, 5, 5)
+	insertData := make([]string, 6, 6)
 
 	stmt, err := PrepareStmtInsertUpdate(db, constants.SQL_CONTENT, insertCols, insertData)
 	if err != nil {

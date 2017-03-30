@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/fatih/color"
 )
 
 // The engine controls the constructor object. It manages the constructor state and go routines
@@ -27,10 +28,11 @@ func (c *Constructor) StartConstructor() {
 			if err != nil {
 				// log.Println(err.Error())
 				// time.Sleep(10 * time.Millisecond)
-				time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)
+				color.Red("Error Applying Height: %s", err.Error())
 			} else {
 				// Height X was applied
 			}
+			time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)
 		}
 	}
 	// If I die, so does the SQLGuy. He should be dead at this point, but gatta be sure
