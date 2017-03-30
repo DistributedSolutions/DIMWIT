@@ -63,8 +63,14 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 		return fmt.Errorf("DBType given not valid. Found '%s', expected either: Bolt, Map, LDB", lvl2CacheType)
 	}
 
+	// Starts SQL InterfaceDB
+	sql, err := constructor.NewSqlWriter()
+	if err != nil {
+		return err
+	}
+
 	// Construtor -> Updates level 2 cache
-	con, err := constructor.NewContructor(lvl2Cache)
+	con, err := constructor.NewContructor(lvl2Cache, sql)
 	if err != nil {
 		return err
 	}

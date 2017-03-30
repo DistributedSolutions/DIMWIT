@@ -7,6 +7,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/fatih/color"
 	// "github.com/DistributedSolutions/logrus"
 )
 
@@ -55,6 +56,7 @@ func (sqlDB *SqlDBWrapper) addChannels(channels []common.Channel) error {
 	insertCols := []string{
 		constants.SQL_TABLE_CHANNEL__HASH,
 		constants.SQL_TABLE_CHANNEL__TITLE,
+		constants.SQL_TABLE_CHANNEL__DT,
 	}
 	insertData := make([]string, 2, 2)
 
@@ -66,6 +68,7 @@ func (sqlDB *SqlDBWrapper) addChannels(channels []common.Channel) error {
 	for _, c := range channels {
 		insertData[0] = c.RootChainID.String()
 		insertData[1] = c.ChannelTitle.String()
+		insertData[2] = c.CreationTime.Format("2006-01-02 15:04:05")
 		err = ExecStmt(stmt, insertData)
 		if err != nil {
 			return fmt.Errorf("Error insert/update channel: %s", err.Error())
@@ -119,6 +122,7 @@ func (sqlDB *SqlDBWrapper) addChannelsContents(channels []common.Channel) error 
 		constants.SQL_TABLE_CONTENT__SERIES_NAME,
 		constants.SQL_TABLE_CONTENT__PART_NAME,
 		constants.SQL_TABLE_CONTENT__CH_ID,
+		constants.SQL_TABLE_CONTENT__DT,
 	}
 
 	insertData := make([]string, 5, 5)
@@ -140,7 +144,7 @@ func (sqlDB *SqlDBWrapper) addChannelsContents(channels []common.Channel) error 
 			insertData[2] = fmt.Sprintf("%d", s)
 			insertData[3] = fmt.Sprintf("%d", p)
 			insertData[4] = channel.RootChainID.String()
-
+			insertData[5] = c.CreationTime.Format("2006-01-02 15:04:05")
 			err = ExecStmt(stmt, insertData)
 			if err != nil {
 				return fmt.Errorf("Error inserting content with hash[%s]: %s", c.ContentID.String(), err.Error())
@@ -389,4 +393,27 @@ func (sqlDB *SqlDBWrapper) DeleteDBChannels() error {
 		return fmt.Errorf("Error deleting items from db with query[%s]: %s", s, err.Error())
 	}
 	return nil
+}
+
+//Used at start of system
+func (sqlDB *SqlDBWrapper) InitInterfaceDBVerification() {
+	if len(TABLE_NAMES) != len(CREATE_TABLE) {
+		color.Red("ERROR: CONTACT SWRAP THIS SHOULD NOT HAPPEN: TableNames [%d] and CreateTable [%d] not same length", len(TABLE_NAMES), len(CREATE_TABLE))
+	}
+	db := sqlDB.DB
+	var l int
+	db.QueryRow("SELECT COUNT(sql) FROM sqlite_master WHERE name != 'sqlite_sequence'").Scan(&l)
+	if l != len(TABLE_NAMES) {
+		color.Red("ERROR: Table does match issue command 'hard-reset-interfaceDB'. NOTE THIS WILL DELETE YOUR DB AND RESET IT. Length: %d != %d", l, len(TABLE_NAMES))
+	}
+
+	var result string
+
+	for i := range TABLE_NAMES {
+		db.QueryRow("SELECT sql FROM sqlite_master WHERE name=?", TABLE_NAMES[i]).Scan(&result)
+		c := "CREATE TABLE " + CREATE_TABLE[i]
+		if result != c {
+			color.Red("ERROR: table not the same. Error issue command 'hard-reset-interfaceDB'. NOTE THIS WILL DELETE YOUR DB AND RESET IT:\n[%s]\n[%s]", c, result)
+		}
+	}
 }

@@ -33,6 +33,7 @@ func NewSqlWriter() (*SqlWriter, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error adding in tags: %s", err)
 	}
+	db.InitInterfaceDBVerification()
 	fmt.Printf("Init SqlWriter, Finished Init\n")
 
 	return sw, nil
@@ -53,4 +54,13 @@ func (sw *SqlWriter) FlushTempPlaylists(height uint32) error {
 
 func (sw *SqlWriter) DeleteDBChannels() error {
 	return sw.db.DeleteDBChannels()
+}
+
+func (sw *SqlWriter) DeleteDB() error {
+	sw.Close()
+	err := database.DeleteDB(sw.db.Name)
+	if err != nil {
+		return fmt.Errorf("sqlWriter, error deleting db: %s", err.Error())
+	}
+	return nil
 }

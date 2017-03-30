@@ -33,14 +33,10 @@ type Constructor struct {
 }
 
 //dbType string,
-func NewContructor(db database.IDatabase) (*Constructor, error) {
+func NewContructor(db database.IDatabase, sqlDb *SqlWriter) (*Constructor, error) {
 	c := new(Constructor)
 
-	var err error
-	c.SqlGuy, err = NewSqlWriter()
-	if err != nil {
-		return nil, err
-	}
+	c.SqlGuy = sqlDb
 	c.Level2Cache = db
 	c.loadStateFromDB()
 	c.quit = make(chan int, 20)
