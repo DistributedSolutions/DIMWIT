@@ -90,6 +90,15 @@ func (c *Constructor) loadStateFromDB() error {
 	return nil
 }
 
+func (c *Constructor) GetReadyHeight() (uint32, error) {
+	rh, err := c.Reader.GetReadyHeight()
+	if err != nil {
+		log.Error("Constructor failed to get ready height from Factom Lite")
+		return 0, err
+	}
+	return rh, nil
+}
+
 func (c *Constructor) ApplyHeight(height uint32) error {
 	rh, err := c.Reader.GetReadyHeight()
 	if err != nil {

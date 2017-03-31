@@ -23,16 +23,25 @@ func (c *Constructor) StartConstructor() {
 		case <-c.quit:
 			return
 		default:
-			// constructorEngineHeight.Set(float64(c.CompletedHeight))
-			err := c.ApplyHeight(c.CompletedHeight + 1)
+			h, err := c.GetReadyHeight()
 			if err != nil {
-				// log.Println(err.Error())
-				// time.Sleep(10 * time.Millisecond)
-				color.Red("Error Applying Height: %s", err.Error())
-			} else {
-				// Height X was applied
+				log.Println("Error getting ready height: %s", err.Error())
 			}
-			time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)
+			if (c.CompletedHeight + 1) <= h {
+				//process
+				// constructorEngineHeight.Set(float64(c.CompletedHeight))
+				err := c.ApplyHeight(c.CompletedHeight + 1)
+				if err != nil {
+					// log.Println(err.Error())
+					// time.Sleep(10 * time.Millisecond)
+					color.Red("Error Applying Height: %s", err.Error())
+				} else {
+					// Height X was applied
+				}
+			} else {
+				//do not process sleep instead
+				time.Sleep(constants.CHECK_FACTOM_FOR_UPDATES)
+			}
 		}
 	}
 	// If I die, so does the SQLGuy. He should be dead at this point, but gatta be sure
