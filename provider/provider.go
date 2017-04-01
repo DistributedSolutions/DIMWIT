@@ -52,7 +52,7 @@ func NewProvider(db database.IDatabase, writer lite.FactomLiteWriter) (*Provider
 }
 
 func (p *Provider) Serve() {
-	closer := ServeRouter(p.Router)
+	closer := ServeRouter(p.Router, 8080)
 	p.apicloser = closer
 }
 

@@ -42,6 +42,7 @@ func Control(w *WholeState) {
 	AddHelp("aC", "Prints out root chain ids of all channels")
 	AddHelp("wdb", "Wipes db channels clean cascades to almost all other tables. Keeps tags.")
 	AddHelp("[MAG_LINK]", "Torrents a magnet link")
+	AddHelp("stream [IH]", "Stream the infohash to port 1111")
 	AddHelp("ts[l]", "Shows torrent status, 'l' for long")
 	AddHelp("i", "Increment fake factom height")
 	AddHelp("hard-reset-interfaceDB", "Hard reset the db... be sure you want to do this.")
@@ -224,9 +225,12 @@ func Control(w *WholeState) {
 			if err != nil {
 				fmt.Printf("Error: %s\n", err.Error())
 			} else {
-				fmt.Println("Torrent started")
+				fmt.Println("Torrent started under infohash %s", t.InfoHash().HexString())
 			}
 			var _ = t
+		case len(cmd) > 10 && cmd[:7] == "stream":
+			ih := cmd[8:]
+			w.TorrentClient.SelectString(ih)
 		default:
 			fmt.Printf("No command found\n")
 		}

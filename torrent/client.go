@@ -14,7 +14,8 @@ import (
 )
 
 type TorrentClient struct {
-	client *torrent.Client
+	client   *torrent.Client
+	selected metainfo.Hash
 }
 
 func NewTorrentClientFromConfig(con *TopLevelConfig) (*TorrentClient, error) {
@@ -36,6 +37,16 @@ func NewTorrentClient() (*TorrentClient, error) {
 
 func (c *TorrentClient) Close() {
 	c.client.Close()
+}
+
+func (c *TorrentClient) SelectString(ih string) {
+	c.Select(metainfo.NewHashFromHex(ih))
+	//return c.Select(metainfo.NewHashFromHex(ih))
+}
+
+func (c *TorrentClient) Select(infohash metainfo.Hash) {
+	// TODO: Check if infohash exists
+	c.selected = infohash
 }
 
 func (c *TorrentClient) AddMagnet(uri string, download bool) (*torrent.Torrent, error) {

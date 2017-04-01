@@ -90,6 +90,7 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 		return err
 	}
 	CloseCalls = append(CloseCalls, torClient.Close)
+	prov.Router.HandleFunc("/stream", torClient.HandleStream)
 
 	// Start Go Routines
 	go con.StartConstructor()

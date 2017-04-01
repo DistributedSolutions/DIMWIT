@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"fmt"
 	"github.com/DistributedSolutions/logrus"
 	"io"
 	"log"
@@ -15,8 +16,8 @@ func NewRouter(srv *ApiService) *http.ServeMux {
 	return r
 }
 
-func ServeRouter(r *http.ServeMux) io.Closer {
-	port := ":8080"
+func ServeRouter(r *http.ServeMux, portNumber int) io.Closer {
+	port := fmt.Sprintf(":%d", portNumber)
 	log.Println("Serving API on localhost" + port)
 	closer, err := ListenAndServeWithClose(port, r)
 	if err != nil {
