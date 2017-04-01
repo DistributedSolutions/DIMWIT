@@ -80,17 +80,17 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 
 // MakeNewAuthChannel makes the authority channel and builds all factom components
 func MakeNewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, error) {
+	a, err := NewAuthChannel(ch, ec)
+	if err != nil {
+		return nil, err
+	}
+
 	if ch.Status() < constants.CHANNEL_READY {
 		return nil, fmt.Errorf("Channel given is not ready, it is missing elements")
 	}
 
 	if !factom.IsValidAddress(ec.String()) {
 		return nil, fmt.Errorf("Entry credit address is invalid")
-	}
-
-	a, err := NewAuthChannel(ch, ec)
-	if err != nil {
-		return nil, err
 	}
 
 	err = a.MakeChannel()
