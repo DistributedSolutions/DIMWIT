@@ -85,7 +85,7 @@ func MakeNewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel,
 		return nil, err
 	}
 
-	if ch.Status() < constants.CHANNEL_READY {
+	if a.Channel.Status() < constants.CHANNEL_READY {
 		return nil, fmt.Errorf("Channel given is not ready, it is missing elements")
 	}
 

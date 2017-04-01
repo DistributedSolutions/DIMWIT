@@ -155,8 +155,8 @@ func (c *TorrentClient) ShortStatus() string {
 	tors := c.client.Torrents()
 	resp := fmt.Sprintf("--- Client ---\nTotal Torrents: %d\n", len(tors))
 	for i, t := range tors {
-		resp += fmt.Sprintf(" --- Torrent %d\nInfoHash: %s\nHaveInfo: %t\nProgress: %.2f%s\n",
-			i, t.InfoHash().HexString(), t.Info() != nil, c.percentage(t.InfoHash()), "%")
+		resp += fmt.Sprintf(" --- Torrent %d\nName:%s\nInfoHash: %s\nHaveInfo: %t\nProgress: %.2f%s\n",
+			i, t.Name(), t.InfoHash().HexString(), t.Info() != nil, c.percentage(t.InfoHash()), "%")
 	}
 
 	return resp
