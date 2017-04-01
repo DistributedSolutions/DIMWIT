@@ -78,7 +78,11 @@ func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.En
 	return ents, chains, nil
 }
 
-func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePath string) (*primitives.Hash, error) {
+func (ct *CreationTool) UpdateChannel(ch *common.Channel, filePaths []string) error {
+	return nil
+}
+
+func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePaths []string) (*primitives.Hash, error) {
 	if _, ok := ct.Channels[ch.RootChainID.String()]; ok {
 		return nil, fmt.Errorf("Channel already exists in the CreationTool")
 	}
@@ -94,7 +98,9 @@ func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePath string) (*pri
 		return nil, err
 	}
 
-	a.TorrentUploadPath.SetString(filePath)
+	for i := 0; i < len(filePaths); i++ {
+		a.TorrentUploadPaths[i].SetString(filePaths[i])
+	}
 
 	ct.Channels[a.Channel.RootChainID.String()] = a
 
@@ -121,13 +127,13 @@ func (ct *CreationTool) AddPrivateKey(lvl int, key primitives.PrivateKey, root p
 	return nil
 }
 
-func (ct *CreationTool) SetUploadPath(path string, root primitives.Hash) error {
+func (ct *CreationTool) SetUploadPath(path string, root primitives.Hash, contentIndex uint) error {
 	a, ok := ct.Channels[root.String()]
 	if !ok || a == nil {
 		return fmt.Errorf("channel not found")
 	}
 
-	return ct.Channels[root.String()].TorrentUploadPath.SetString(path)
+	return ct.Channels[root.String()].TorrentUploadPaths[contentIndex].SetString(path)
 }
 
 // CreateAllFactomEntries should be called when you first make a channel

@@ -355,12 +355,8 @@ func (a *Channel) full() bool {
 	return true
 }
 
-// Reaady for public consumption
+// Ready for public consumption
 func (a *Channel) ready() bool {
-	if a.LV1PublicKey.Empty() {
-		return false
-	}
-
 	if a.LV1PublicKey.Empty() {
 		return false
 	}

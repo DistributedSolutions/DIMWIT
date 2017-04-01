@@ -164,8 +164,12 @@ func (p *Provider) GetCompleteHeight() (uint32, error) {
 	return u, nil
 }
 
-func (p *Provider) CreateChannel(ch *common.Channel, dirPath string) (*primitives.Hash, error) {
-	return p.CreationTool.AddNewChannel(ch, dirPath)
+func (p *Provider) UpdateChannel(ch *common.Channel, dirsPath []string) error {
+	return p.CreationTool.UpdateChannel(ch, dirsPath)
+}
+
+func (p *Provider) CreateChannel(ch *common.Channel, dirsPath []string) (*primitives.Hash, error) {
+	return p.CreationTool.AddNewChannel(ch, dirsPath)
 }
 
 func (p *Provider) SubmitChannel(root primitives.Hash) error {
