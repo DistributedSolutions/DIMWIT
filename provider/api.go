@@ -13,9 +13,13 @@ import (
 	"github.com/fatih/color"
 )
 
-type AddChannel struct {
+type VerifyChannel struct {
 	Channel common.Channel `json:"channel"`
-	Path    string         `json:"path"`
+	Paths   []string       `json:"path"`
+}
+
+type SubmitChannel struct {
+	ChannelHash primitives.Hash `json:"hash"`
 }
 
 type ApiService struct {
@@ -151,23 +155,30 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			goto InternalError
 		}
 		goto Success
-	case "add-channel":
-		addChannel := new(AddChannel)
-		err = json.Unmarshal(req.Params, addChannel)
+	case "verify-channel":
+		verifyChannel := new(VerifyChannel)
+		err = json.Unmarshal(req.Params, verifyChannel)
 		if err != nil {
 			extra = "Invalid request object, " + err.Error()
 			goto InvalidRequest // Bad request data
 		}
-		s := string(addChannel.Path)
-		hash, err := apiService.Provider.CreateChannel(&addChannel.Channel, s)
+		hash, err := apiService.Provider.CreateChannel(&verifyChannel.Channel, verifyChannel.Paths)
 		if err != nil {
-			color.Red("Error creating channel: %s", err.Error())
-			extra = fmt.Sprintf("Error creating new channel with error: %s", err)
+			color.Red("Error verifying channel: %s", err.Error())
+			extra = fmt.Sprintf("Error verifying channel with error: %s", err)
 			errorID = 6
 			goto CustomError
 		}
-		color.Blue("Adding new Channel with hash: %s", hash.String())
-		err = apiService.Provider.SubmitChannel(*hash)
+		data = []byte(hash.String())
+		goto Success
+	case "submit-channel":
+		submitChannel := new(SubmitChannel)
+		err = json.Unmarshal(req.Params, submitChannel)
+		if err != nil {
+			extra = "Invalid request object, " + err.Error()
+			goto InvalidRequest // Bad request data
+		}
+		err = apiService.Provider.SubmitChannel(submitChannel.ChannelHash)
 		if err != nil {
 			color.Red("Error submitting channel: %s", err.Error())
 			extra = fmt.Sprintf("Error submiting new channel with error: %s", err)
@@ -175,6 +186,8 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			goto CustomError
 		}
 		color.Blue("Finished adding in new Channel")
+
+		data = []byte("{}")
 		goto Success
 	default:
 		extra = req.Method

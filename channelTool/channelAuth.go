@@ -8,6 +8,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives/random"
 	"github.com/FactomProject/factom"
 )
 
@@ -21,7 +22,7 @@ type AuthChannel struct {
 
 	EntryCreditKey *factom.ECAddress
 
-	TorrentUploadPath primitives.FilePath
+	TorrentUploadPaths []primitives.FilePath
 
 	// Not marshaled, timestamps in these.
 	// Have all factom entries
@@ -137,8 +138,12 @@ func RandomAuthChannel() (*AuthChannel, error) {
 
 	c.EntryCreditKey = factom.NewECAddress()
 
-	c.TorrentUploadPath = *primitives.RandomFilePath()
-
+	size := random.RandomIntBetween(0, 2)
+	paths := make([]primitives.FilePath, size, size)
+	for i := 0; i < size; i++ {
+		paths[i] = *primitives.RandomFilePath()
+	}
+	c.TorrentUploadPaths = paths
 	return c, nil
 }
 
@@ -161,8 +166,10 @@ func (a *AuthChannel) IsSameAs(b *AuthChannel) bool {
 		return false
 	}
 
-	if !a.TorrentUploadPath.IsSameAs(&b.TorrentUploadPath) {
-		return false
+	for i := 0; i < len(a.TorrentUploadPaths); i++ {
+		if !a.TorrentUploadPaths[i].IsSameAs(&b.TorrentUploadPaths[i]) {
+			return false
+		}
 	}
 
 	return true
@@ -209,9 +216,11 @@ func (a *AuthChannel) UnmarshalBinaryData(data []byte) (newData []byte, err erro
 		return data, err
 	}
 
-	newData, err = a.TorrentUploadPath.UnmarshalBinaryData(newData)
-	if err != nil {
-		return data, err
+	for i := 0; i < len(a.TorrentUploadPaths); i++ {
+		newData, err = a.TorrentUploadPaths[i].UnmarshalBinaryData(newData)
+		if err != nil {
+			return data, err
+		}
 	}
 
 	return
@@ -243,11 +252,13 @@ func (a *AuthChannel) MarshalBinary() ([]byte, error) {
 	data = a.EntryCreditKey.SecBytes()[:32]
 	buf.Write(data)
 
-	data, err = a.TorrentUploadPath.MarshalBinary()
-	if err != nil {
-		return nil, err
+	for i := 0; i < len(a.TorrentUploadPaths); i++ {
+		data, err = a.TorrentUploadPaths[i].MarshalBinary()
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(data)
 	}
-	buf.Write(data)
 
 	return buf.Next(buf.Len()), nil
 }
