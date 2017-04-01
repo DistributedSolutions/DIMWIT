@@ -162,12 +162,24 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			extra = "Invalid request object, " + err.Error()
 			goto InvalidRequest // Bad request data
 		}
-		hash, err := apiService.Provider.CreateChannel(&verifyChannel.Channel, verifyChannel.Paths)
-		if err != nil {
-			color.Red("Error verifying channel: %s", err.Error())
-			extra = fmt.Sprintf("Error verifying channel with error: %s", err)
-			errorID = 6
-			goto CustomError
+		hash := verifyChannel.Channel.RootChainID
+		if hash.Empty() {
+			newHash, err := apiService.Provider.CreateChannel(&verifyChannel.Channel, verifyChannel.Paths)
+			if err != nil {
+				color.Red("Error verifying channel: %s", err.Error())
+				extra = fmt.Sprintf("Error verifying new channel with error: %s", err.Error())
+				errorID = 6
+				goto CustomError
+			}
+			hash = *newHash
+		} else {
+			err := apiService.Provider.UpdateChannel(&verifyChannel.Channel, verifyChannel.Paths)
+			if err != nil {
+				color.Red("Error verifying UpdateChanne: %s", err.Error())
+				extra = fmt.Sprintf("Error verifying update channel with error: %s", err.Error())
+				errorID = 6
+				goto CustomError
+			}
 		}
 		data = []byte(hash.String())
 		goto Success
@@ -181,7 +193,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		err = apiService.Provider.SubmitChannel(submitChannel.ChannelHash)
 		if err != nil {
 			color.Red("Error submitting channel: %s", err.Error())
-			extra = fmt.Sprintf("Error submiting new channel with error: %s", err)
+			extra = fmt.Sprintf("Error submiting new channel with error: %s", err.Error())
 			errorID = 7
 			goto CustomError
 		}

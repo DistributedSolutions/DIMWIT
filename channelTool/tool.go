@@ -78,6 +78,10 @@ func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.En
 	return ents, chains, nil
 }
 
+func (ct *CreationTool) UpdateChannel(ch *common.Channel, filePaths []string) error {
+	return nil
+}
+
 func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePaths []string) (*primitives.Hash, error) {
 	if _, ok := ct.Channels[ch.RootChainID.String()]; ok {
 		return nil, fmt.Errorf("Channel already exists in the CreationTool")
