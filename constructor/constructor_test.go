@@ -30,8 +30,13 @@ func TestConstructor(t *testing.T) {
 	fmt.Println(string(m.Chain.FirstEntry.ExtIDs[1]))
 	//fake := lite.NewDumbLite()
 
+	sqlW, err := NewSqlWriter()
+	if err != nil {
+		t.Error(err)
+	}
+
 	db := database.NewMapDB()
-	con, err := NewContructor(db)
+	con, err := NewContructor(db, sqlW)
 	if err != nil {
 		t.Error(err)
 	}

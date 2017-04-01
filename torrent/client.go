@@ -2,6 +2,7 @@ package torrent
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,8 +15,10 @@ import (
 )
 
 type TorrentClient struct {
-	client   *torrent.Client
-	selected metainfo.Hash
+	client *torrent.Client
+
+	selectedReader SeekableContent
+	selected       metainfo.Hash
 }
 
 func NewTorrentClientFromConfig(con *TopLevelConfig) (*TorrentClient, error) {
@@ -39,14 +42,21 @@ func (c *TorrentClient) Close() {
 	c.client.Close()
 }
 
-func (c *TorrentClient) SelectString(ih string) {
-	c.Select(metainfo.NewHashFromHex(ih))
-	//return c.Select(metainfo.NewHashFromHex(ih))
+func (c *TorrentClient) SelectString(ih string) error {
+	infohash, err := HexToIH(ih)
+	if err != nil {
+		return err
+	}
+	return c.Select(infohash)
 }
 
-func (c *TorrentClient) Select(infohash metainfo.Hash) {
+func (c *TorrentClient) Select(infohash metainfo.Hash) error {
+	if c.selectedReader != nil {
+		c.selectedReader.Close()
+	}
 	// TODO: Check if infohash exists
 	c.selected = infohash
+	return nil
 }
 
 func (c *TorrentClient) AddMagnet(uri string, download bool) (*torrent.Torrent, error) {
@@ -72,8 +82,15 @@ func (c *TorrentClient) GetTorrent(infohash metainfo.Hash) (torrent *torrent.Tor
 	return c.client.Torrent(infohash)
 }
 
-func HexToIH(ih string) metainfo.Hash {
-	return metainfo.NewHashFromHex(ih)
+func HexToIH(ih string) (metainfo.Hash, error) {
+	if len(ih) != 40 {
+		return metainfo.Hash{}, fmt.Errorf("infohash must be 40 bytes, found %d", len(ih))
+	}
+	_, err := hex.DecodeString(ih)
+	if err != nil {
+		return metainfo.Hash{}, err
+	}
+	return metainfo.NewHashFromHex(ih), nil
 }
 
 // percentage of torrent downloaded
@@ -124,6 +141,7 @@ func (c *TorrentClient) GetFile(infohash metainfo.Hash, w http.ResponseWriter, r
 
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+t.Info().Name+"\"")
 	http.ServeContent(w, r, target.DisplayPath(), time.Now(), entry)
+	fmt.Println("ASDSADASSDSA")
 	return nil
 }
 
