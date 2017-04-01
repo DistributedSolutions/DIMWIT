@@ -8,8 +8,8 @@ import (
 
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	"github.com/DistributedSolutions/DIMWIT/jsonrpc"
 	"github.com/DistributedSolutions/DIMWIT/provider"
-	"github.com/DistributedSolutions/DIMWIT/provider/jsonrpc"
 )
 
 var _ = fmt.Sprintf("")
