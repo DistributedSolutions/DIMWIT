@@ -216,6 +216,13 @@ func (a *AuthChannel) UnmarshalBinaryData(data []byte) (newData []byte, err erro
 		return data, err
 	}
 
+	u, err := primitives.BytesToUint32(newData[:4])
+	if err != nil {
+		return data, err
+	}
+	newData = newData[4:]
+
+	a.TorrentUploadPaths = make([]primitives.FilePath, u)
 	for i := 0; i < len(a.TorrentUploadPaths); i++ {
 		newData, err = a.TorrentUploadPaths[i].UnmarshalBinaryData(newData)
 		if err != nil {
@@ -250,6 +257,9 @@ func (a *AuthChannel) MarshalBinary() ([]byte, error) {
 	buf.Write(data)
 
 	data = a.EntryCreditKey.SecBytes()[:32]
+	buf.Write(data)
+
+	data = primitives.Uint32ToBytes(uint32(len(a.TorrentUploadPaths)))
 	buf.Write(data)
 
 	for i := 0; i < len(a.TorrentUploadPaths); i++ {
