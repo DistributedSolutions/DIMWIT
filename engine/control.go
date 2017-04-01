@@ -18,6 +18,15 @@ import (
 	"github.com/fatih/color"
 )
 
+// 42 Seconds -- mpg
+//		magnet:?xt=urn:btih:JYKA2VEC44GNPIPI5TYUAQKBSGST4OEP
+// 6.5min
+//		magnet:?xt=urn:btih:TEEM5VYAOHVPP7224HCLWLADOHT6GLMX
+// 2.5 hr DVDR
+//		magnet:?xt=urn:btih:H4QAQQVG67LPBINAHFYPMQKKHHKEE3RV
+// 2.5hr MPEG-2
+//		magnet:?xt=urn:btih:eb5156f0f92001c5897064072953a9ccd5b00556&dn=The.Matrix-ASCII.mpg&tr=http%3A%2F%2Ftracker.xpear.de%2Fannounce&tr=http%3A%2F%2Ftracker.irc.su%3A80%2Fannounce&tr=http%3A%2F%2Ftracker.torrentbox.com%3A2710%2Fannounce&tr=http%3A%2F%2Finferno.demonoid.com%3A3393%2Fannounce&tr=http%3A%2F%2Fwww.sumotracker.com%2Fannounce&tr=http%3A%2F%2Ffr33dom.h33t.com%3A3310%2Fannounce&tr=http%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=http%3A%2F%2Frlskingbt.appspot.com%2Fannounce&tr=http%3A%2F%2Fsadnem.appspot.com%2Fannounce&tr=http%3A%2F%2Ftracker.utternerd.org%3A6969%2Fannounce&tr=http%3A%2F%2Fannounce.xxx-tracker.com%3A2710%2Fannounce&tr=http%3A%2F%2Ftracker.ccc.de%2Fannounce&tr=http%3A%2F%2Fcpleft.com%3A2710%2Fannounce&tr=http%3A%2F%2Ftracker.ccc.de%2Fannounce&tr=http%3A%2F%2Ftracker.publicbt.com%2Fannounce&tr=http%3A%2F%2Ftracker.torrentbay.to%3A6969%2Fannounce&tr=http%3A%2F%2Ftracker.ex.ua%2Fannounce&tr=http%3A%2F%2Ftracker.yify-torrents.com%3A80%2Fannounce&tr=http%3A%2F%2Fbigtorrent.org%3A2710%2Fannounce&tr=http%3A%2F%2Fsline.net%3A2710%2Fannounce
+
 var _ = fmt.Sprintf("")
 
 var HelpText string
@@ -225,12 +234,16 @@ func Control(w *WholeState) {
 			if err != nil {
 				fmt.Printf("Error: %s\n", err.Error())
 			} else {
-				fmt.Println("Torrent started under infohash %s", t.InfoHash().HexString())
+				fmt.Printf("Torrent started under infohash %s\n", t.InfoHash().HexString())
 			}
 			var _ = t
+			w.TorrentClient.Select(t.InfoHash())
 		case len(cmd) > 10 && cmd[:6] == "stream":
-			ih := cmd[8:]
+			ih := cmd[7:]
 			w.TorrentClient.SelectString(ih)
+		case cmd == "watch":
+			w.TorrentClient.OpenWithVLC()
+			fmt.Println("Watching!")
 		default:
 			fmt.Printf("No command found\n")
 		}
