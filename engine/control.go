@@ -228,7 +228,7 @@ func Control(w *WholeState) {
 				fmt.Println("Torrent started under infohash %s", t.InfoHash().HexString())
 			}
 			var _ = t
-		case len(cmd) > 10 && cmd[:7] == "stream":
+		case len(cmd) > 10 && cmd[:6] == "stream":
 			ih := cmd[8:]
 			w.TorrentClient.SelectString(ih)
 		default:
