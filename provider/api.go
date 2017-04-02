@@ -10,7 +10,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
-	"github.com/DistributedSolutions/DIMWIT/provider/jsonrpc"
+	"github.com/DistributedSolutions/DIMWIT/jsonrpc"
 	"github.com/fatih/color"
 )
 
@@ -31,26 +31,26 @@ func Vars(r *http.Request) map[string]string {
 	return make(map[string]string)
 }
 
+func marshalErr(err *jsonrpc.JSONRPCReponse) []byte {
+	data, _ := err.CustomMarshalJSON()
+	return data
+}
+
 func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		jErr := jsonrpc.NewInternalRPCSError("Error reading the body of the request", 0)
-		data, _ := jErr.CustomMarshalJSON()
-		w.Write(data)
+		w.Write(marshalErr(jsonrpc.NewInternalRPCSError("Error reading the body of the request", 0)))
 		return
 	}
 
 	var extra string
 	var errorID uint32
-	jErr := new(jsonrpc.JSONRPCReponse)
 
 	req := jsonrpc.NewEmptyJSONRPCRequest()
 	err = json.Unmarshal(data, req)
 	if err != nil {
-		jErr := jsonrpc.NewParseError(err.Error(), 0)
-		data, _ := jErr.CustomMarshalJSON()
-		w.Write(data)
+		w.Write(marshalErr(jsonrpc.NewParseError(err.Error(), 0)))
 		return
 	}
 
@@ -231,24 +231,16 @@ Success:
 	w.Write(data)
 	return
 MethodNotFound:
-	jErr = jsonrpc.NewMethodNotFoundError(extra, req.ID)
-	data, _ = jErr.CustomMarshalJSON()
-	w.Write(data)
+	w.Write(marshalErr(jsonrpc.NewMethodNotFoundError(extra, req.ID)))
 	return
 InvalidRequest:
-	jErr = jsonrpc.NewInvalidRequestError(extra, req.ID)
-	data, _ = jErr.CustomMarshalJSON()
-	w.Write(data)
+	w.Write(marshalErr(jsonrpc.NewInvalidRequestError(extra, req.ID)))
 	return
 CustomError:
-	jErr = jsonrpc.NewCustomError(extra, req.ID, errorID)
-	data, _ = jErr.CustomMarshalJSON()
-	w.Write(data)
+	w.Write(marshalErr(jsonrpc.NewCustomError(extra, req.ID, errorID)))
 	return
 InternalError:
-	jErr = jsonrpc.NewInternalRPCSError(extra, req.ID)
-	data, _ = jErr.CustomMarshalJSON()
-	w.Write(data)
+	w.Write(marshalErr(jsonrpc.NewInternalRPCSError(extra, req.ID)))
 	return
 }
 

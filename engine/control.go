@@ -18,7 +18,8 @@ import (
 	"github.com/fatih/color"
 )
 
-// magnet:?xt=urn:btih:e131a392aa6a518113904cb81056a6d2bbcabed4&dn=South.Park.The.Stick.of.Truth-R.G.+Mechanics&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969
+// 22min -- Louie!
+// magnet:?xt=urn:btih:852ab3218be18e12d822a31440e43a718ab66f26&dn=Louie.S05E03.HDTV.x264-ASAP%5Bettv%5D&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969
 
 // 42 Seconds -- mpg
 //		magnet:?xt=urn:btih:JYKA2VEC44GNPIPI5TYUAQKBSGST4OEP

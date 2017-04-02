@@ -23,6 +23,12 @@ func NewImage(imageBytes []byte, imageType byte) *Image {
 	return i
 }
 
+func RandomValidImage(size uint32) *Image {
+	data := random.RandByteSliceOfSize(random.RandomIntBetween(0, int(size)))
+	i := NewImage(data, constants.IMAGE_JPEG)
+	return i
+}
+
 func RandomImage() *Image {
 	data := random.RandByteSlice()
 	i := NewImage(data, constants.IMAGE_JPEG)
