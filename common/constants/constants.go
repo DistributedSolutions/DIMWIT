@@ -1,6 +1,7 @@
 package constants
 
 import (
+	"encoding/json"
 	"os"
 )
 
@@ -22,6 +23,34 @@ const (
 	URL_MAX_LENGTH               int = 20
 	TAG_MAX_LENGTH               int = 100
 )
+
+type ConstantJSON struct {
+	HashLength             int `json:"hashlength"`
+	FileNameLength         int `json:"filenamelength"`
+	LongDescriptionLength  int `json:"shortdesclength"`
+	ShortDescriptionLength int `json:"longdesclength"`
+	TrackerUrlLength       int `json:"trackerurllength"`
+	FilePathLength         int `json:"filepathlength"`
+	TitleLength            int `json:"titlelength"`
+	UrlLength              int `json:"urllength"`
+}
+
+func ConstantJSONMarshal() (*[]byte, error) {
+	c := new(ConstantJSON)
+	c.HashLength = 64
+	c.FileNameLength = FILE_NAME_MAX_LENGTH
+	c.LongDescriptionLength = LONG_DESCRIPTION_MAX_LENGTH
+	c.ShortDescriptionLength = SHORT_DESCRIPTION_MAX_LENGTH
+	c.TrackerUrlLength = TRACKER_URL_MAX_LENGTH
+	c.FilePathLength = FILE_PATH_MAX_LENGTH
+	c.TitleLength = TITLE_MAX_LENGTH
+	c.UrlLength = URL_MAX_LENGTH
+	data, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
 
 // Common type constants
 const (

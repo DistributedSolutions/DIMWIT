@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/provider/jsonrpc"
 	"github.com/fatih/color"
@@ -59,6 +60,14 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 
 	color.Green(fmt.Sprintf("%s: %s: %s", time.Now().Format("15:04:05"), r.Method, req.Method))
 	switch req.Method {
+	case "get-constants":
+		tempData, err := constants.ConstantJSONMarshal()
+		if err != nil {
+			extra = "Failed to unmarshal channel"
+			goto InternalError
+		}
+		data = *tempData
+		goto Success
 	case "get-channel":
 		hash := new(primitives.Hash)
 		err = json.Unmarshal(req.Params, hash)
@@ -162,18 +171,18 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			extra = "Invalid request object, " + err.Error()
 			goto InvalidRequest // Bad request data
 		}
+		var verifiedChannel *common.Channel
 		hash := verifyChannel.Channel.RootChainID
 		if hash.Empty() {
-			newHash, err := apiService.Provider.CreateChannel(&verifyChannel.Channel, verifyChannel.Paths)
+			verifiedChannel, err = apiService.Provider.CreateChannel(&verifyChannel.Channel, verifyChannel.Paths)
 			if err != nil {
 				color.Red("Error verifying channel: %s", err.Error())
 				extra = fmt.Sprintf("Error verifying new channel with error: %s", err.Error())
 				errorID = 6
 				goto CustomError
 			}
-			hash = *newHash
 		} else {
-			err := apiService.Provider.UpdateChannel(&verifyChannel.Channel, verifyChannel.Paths)
+			verifiedChannel, err = apiService.Provider.UpdateChannel(&verifyChannel.Channel, verifyChannel.Paths)
 			if err != nil {
 				color.Red("Error verifying UpdateChanne: %s", err.Error())
 				extra = fmt.Sprintf("Error verifying update channel with error: %s", err.Error())
@@ -181,7 +190,13 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 				goto CustomError
 			}
 		}
-		data = []byte(hash.String())
+
+		data, err = (*verifiedChannel).CustomMarshalJSON()
+		if err != nil {
+			fmt.Println(err.Error())
+			extra = "Failed to unmarshal verified channel"
+			goto InternalError
+		}
 		goto Success
 	case "submit-channel":
 		submitChannel := new(SubmitChannel)

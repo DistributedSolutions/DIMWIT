@@ -187,15 +187,15 @@ type CustomJSONMarshalChannel struct {
 	ContentSingingKey string            `json:"contentkey"` // Critical
 	ChannelTitle      *primitives.Title `json:"title"`      // Critical
 
-	Website          *primitives.SiteURL             `json:"site"`              // Not-Critical
-	LongDescription  *primitives.LongDescription     `json:"longdesc"`          // Not-Critical
-	ShortDescription *primitives.ShortDescription    `json:"shortdesc"`         // Not-Critical
-	Playlist         *ManyPlayList                   `json:"playlist"`          // Not-Critical
-	Thumbnail        *primitives.Image               `json:"thumbnail"`         // Not-Critical
-	Banner           *primitives.Image               `json:"banner"`            // Not-Critical
-	Tags             *primitives.TagList             `json:"tags"`              // Not-Critical
-	SuggestedChannel *primitives.HashList            `json:"suggestedchannels"` // Not-Critical
-	Content          []*CustomJSONMarshalContentList `json:"contentlist"`       // Not-Critical
+	Website          *primitives.SiteURL           `json:"site"`              // Not-Critical
+	LongDescription  *primitives.LongDescription   `json:"longdesc"`          // Not-Critical
+	ShortDescription *primitives.ShortDescription  `json:"shortdesc"`         // Not-Critical
+	Playlist         *ManyPlayList                 `json:"playlist"`          // Not-Critical
+	Thumbnail        *primitives.Image             `json:"thumbnail"`         // Not-Critical
+	Banner           *primitives.Image             `json:"banner"`            // Not-Critical
+	Tags             *primitives.TagList           `json:"tags"`              // Not-Critical
+	SuggestedChannel *primitives.HashList          `json:"suggestedchannels"` // Not-Critical
+	Content          *CustomJSONMarshalContentList `json:"contentlist"`       // Not-Critical
 
 	CreationTime time.Time `json:"creationtime"` // Not-Critical
 }
@@ -257,7 +257,7 @@ func (a *CustomJSONMarshalChannel) IsSimilarTo(b CustomJSONMarshalChannel) bool 
 		return false
 	}
 
-	if len(a.Content) != len(b.Content) {
+	if len(a.Content.CustomJSONMarshalContent) != len(b.Content.CustomJSONMarshalContent) {
 		return false
 	}
 	// TODO: Compare content lists
@@ -266,20 +266,27 @@ func (a *CustomJSONMarshalChannel) IsSimilarTo(b CustomJSONMarshalChannel) bool 
 }
 
 type CustomJSONMarshalContentList struct {
+	CustomJSONMarshalContent []*CustomJSONMarshalContent `json:"contentlist"`
+}
+
+type CustomJSONMarshalContent struct {
 	ContentID string `json:"contentid"`
 	Title     string `json:"title"`
 }
 
 func (a *Channel) ToCustomMarsalStruct() CustomJSONMarshalChannel {
-	con := make([]*CustomJSONMarshalContentList, 0)
+	conList := new(CustomJSONMarshalContentList)
+	con := make([]*CustomJSONMarshalContent, 0)
+
 	for _, h := range a.Content.GetContents() {
-		ci := new(CustomJSONMarshalContentList)
+		ci := new(CustomJSONMarshalContent)
 		ci.Title = h.ContentTitle.String()
 		ci.ContentID = h.ContentID.String()
 		con = append(con, ci)
 		//hashList = append(hashList, h.ContentID.String())
 		//titleList = append(titleList, h.ContentTitle.String())
 	}
+	conList.CustomJSONMarshalContent = con
 
 	custom := CustomJSONMarshalChannel{
 		RootChainID:       a.RootChainID.String(),
@@ -298,7 +305,7 @@ func (a *Channel) ToCustomMarsalStruct() CustomJSONMarshalChannel {
 		Banner:            &a.Banner,
 		Tags:              &a.Tags,
 		SuggestedChannel:  &a.SuggestedChannel,
-		Content:           con,
+		Content:           conList,
 		CreationTime:      a.CreationTime,
 	}
 	return custom

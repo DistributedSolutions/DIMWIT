@@ -78,11 +78,11 @@ func (ct *CreationTool) ReturnFactomElements(root primitives.Hash) ([]*factom.En
 	return ents, chains, nil
 }
 
-func (ct *CreationTool) UpdateChannel(ch *common.Channel, filePaths []string) error {
-	return nil
+func (ct *CreationTool) UpdateChannel(ch *common.Channel, filePaths []string) (*common.Channel, error) {
+	return ch, nil
 }
 
-func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePaths []string) (*primitives.Hash, error) {
+func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePaths []string) (*common.Channel, error) {
 	if _, ok := ct.Channels[ch.RootChainID.String()]; ok {
 		return nil, fmt.Errorf("Channel already exists in the CreationTool")
 	}
@@ -98,13 +98,17 @@ func (ct *CreationTool) AddNewChannel(ch *common.Channel, filePaths []string) (*
 		return nil, err
 	}
 
-	for i := 0; i < len(filePaths); i++ {
-		a.TorrentUploadPaths[i].SetString(filePaths[i])
+	for i := range filePaths {
+		f, err := primitives.NewFilePath(filePaths[i])
+		if err != nil {
+			return nil, err
+		}
+		a.TorrentUploadPaths = append(a.TorrentUploadPaths, *f)
 	}
 
 	ct.Channels[a.Channel.RootChainID.String()] = a
 
-	return &a.Channel.RootChainID, nil
+	return &a.Channel, nil
 }
 
 // AddPrivateKey adds a private key to authority channel
