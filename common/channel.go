@@ -167,8 +167,8 @@ func RandomNewChannel() *Channel {
 		c.ContentChainID)
 	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
 	c.Playlist = *SmartRandomManyPlayList(random.RandomUInt32Between(0, 100), c.Content)
-	c.Thumbnail = *primitives.RandomHugeImage()
-	c.Banner = *primitives.RandomImage()
+	c.Thumbnail = *primitives.RandomValidImage(constants.MAX_IMAGE_SIZE)
+	c.Banner = *primitives.RandomValidImage(constants.MAX_BANNER_SIZE)
 	c.Tags = *primitives.RandomTagList(uint32(constants.MAX_CHANNEL_TAGS))
 	c.SuggestedChannel = *primitives.RandomHashList(random.RandomUInt32Between(0, 100))
 	c.CreationTime = time.Now()
@@ -477,7 +477,7 @@ func (a *Channel) IsSameAs(b *Channel) bool {
 		diff = -1 * diff
 	}
 	if diff > 60*60*24 { // 1 day difference
-		//log.Println("Content IsSameAs Exit 15")
+		log.Println("Content IsSameAs Exit 15")
 		return false
 	}
 
