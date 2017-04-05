@@ -26,6 +26,10 @@ type IChannelTool interface {
 type FakeChannelTool struct {
 }
 
+func NewFakeChannelTool() IChannelTool {
+	return new(FakeChannelTool)
+}
+
 func VerifyChannel(ch *common.Channel) (cost int, err error) {
 	return
 }
