@@ -14,6 +14,7 @@ import (
 type CreationTool struct {
 	Channels map[string]*AuthChannel
 	Wallet   *wallet.Wallet
+	ApiTool  *IChannelTool
 }
 
 func NewCreationTool() (*CreationTool, error) {
@@ -26,6 +27,11 @@ func NewCreationTool() (*CreationTool, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	//TODO: MAKE TWO CALLS FOR NEW CREATION TOOL.
+	//ONE FOR FAKE OTHER FOR REAL...MAYBE MAKE IT COMMAND LINE OPTION ON STARTUP
+	apiTool := NewFakeChannelTool()
+	ct.ApiTool = &apiTool
 
 	return ct, nil
 }

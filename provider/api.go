@@ -19,6 +19,11 @@ type VerifyChannel struct {
 	Paths   []string       `json:"path"`
 }
 
+type AddContent struct {
+	Channel common.Channel `json:"channel"`
+	Path    string         `json:"path"`
+}
+
 type SubmitChannel struct {
 	ChannelHash primitives.Hash `json:"hash"`
 }
@@ -303,4 +308,67 @@ func (apiService *ApiService) GetStats() (*DatabaseStats, error) {
 
 func (apiService *ApiService) GetCompleteHeight() (uint32, error) {
 	return apiService.Provider.GetCompleteHeight()
+}
+
+func (apiService *ApiService) VerifyChannel(ch *common.Channel) (int, error) {
+	cost, apiError := (*apiService.Provider.CreationTool.ApiTool).VerifyChannel(ch)
+	if apiError.LogError != nil {
+		color.Red("VerifyChannel Error: %s", apiError.LogError.Error())
+		return cost, apiError.UserError
+	}
+	return cost, nil
+}
+
+func (apiService *ApiService) InitiateChannel(ch *common.Channel) error {
+	_, _, apiError := (*apiService.Provider.CreationTool.ApiTool).InitiateChannel(ch)
+	if apiError.LogError != nil {
+		color.Red("InitiateChannel Error: %s", apiError.LogError.Error())
+		return apiError.UserError
+	}
+	return nil
+}
+
+func (apiService *ApiService) UpdateChannel(ch *common.Channel) error {
+	_, _, apiError := (*apiService.Provider.CreationTool.ApiTool).UpdateChannel(ch)
+	if apiError.LogError != nil {
+		color.Red("UpdateChannel Error: %s", apiError.LogError.Error())
+		return apiError.UserError
+	}
+	return nil
+}
+
+func (apiService *ApiService) DeleteChannel(h *primitives.Hash) error {
+	apiError := (*apiService.Provider.CreationTool.ApiTool).DeleteChannel(h)
+	if apiError.LogError != nil {
+		color.Red("DeleteChannel Error: %s", apiError.LogError.Error())
+		return apiError.UserError
+	}
+	return nil
+}
+
+func (apiService *ApiService) VerifyContent(c *common.Content) (int, error) {
+	cost, apiError := (*apiService.Provider.CreationTool.ApiTool).VerifyContent(c)
+	if apiError.LogError != nil {
+		color.Red("VerifyContent Error: %s", apiError.LogError.Error())
+		return cost, apiError.UserError
+	}
+	return cost, nil
+}
+
+func (apiService *ApiService) AddContent(c *common.Content) error {
+	_, _, apiError := (*apiService.Provider.CreationTool.ApiTool).AddContent(c, &c.ContentID)
+	if apiError.LogError != nil {
+		color.Red("UpdateChannel Error: %s", apiError.LogError.Error())
+		return apiError.UserError
+	}
+	return nil
+}
+
+func (apiService *ApiService) DeleteContent(h *primitives.Hash) error {
+	apiError := (*apiService.Provider.CreationTool.ApiTool).DeleteContent(h)
+	if apiError.LogError != nil {
+		color.Red("DeleteContent Error: %s", apiError.LogError.Error())
+		return apiError.UserError
+	}
+	return nil
 }

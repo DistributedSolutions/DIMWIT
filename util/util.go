@@ -22,3 +22,15 @@ func GetHomeDir() string {
 
 	return homeDir + "/"
 }
+
+type ApiError struct {
+	LogError  error
+	UserError error
+}
+
+func NewApiError(logError error, userError error) *ApiError {
+	apiError := new(ApiError)
+	apiError.LogError = logError
+	apiError.UserError = userError
+	return apiError
+}
