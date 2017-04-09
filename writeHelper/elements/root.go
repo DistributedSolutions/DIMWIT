@@ -28,10 +28,28 @@ func InitiateChannel(a *writeHelper.AuthChannel, ch *common.Channel) (*writeHelp
 		pubs = append(pubs, p.Public)
 	}
 	// RootChainID
-	root := r.Chain.Create(pubs, ch.ChannelTitle)
+	root, err := r.Chain.Create(pubs, ch.ChannelTitle)
+	if err != nil { // TODO: Handle error
+		return nil, nil, nil
+	}
 
-	var _ = root
+	r.RegisterRoot.Create(a.PrivateKeys[2], root)
+	r.ContentSigKey.Create(a.PrivateKeys[2], root, a.ContentSigning.Public)
+
+	a.ChannelRoot = root
+	ch.RootChainID = root
 	return a, ch, r
+}
+
+func (r *Root) FactomElements() ([]*factom.Entry, []*factom.Chain) {
+	es := make([]*factom.Entry, 0)
+	cs := make([]*factom.Chain, 0)
+
+	cs = append(cs, r.Chain.FactomChain())
+	es = append(es, r.RegisterRoot.FactomEntry())
+	es = append(es, r.ContentSigKey.FactomEntry())
+
+	return es, cs
 }
 
 // Factom Chain
@@ -53,11 +71,12 @@ func (RootChain) IsChain() bool { return true }
 func (RootChain) ForChain() int { return CHAIN_NA }
 
 // Create will find the nonce and return the root chain ID
-func (rc *RootChain) Create(pubs []primitives.PublicKey, title primitives.Title) (root []byte) {
+func (rc *RootChain) Create(pubs []primitives.PublicKey, title primitives.Title) (rootHash primitives.Hash, err error) {
+	var root []byte
 	rc.PubKeys = pubs
 	rc.Title = title
 	rc.Nonce, root = FindValidNonce(rc.AllButNonce())
-	return
+	return primitives.BytesToHash(root)
 }
 
 func (rc *RootChain) AllButNonce() [][]byte {
