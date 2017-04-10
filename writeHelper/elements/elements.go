@@ -16,6 +16,11 @@ var (
 	TYPE_ROOT_CHAIN       = []byte("Channel Root Chain")
 	TYPE_ROOT_REGISTER    = []byte("Channel Chain")
 	TYPE_ROOT_CONTENT_KEY = []byte("Content Signing Key")
+
+	// Manage
+	TYPE_MANAGE_CHAIN          = []byte("Channel Management Chain")
+	TYPE_MANAGE_CHAIN_REGISTER = []byte("Register Management Chain")
+	TYPE_MANAGE_CHAIN_METADATA = []byte("Channel Management Metadata Main")
 )
 
 // Chains

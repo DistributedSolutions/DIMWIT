@@ -4,52 +4,33 @@ import (
 	//"fmt"
 	// "time"
 
-	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
-	"github.com/DistributedSolutions/DIMWIT/writeHelper"
 	"github.com/FactomProject/factom"
 )
 
 type Root struct {
-	// Factom Elements
 	Chain         *RootChain
 	RegisterRoot  *RegisterRootEntry
 	ContentSigKey *ContentKeyEntry
 }
 
-// InitiateChannel creates the factom elements needed to initiate a channel.
-// It will set the channel variables and return the channel with new values
-func InitiateChannel(a *writeHelper.AuthChannel, ch *common.Channel) (*writeHelper.AuthChannel, *common.Channel, *Root) {
+func NewRoot() *Root {
 	r := new(Root)
 	r.Chain = new(RootChain)
-	pubs := make([]primitives.PublicKey, 0)
-	for _, p := range a.PrivateKeys {
-		pubs = append(pubs, p.Public)
-	}
-	// RootChainID
-	root, err := r.Chain.Create(pubs, ch.ChannelTitle)
-	if err != nil { // TODO: Handle error
-		return nil, nil, nil
-	}
+	r.RegisterRoot = new(RegisterRootEntry)
+	r.ContentSigKey = new(ContentKeyEntry)
 
-	r.RegisterRoot.Create(a.PrivateKeys[2], root)
-	r.ContentSigKey.Create(a.PrivateKeys[2], root, a.ContentSigning.Public)
-
-	a.ChannelRoot = root
-	ch.RootChainID = root
-	return a, ch, r
+	return r
 }
 
-func (r *Root) FactomElements() ([]*factom.Entry, []*factom.Chain) {
+func (r *Root) FactomElements() ([]*factom.Entry, *factom.Chain) {
 	es := make([]*factom.Entry, 0)
-	cs := make([]*factom.Chain, 0)
 
-	cs = append(cs, r.Chain.FactomChain())
 	es = append(es, r.RegisterRoot.FactomEntry())
 	es = append(es, r.ContentSigKey.FactomEntry())
 
-	return es, cs
+	return es, r.Chain.FactomChain()
 }
 
 // Factom Chain
@@ -66,12 +47,12 @@ type RootChain struct {
 	Nonce   []byte
 }
 
-func (RootChain) Type() []byte  { return TYPE_ROOT_CHAIN }
+func (RootChain) Type() []byte  { return TYPE_MANAGE_CHAIN }
 func (RootChain) IsChain() bool { return true }
 func (RootChain) ForChain() int { return CHAIN_NA }
 
 // Create will find the nonce and return the root chain ID
-func (rc *RootChain) Create(pubs []primitives.PublicKey, title primitives.Title) (rootHash primitives.Hash, err error) {
+func (rc *RootChain) Create(pubs []primitives.PublicKey, title primitives.Title) (rootHash *primitives.Hash, err error) {
 	var root []byte
 	rc.PubKeys = pubs
 	rc.Title = title
@@ -112,8 +93,8 @@ func (RegisterRootEntry) Type() []byte  { return TYPE_ROOT_REGISTER }
 func (RegisterRootEntry) IsChain() bool { return false }
 func (RegisterRootEntry) ForChain() int { return CHAIN_MAIN }
 
-func (rre *RegisterRootEntry) Create(key3 primitives.PrivateKey, root primitives.Hash) {
-	rre.RootChainID = root
+func (rre *RegisterRootEntry) Create(key3 primitives.PrivateKey, root *primitives.Hash) {
+	rre.RootChainID = *root
 	rre.KeyToSign = key3
 }
 
@@ -121,8 +102,9 @@ func (rre *RegisterRootEntry) FactomEntry() *factom.Entry {
 	e := new(factom.Entry)
 	extIDs := VersionAndType(rre)
 	extIDs = append(extIDs, rre.RootChainID.Bytes())
-	extIDs = append(extIDs, rre.KeyToSign.Public.Bytes())
+
 	sig := rre.KeyToSign.Sign(upToSig(extIDs))
+	extIDs = append(extIDs, rre.KeyToSign.Public.Bytes())
 	extIDs = append(extIDs, sig)
 
 	e.ExtIDs = extIDs
@@ -150,8 +132,8 @@ func (ContentKeyEntry) Type() []byte  { return TYPE_ROOT_CONTENT_KEY }
 func (ContentKeyEntry) IsChain() bool { return false }
 func (ContentKeyEntry) ForChain() int { return CHAIN_ROOT }
 
-func (cke *ContentKeyEntry) Create(key3 primitives.PrivateKey, root primitives.Hash, newConKey primitives.PublicKey) {
-	cke.RootChainID = root
+func (cke *ContentKeyEntry) Create(key3 primitives.PrivateKey, root *primitives.Hash, newConKey primitives.PublicKey) {
+	cke.RootChainID = *root
 	cke.KeyToSign = key3
 	cke.ContentPubKey = newConKey
 }

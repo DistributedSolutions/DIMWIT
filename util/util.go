@@ -28,7 +28,11 @@ type ApiError struct {
 	UserError error
 }
 
-func NewApiError(logError error, userError error) *ApiError {
+func (a *ApiError) Error() string {
+	return a.LogError.Error()
+}
+
+func NewAPIError(logError error, userError error) *ApiError {
 	apiError := new(ApiError)
 	apiError.LogError = logError
 	apiError.UserError = userError

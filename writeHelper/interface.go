@@ -41,7 +41,7 @@ func NewFakeIWriterHelper() IWriterHelper {
 }
 
 func (fakeChannelTool *FakeWriterHelper) VerifyChannel(ch *common.Channel) (cost int, err *util.ApiError) {
-	return 0, util.NewApiError(nil, nil)
+	return 0, util.NewAPIError(nil, nil)
 }
 
 func (fakeChannelTool *FakeWriterHelper) InitiateChannel(ch *common.Channel) (newCh *common.Channel, err *util.ApiError) {
@@ -57,7 +57,7 @@ func (fakeChannelTool *FakeWriterHelper) DeleteChannel(rootChain *primitives.Has
 }
 
 func (fakeChannelTool *FakeWriterHelper) VerifyContent(ch *common.Content) (cost int, err *util.ApiError) {
-	return 0, util.NewApiError(nil, nil)
+	return 0, util.NewAPIError(nil, nil)
 }
 
 func (fakeChannelTool *FakeWriterHelper) AddContent(con *common.Content, contentID *primitives.Hash) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError) {

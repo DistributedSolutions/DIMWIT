@@ -41,7 +41,7 @@ func NewFakeChannelTool() IChannelTool {
 }
 
 func (fakeChannelTool *FakeChannelTool) VerifyChannel(ch *common.Channel) (cost int, err *util.ApiError) {
-	return 0, util.NewApiError(nil, nil)
+	return 0, util.NewAPIError(nil, nil)
 }
 
 func (fakeChannelTool *FakeChannelTool) InitiateChannel(ch *common.Channel) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError) {
@@ -57,7 +57,7 @@ func (fakeChannelTool *FakeChannelTool) DeleteChannel(rootChain *primitives.Hash
 }
 
 func (fakeChannelTool *FakeChannelTool) VerifyContent(ch *common.Content) (cost int, err *util.ApiError) {
-	return 0, util.NewApiError(nil, nil)
+	return 0, util.NewAPIError(nil, nil)
 }
 
 func (fakeChannelTool *FakeChannelTool) AddContent(con *common.Content, contentID *primitives.Hash) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError) {
