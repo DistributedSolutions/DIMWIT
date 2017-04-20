@@ -116,7 +116,7 @@ func (c *TorrentClient) HandleTorrentAPI(w http.ResponseWriter, r *http.Request)
 			InfoHash  string  `json:"infohash"`
 			Name      string  `json:"name"`
 			Progress  float64 `json:"progress"`
-			TotalSize int64   `json:totalsize`
+			TotalSize int64   `json:"totalsize"`
 			HaveInfo  bool    `json:"haveinfo"`
 		}
 
