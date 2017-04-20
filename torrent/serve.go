@@ -15,7 +15,7 @@ import (
 func NewTorrentRouter(client *TorrentClient) *http.ServeMux {
 	r := http.NewServeMux()
 	r.HandleFunc("/stream", client.HandleStream)
-	r.HandleFunc("/torrent", client.HandleStream)
+	r.HandleFunc("/torrent", client.HandleTorrentAPI)
 
 	return r
 }
