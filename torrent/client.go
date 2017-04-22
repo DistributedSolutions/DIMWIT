@@ -3,6 +3,7 @@ package torrent
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -167,6 +168,19 @@ func (c *TorrentClient) ClientStatus() string {
 	buf := new(bytes.Buffer)
 	c.client.WriteStatus(buf)
 	return string(buf.Next(buf.Len()))
+}
+
+// Gets a complete list of torrent files
+func (c *TorrentClient) GetTorrentFiles(ih string) ([]torrent.File, error) {
+	metainfo, err := HexToIH(ih)
+	if err != nil {
+		return nil, err
+	}
+	torrent, ok := c.GetTorrent(metainfo)
+	if ok {
+		return torrent.Files(), nil
+	}
+	return nil, errors.New("Torrent Does not exist. No files are going to be returned")
 }
 
 func (c *TorrentClient) ShortStatus() string {

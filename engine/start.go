@@ -92,6 +92,9 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	CloseCalls = append(CloseCalls, torClient.Close)
 	prov.Router.HandleFunc("/stream", torClient.HandleStream)
 
+	//sets interface between api and torrent client up
+	prov.TorrentClientInterface.SetClient(torClient)
+
 	// Start Go Routines
 	go con.StartConstructor()
 	go prov.Serve()

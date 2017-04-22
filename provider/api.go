@@ -11,6 +11,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/jsonrpc"
+	"github.com/DistributedSolutions/DIMWIT/torrent"
 	"github.com/fatih/color"
 )
 
@@ -84,6 +85,11 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		if err != nil {
 			extra = "Channel not found"
 			errorID = 1
+			goto CustomError
+		}
+		if channel == nil {
+			extra = "Channel hash not found"
+			errorID = 8
 			goto CustomError
 		}
 
@@ -169,6 +175,27 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			goto InternalError
 		}
 		goto Success
+	case "torrent-stream-stat":
+		var hashString string
+		err := json.Unmarshal(req.Params, &hashString)
+		if err != nil {
+			color.Red("Error unmarshall torrent-stream-stat: %s", err.Error())
+			extra = fmt.Sprintf("Error unmarshall torrent-stream-stat: %s", err.Error())
+			goto InvalidRequest // Bad Request data
+		}
+		stats, err := apiService.GetTorrentStreamStats(hashString)
+		if err != nil {
+			extra = err.Error()
+			errorID = 9
+			goto CustomError
+		}
+
+		data, err = json.Marshal(stats)
+		if err != nil {
+			extra = fmt.Sprintf("Failed to unmarshal torrent file stats: %s", err.Error())
+			goto InternalError
+		}
+		goto Success
 	case "verify-channel":
 		verifyChannel := new(VerifyChannel)
 		err = json.Unmarshal(req.Params, verifyChannel)
@@ -191,7 +218,7 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			if err != nil {
 				color.Red("Error verifying UpdateChanne: %s", err.Error())
 				extra = fmt.Sprintf("Error verifying update channel with error: %s", err.Error())
-				errorID = 6
+				errorID = 7
 				goto CustomError
 			}
 		}
@@ -304,6 +331,10 @@ func (apiService *ApiService) GetContents(hashes primitives.HashList) (*common.C
 
 func (apiService *ApiService) GetStats() (*DatabaseStats, error) {
 	return apiService.Provider.GetStats()
+}
+
+func (apiService *ApiService) GetTorrentStreamStats(torrentHash string) (*torrent.JSONFiles, error) {
+	return apiService.Provider.TorrentClientInterface.GetTorrentFileMetaData(torrentHash)
 }
 
 func (apiService *ApiService) GetCompleteHeight() (uint32, error) {

@@ -14,12 +14,14 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/constructor/objects"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	"github.com/DistributedSolutions/DIMWIT/torrent"
 )
 
 type Provider struct {
-	Level2Cache  database.IDatabase
-	CreationTool *channelTool.CreationTool
-	FactomWriter lite.FactomLiteWriter
+	Level2Cache            database.IDatabase
+	CreationTool           *channelTool.CreationTool
+	FactomWriter           lite.FactomLiteWriter
+	TorrentClientInterface torrent.ClientInterface
 
 	// API
 	Router    *http.ServeMux
@@ -81,6 +83,11 @@ func (p *Provider) GetStats() (*DatabaseStats, error) {
 	}
 	ds.TotalContent = totalCon
 	return ds, nil
+}
+
+///////////////HEY YOU, YOU NEED TO CONNECT THE INTERFACE TO THIS FRONT END
+func (p *Provider) GetTorrentStreamStats(torrentHash string) (*torrent.JSONFiles, error) {
+	return p.TorrentClientInterface.GetTorrentFileMetaData(torrentHash)
 }
 
 func (p *Provider) GetAllChannels() ([]common.Channel, error) {
