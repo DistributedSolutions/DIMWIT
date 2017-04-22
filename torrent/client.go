@@ -142,7 +142,6 @@ func (c *TorrentClient) GetFile(infohash metainfo.Hash, w http.ResponseWriter, r
 
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+t.Info().Name+"\"")
 	http.ServeContent(w, r, target.DisplayPath(), time.Now(), entry)
-	fmt.Println("ASDSADASSDSA")
 	return nil
 }
 

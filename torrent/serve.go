@@ -12,6 +12,24 @@ import (
 	"github.com/fatih/color"
 )
 
+type IF interface {
+	HandleHttpShit(stuff interface{}, w http.ResponseWriter, r *http.Request)
+	// Exec
+	// var stuff interface{}
+	// tc, ok := stuff.(*TorrentClient)
+	// if !ok {
+	// // Ok to cast
+	// }
+	// tc.GetFile(infohash, w, r)
+	//
+}
+
+// 	x := make(map[string]IF)
+// f, ok := x[variable]
+// if ok {
+// Func exists
+// }
+
 func NewTorrentRouter(client *TorrentClient) *http.ServeMux {
 	r := http.NewServeMux()
 	r.HandleFunc("/stream", client.HandleStream)
@@ -116,7 +134,7 @@ func (c *TorrentClient) HandleTorrentAPI(w http.ResponseWriter, r *http.Request)
 			InfoHash  string  `json:"infohash"`
 			Name      string  `json:"name"`
 			Progress  float64 `json:"progress"`
-			TotalSize int64   `json:totalsize`
+			TotalSize int64   `json:"totalsize"`
 			HaveInfo  bool    `json:"haveinfo"`
 		}
 
