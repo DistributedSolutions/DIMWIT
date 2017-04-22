@@ -87,7 +87,7 @@ func (p *Provider) GetStats() (*DatabaseStats, error) {
 
 ///////////////HEY YOU, YOU NEED TO CONNECT THE INTERFACE TO THIS FRONT END
 func (p *Provider) GetTorrentStreamStats(torrentHash string) (*torrent.JSONFiles, error) {
-	return p.TorrentClientInterface.GetTorrentFileMetaData(torrentHash)
+	return p.TorrentClientInterface.GetTorrentFileMetaDataChunked(torrentHash)
 }
 
 func (p *Provider) GetAllChannels() ([]common.Channel, error) {

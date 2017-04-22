@@ -334,7 +334,7 @@ func (apiService *ApiService) GetStats() (*DatabaseStats, error) {
 }
 
 func (apiService *ApiService) GetTorrentStreamStats(torrentHash string) (*torrent.JSONFiles, error) {
-	return apiService.Provider.TorrentClientInterface.GetTorrentFileMetaData(torrentHash)
+	return apiService.Provider.GetTorrentStreamStats(torrentHash)
 }
 
 func (apiService *ApiService) GetCompleteHeight() (uint32, error) {
