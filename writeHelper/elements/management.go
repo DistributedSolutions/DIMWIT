@@ -1,7 +1,11 @@
 package elements
 
 import (
+	"crypto/sha256"
+	"time"
+
 	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/FactomProject/factom"
 )
@@ -139,6 +143,17 @@ func RandomManageChainMetaData() *ManageChainMetaData {
 //	7	[32]byte	PublicKey(3)
 //	8	[64]byte	Signature
 
+// Entry Stich
+//	0	byte		Version
+//	1	[33]byte	"Channel Management Metadata Stich"
+//	2	[32]byte	RootChainID
+//	3	[32]byte	FullContentHash
+//	4	[4]byte		Sequence
+//	5	[32]byte	ContentHash
+//	6	[15]byte	Timestamp
+//	7	[32]byte	PublicKey(3)
+//	8	[64]byte	Signature
+
 // Data from Entries in MsgPack
 //		Channel Website
 //		Channel LongDescription
@@ -154,17 +169,6 @@ type ManageMetaData struct {
 	root      primitives.Hash
 }
 
-// Entry Stich
-//	0	byte		Version
-//	1	[33]byte	"Channel Management Metadata Stich"
-//	2	[32]byte	RootChainID
-//	3	[32]byte	FullContentHash
-//	4	[4]byte		Sequence
-//	5	[32]byte	ContentHash
-//	6	[15]byte	Timestamp
-//	7	[32]byte	PublicKey(3)
-//	8	[64]byte	Signature
-
 func (ManageMetaData) Type() []byte  { return TYPE_MANAGE_CHAIN_METADATA }
 func (ManageMetaData) IsChain() bool { return false }
 func (ManageMetaData) ForChain() int { return CHAIN_MANAGEMENT }
@@ -172,6 +176,197 @@ func (ManageMetaData) ForChain() int { return CHAIN_MANAGEMENT }
 func (mmd *ManageMetaData) Create(metaToChange ManageChainMetaData, key3 primitives.PrivateKey, root primitives.Hash) {
 	mmd.MetaData = metaToChange
 	mmd.KeyToSign = key3
+}
+
+func (mmd *ManageMetaData) FactomEntry() ([]*factom.Entry, error) {
+	placeHolder := make([]byte, 64)
+	metaDataBytes, err := mmd.MetaData.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	fullContentHash := sha256.Sum256(metaDataBytes)
+
+	tsData, err := time.Now().MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	es := make([]*factom.Entry, 0)
+	e := new(factom.Entry)
+	//	0	byte		Version
+	//	1	[32]byte	"Channel Management Metadata Main"
+	//	2	[32]byte	RootChainID
+	//	3	[32]byte	FullContentHash
+	//	4	[8]byte		EntryCount
+	//	5	[32]byte	ContentHash
+	//	6	[15]byte	Timestamp
+	//	7	[32]byte	PublicKey(3)
+	//	8	[64]byte	Signature
+
+	extIDs := VersionAndType(mmd)
+	extIDs = append(extIDs, mmd.root.Bytes())
+	extIDs = append(extIDs, fullContentHash[:])
+	extIDs = append(extIDs, placeHolder[:8])  // EntryCount
+	extIDs = append(extIDs, placeHolder[:32]) //ContentHash
+	extIDs = append(extIDs, tsData)
+	extIDs = append(extIDs, mmd.KeyToSign.Public.Bytes())
+	extIDs = append(extIDs, placeHolder[:64]) // Sig
+
+	headerLength := ExIDLength(extIDs)
+	contentLength := len(metaDataBytes)
+	totalSize := contentLength + headerLength
+	contentHeaderLen := 245 + 9*2 + 2
+
+	var entryCount int = 0
+	if totalSize > constants.ENTRY_MAX_SIZE {
+		entryCount = howManyEntries(headerLength, contentLength, contentHeaderLen)
+	}
+	extIDs[4] = primitives.Uint32ToBytes(uint32(entryCount))
+	e.ExtIDs = extIDs
+
+	if entryCount == 0 {
+		e.extIDs[5] = fullContentHash[:]
+		e.Content = metaDataBytes
+		metaDataBytes = []byte{}
+	} else {
+		fl := constants.ENTRY_MAX_SIZE - ExIDLength(e.ExtIDs)
+		flData := metaDataBytes[:fl]
+		metaDataBytes = metaDataBytes[fl:]
+		e.Content = flData
+		partHash := sha256.Sum256(flData)
+		e.ExtIDs[5] = partHash[:]
+	}
+	// Now sign full data set
+	buf := new(bytes.Buffer)
+	for i := 0; i < 7; i++ {
+		buf.Write(e.ExtIDs[i])
+	}
+	contentData := buf.Next(buf.Len())
+	sig = mmd.KeyToSign.Sign(contentData)
+	e.ExtIDs[8] = sig
+
+	// metaDataBytes is remaining bytes to be stiched
+	bytesPerEntry := constants.ENTRY_MAX_SIZE - contentHeaderLen
+	c.Entries = make([]*factom.Entry, entryCount)
+
+	// Entry Stich
+	//	0	byte		Version
+	//	1	[33]byte	"Channel Management Metadata Stich"
+	//	2	[32]byte	RootChainID
+	//	3	[32]byte	FullContentHash
+	//	4	[4]byte		Sequence
+	//	5	[32]byte	ContentHash
+	//	6	[15]byte	Timestamp
+	//	7	[32]byte	PublicKey(3)
+	//	8	[64]byte	Signature
+	var seq uint32 = 0
+	for len(metaDataBytes) > 0 {
+		entry := new(factom.Entry)
+		end := bytesPerEntry
+		if len(metaDataBytes) < bytesPerEntry {
+			end = len(metaDataBytes)
+		}
+
+		contentData := metaDataBytes[:end]
+		metaDataBytes = metaDataBytes[end:]
+
+		partHash := sha256.Sum256(contentData)
+		// Set headers
+		entry.ExtIDs = append(entry.ExtIDs, []byte{constants.FACTOM_VERSION})            // 0
+		entry.ExtIDs = append(entry.ExtIDs, []byte("Channel Management Metadata Stich")) // 1
+		entry.ExtIDs = append(entry.ExtIDs, root.Bytes())                                // 2
+		entry.ExtIDs = append(entry.ExtIDs, fullHash[:])                                 // 3
+		entry.ExtIDs = append(entry.ExtIDs, primitives.Uint32ToBytes(seq+1))             // 4 - Seq
+		entry.ExtIDs = append(entry.ExtIDs, partHash[:])                                 // 5
+		entry.ExtIDs = append(entry.ExtIDs, tsData)                                      // 6
+
+		msg := upToSig(entry.ExtIDs)
+		entry.ExtIDs = append(entry.ExtIDs, sigKey.Public.Bytes()) // 7
+		sig := sigKey.Sign(msg)
+		entry.ExtIDs = append(entry.ExtIDs, sig) // 8
+		entry.ChainID = manage.String()
+		entry.Content = contentData
+
+		if int(seq) >= len(c.Entries) {
+			return fmt.Errorf("Ran out of entries. Seq is %d. Entrycount is %d, %d bytes left to write", seq-1, entryCount, len(data))
+		}
+		c.Entries[seq] = entry
+		//fmt.Println("Seq", seq, len(c.Entries[seq].Content), len(data), entry.ExtIDs[4])
+		seq++
+	}
+
+	return es, nil
+}
+
+/*
+
+// Content time
+
+
+	// Entry Stich
+	//	0	byte		Version
+	//	1	[33]byte	"Channel Management Metadata Stich"
+	//	2	[32]byte	RootChainID
+	//	3	[32]byte	FullContentHash
+	//	4	[4]byte		Sequence
+	//	5	[32]byte	ContentHash
+	//	6	[15]byte	Timestamp
+	//	7	[32]byte	PublicKey(3)
+	//	8	[64]byte	Signature
+	c.Entries = make([]*factom.Entry, entryCount)
+	bytesPerEntry := constants.ENTRY_MAX_SIZE - contentHeaderLen
+	var seq uint32 = 0
+	for len(data) > 0 {
+		entry := new(factom.Entry)
+		end := bytesPerEntry
+		if len(data) < bytesPerEntry {
+			end = len(data)
+		}
+
+		contentData := data[:end]
+		data = data[end:]
+
+		partHash := sha256.Sum256(contentData)
+		// Set headers
+		entry.ExtIDs = append(entry.ExtIDs, []byte{constants.FACTOM_VERSION})            // 0
+		entry.ExtIDs = append(entry.ExtIDs, []byte("Channel Management Metadata Stich")) // 1
+		entry.ExtIDs = append(entry.ExtIDs, root.Bytes())                                // 2
+		entry.ExtIDs = append(entry.ExtIDs, fullHash[:])                                 // 3
+		entry.ExtIDs = append(entry.ExtIDs, primitives.Uint32ToBytes(seq+1))             // 4 - Seq
+		entry.ExtIDs = append(entry.ExtIDs, partHash[:])                                 // 5
+		entry.ExtIDs = append(entry.ExtIDs, tsData)                                      // 6
+
+		msg := upToSig(entry.ExtIDs)
+		entry.ExtIDs = append(entry.ExtIDs, sigKey.Public.Bytes()) // 7
+		sig := sigKey.Sign(msg)
+		entry.ExtIDs = append(entry.ExtIDs, sig) // 8
+		entry.ChainID = manage.String()
+		entry.Content = contentData
+
+		if int(seq) >= len(c.Entries) {
+			return fmt.Errorf("Ran out of entries. Seq is %d. Entrycount is %d, %d bytes left to write", seq-1, entryCount, len(data))
+		}
+		c.Entries[seq] = entry
+		//fmt.Println("Seq", seq, len(c.Entries[seq].Content), len(data), entry.ExtIDs[4])
+		seq++
+	}
+
+	// Done
+	c.MainEntry = e
+	r.MetaData = c
+*/
+
+func howManyEntries(headerLength int, contentLength int, contentHeaderLength int) int {
+	contentLength -= (constants.ENTRY_MAX_SIZE - headerLength)
+	bytesPerEntry := constants.ENTRY_MAX_SIZE - contentHeaderLength
+	count := 0
+	for contentLength > 0 {
+		contentLength -= bytesPerEntry
+		count++
+	}
+
+	return count
 }
 
 /*
