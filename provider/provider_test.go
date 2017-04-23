@@ -21,8 +21,13 @@ func TestProvider(t *testing.T) {
 		t.FailNow()
 	}
 
+	sqlW, err := constructor.NewSqlWriter()
+	if err != nil {
+		t.Error(err)
+	}
+
 	db := database.NewMapDB()
-	con, err := constructor.NewContructor(db)
+	con, err := constructor.NewContructor(db, sqlW)
 	if err != nil {
 		t.Error(err)
 	}

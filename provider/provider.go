@@ -50,6 +50,8 @@ func NewProvider(db database.IDatabase, writer lite.FactomLiteWriter) (*Provider
 	p.Service.Provider = p
 	p.Router = NewRouter(p.Service)
 
+	p.TorrentClientInterface = torrent.ClientInterface{}
+
 	return p, nil
 }
 

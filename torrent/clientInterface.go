@@ -84,6 +84,9 @@ func ToJSONPieceState(filePieceState *torrent.PieceState) *JSONPieceState {
 
 //chuncks the sizes up into meaning pieces
 func (c *ClientInterface) GetTorrentFileMetaDataChunked(torrentHash string) (*JSONFiles, error) {
+	if c.torrentClient == nil {
+		return nil, fmt.Errorf("Torrent client is not set :(")
+	}
 	torrentFiles, err := c.torrentClient.GetTorrentFiles(torrentHash)
 	if err != nil {
 		return nil, err
