@@ -3,6 +3,9 @@ package util
 import (
 	"os"
 	"os/user"
+	"regexp"
+	"strings"
+	"unicode"
 )
 
 func GetHomeDir() string {
@@ -37,4 +40,17 @@ func NewAPIError(logError error, userError error) *ApiError {
 	apiError.LogError = logError
 	apiError.UserError = userError
 	return apiError
+}
+
+func DashDelimiterToCamelCase(input string) string {
+	input = strings.TrimSpace(input)
+	if len(input) > 0 {
+		r, _ := regexp.Compile("-(.)")
+		out := []rune(input)
+		out[0] = unicode.ToUpper(out[0])
+		return r.ReplaceAllStringFunc(string(out), func(w string) string {
+			return string(strings.ToUpper(w)[1])
+		})
+	}
+	return input
 }

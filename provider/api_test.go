@@ -63,8 +63,8 @@ func (t *mainSuite) TestProviderChannels() {
 	}
 
 	if err == nil && jsonError == nil { // If no errors, check the reponse
-		resp := respObj.([]common.CustomJSONMarshalChannel)
-		for i, e := range resp {
+		resp := respObj.(*[]common.CustomJSONMarshalChannel)
+		for i, e := range *resp {
 			v := DataList[i].ToCustomMarsalStruct()
 			if !e.IsSimilarTo(v) {
 				t.Error("Channels returned does not match", err)

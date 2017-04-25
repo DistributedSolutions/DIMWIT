@@ -3,6 +3,7 @@ package provider_test
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 	"testing"
 	"time"
 
@@ -23,6 +24,49 @@ var URL string
 
 type mainSuite struct {
 	prettytest.Suite
+}
+
+func TestMethods(t *testing.T) {
+	baseMethod := reflect.TypeOf(provider.ApiBase{}).Method(0)
+	st := reflect.TypeOf(provider.ApiProvider{})
+	for i := 0; i < st.NumMethod(); i++ {
+
+		if baseMethod.Type.NumIn() != st.Method(i).Type.NumIn() {
+			t.Errorf("Error between [%s] and method [%s], args count: %d != %d respectively.\n\t\tDo not change base method... change your method.",
+				baseMethod.Name,
+				st.Method(i).Name,
+				baseMethod.Type.NumIn(),
+				st.Method(i).Type.NumIn())
+		} else {
+			for bi := 1; bi < baseMethod.Type.NumIn(); bi++ {
+				if baseMethod.Type.In(bi) != st.Method(i).Type.In(bi) {
+					t.Errorf("Error between [%s] and method [%s] args types!\n\t\targs type[%s] and args type[%s], do not match.\n\t\tDo not change base method... change your method.",
+						baseMethod.Name,
+						st.Method(i).Name,
+						baseMethod.Type.In(bi),
+						st.Method(i).Type.In(bi))
+				}
+			}
+		}
+
+		if baseMethod.Type.NumOut() != st.Method(i).Type.NumOut() {
+			t.Errorf("Error between [%s] and method [%s], return count: %d != %d respectively.\n\t\tDo not change base method... change your method.",
+				baseMethod.Name,
+				st.Method(i).Name,
+				baseMethod.Type.NumOut(),
+				st.Method(i).Type.NumOut())
+		} else {
+			for ai := 0; ai < baseMethod.Type.NumOut(); ai++ {
+				if baseMethod.Type.Out(ai) != st.Method(i).Type.Out(ai) {
+					t.Errorf("Error between [%s] and method [%s] return types!\n\t\treturn type[%s] and return type[%s], do not match.\n\t\tDo not change base method... change your method.",
+						baseMethod.Name,
+						st.Method(i).Name,
+						baseMethod.Type.Out(ai),
+						st.Method(i).Type.Out(ai))
+				}
+			}
+		}
+	}
 }
 
 func TestRunner(t *testing.T) {
