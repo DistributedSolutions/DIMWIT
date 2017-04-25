@@ -8,6 +8,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 	"github.com/DistributedSolutions/DIMWIT/util"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper/elements"
 	"github.com/FactomProject/factom"
 )
 
@@ -49,7 +50,7 @@ func (w *WriteHelper) VerifyChannel(ch *common.Channel) (cost int, apiErr *util.
 	return 0, util.NewAPIError(nil, nil)
 }
 
-func (w *WriteHelper) InitiateChannel(ch *common.Channel) (apiErr *util.ApiError) {
+func (w *WriteHelper) InitiateChannel(ch *common.Channel) *util.ApiError {
 	// TODO: Check Balance
 
 	// Generate Keys
@@ -97,12 +98,42 @@ func (w *WriteHelper) InitiateChannel(ch *common.Channel) (apiErr *util.ApiError
 	return nil
 }
 
-func (w *WriteHelper) UpdateChannel(ch *common.Channel) (newCh *common.Channel, apiErr *util.ApiError) {
+func (w *WriteHelper) UpdateChannel(ch *common.Channel) (apiErr *util.ApiError) {
+	a, ok := w.AuthChannels[ch.RootChainID.String()]
+	if !ok || a == nil {
+		util.NewAPIErrorFromOne(fmt.Errorf("We do not have the keys to this channel"))
+	}
+
+	factomChannel, err := w.Reader.RetrieveChannel(a.ChannelRoot)
+	if err != nil {
+		return util.NewAPIErrorFromOne(err)
+	}
+
+	var metaData *elements.ManageChainMetaData
+	if factomChannel == nil {
+		metaData = w.createMetaDataChanges(ch, nil)
+	} else {
+		metaData = w.createMetaDataChanges(ch, &(factomChannel.Channel))
+	}
+
+	a.Manage.MetaData.Create(metaData, a.PrivateKeys[2], a.ChannelRoot, a.ChannelManage)
+	ents, err := a.Manage.MetaData.FactomEntry()
+	if err != nil {
+		return util.NewAPIErrorFromOne(err)
+	}
+
+	for _, e := range ents {
+		w.Writer.SubmitEntry(*e, *w.ECAddress)
+	}
+
 	return
 }
 
 func (w *WriteHelper) DeleteChannel(rootChain *primitives.Hash) (apiErr *util.ApiError) {
-	return
+	return &util.ApiError{
+		LogError:  fmt.Errorf("Cannot delete channel"),
+		UserError: fmt.Errorf("Cannot delete channel"),
+	}
 }
 
 func (w *WriteHelper) VerifyContent(ch *common.Content) (cost int, apiErr *util.ApiError) {
@@ -114,5 +145,92 @@ func (w *WriteHelper) AddContent(con *common.Content, contentID *primitives.Hash
 }
 
 func (w *WriteHelper) DeleteContent(contentID *primitives.Hash) (apiErr *util.ApiError) {
-	return
+	return &util.ApiError{
+		LogError:  fmt.Errorf("Cannot delete Content"),
+		UserError: fmt.Errorf("Cannot delete Content"),
+	}
+}
+
+/*
+type ManageChainMetaData struct {
+	Website           *primitives.SiteURL
+	LongDescription   *primitives.LongDescription
+	ShortDescription  *primitives.ShortDescription
+	Playlist          *common.ManyPlayList
+	Thumbnail         *primitives.Image
+	Banner            *primitives.Image
+	ChannelTags       *primitives.TagList
+	SuggestedChannels *primitives.HashList
+}
+*/
+
+func (w *WriteHelper) createMetaDataChanges(ch *common.Channel, factomChannel *common.Channel) *elements.ManageChainMetaData {
+	changes := new(elements.ManageChainMetaData)
+	if factomChannel == nil { // Only New
+		if !ch.Website.Empty() {
+			*changes.Website = ch.Website
+		}
+
+		if !ch.LongDescription.Empty() {
+			*changes.LongDescription = ch.LongDescription
+		}
+
+		if !ch.ShortDescription.Empty() {
+			*changes.ShortDescription = ch.ShortDescription
+		}
+
+		if !ch.Playlist.Empty() {
+			*changes.Playlist = ch.Playlist
+		}
+
+		if !ch.Thumbnail.Empty() {
+			*changes.Thumbnail = ch.Thumbnail
+		}
+
+		if !ch.Banner.Empty() {
+			*changes.Banner = ch.Banner
+		}
+
+		if !ch.Tags.Empty() {
+			*changes.ChannelTags = ch.Tags
+		}
+
+		if !ch.SuggestedChannel.Empty() {
+			*changes.SuggestedChannels = ch.SuggestedChannel
+		}
+	} else { // Compare
+		if !ch.Website.IsSameAs(&factomChannel.Website) {
+			*changes.Website = ch.Website
+		}
+
+		if !ch.LongDescription.IsSameAs(&factomChannel.LongDescription) {
+			*changes.LongDescription = ch.LongDescription
+		}
+
+		if !ch.ShortDescription.IsSameAs(&factomChannel.ShortDescription) {
+			*changes.ShortDescription = ch.ShortDescription
+		}
+
+		if !ch.Playlist.IsSameAs(&factomChannel.Playlist) {
+			*changes.Playlist = ch.Playlist
+		}
+
+		if !ch.Thumbnail.IsSameAs(&factomChannel.Thumbnail) {
+			*changes.Thumbnail = ch.Thumbnail
+		}
+
+		if !ch.Banner.IsSameAs(&factomChannel.Banner) {
+			*changes.Banner = ch.Banner
+		}
+
+		if !ch.Tags.IsSameAs(&factomChannel.Tags) {
+			*changes.ChannelTags = ch.Tags
+		}
+
+		if !ch.SuggestedChannel.IsSameAs(&factomChannel.SuggestedChannel) {
+			*changes.SuggestedChannels = ch.SuggestedChannel
+		}
+	}
+
+	return changes
 }

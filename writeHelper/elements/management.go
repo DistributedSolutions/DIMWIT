@@ -189,7 +189,7 @@ func RandomManageChainMetaData() *ManageChainMetaData {
 //		Channel Tags
 //		Suggested Channels
 type ManageMetaData struct {
-	MetaData  ManageChainMetaData
+	MetaData  *ManageChainMetaData
 	KeyToSign primitives.PrivateKey
 	root      primitives.Hash
 	manage    primitives.Hash
@@ -199,7 +199,7 @@ func (ManageMetaData) Type() []byte  { return TYPE_MANAGE_CHAIN_METADATA }
 func (ManageMetaData) IsChain() bool { return false }
 func (ManageMetaData) ForChain() int { return CHAIN_MANAGEMENT }
 
-func (mmd *ManageMetaData) Create(metaToChange ManageChainMetaData, key3 primitives.PrivateKey, root primitives.Hash, manChain primitives.Hash) {
+func (mmd *ManageMetaData) Create(metaToChange *ManageChainMetaData, key3 primitives.PrivateKey, root primitives.Hash, manChain primitives.Hash) {
 	mmd.MetaData = metaToChange
 	mmd.KeyToSign = key3
 	mmd.manage = manChain
