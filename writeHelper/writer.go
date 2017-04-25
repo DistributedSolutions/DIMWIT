@@ -58,12 +58,33 @@ func (w *WriteHelper) InitiateChannel(ch *common.Channel) (apiErr *util.ApiError
 		return util.NewAPIError(err, fmt.Errorf("failed to generate channel keys"))
 	}
 
-	// Brute force a ChainID
+	// Brute force a ChainIDs
 	a.Initiate(ch)
 
 	// Get Factom Elements
+	//		Root
 	root := a.Root
 	entries, chain := root.FactomElements()
+
+	//	Enter into Factom
+	w.Writer.SubmitChain(*chain, *w.ECAddress)
+	for _, e := range entries {
+		w.Writer.SubmitEntry(*e, *w.ECAddress)
+	}
+
+	//		Manage
+	manage := a.Manage
+	entries, chain = manage.FactomElements()
+
+	//	Enter into Factom
+	w.Writer.SubmitChain(*chain, *w.ECAddress)
+	for _, e := range entries {
+		w.Writer.SubmitEntry(*e, *w.ECAddress)
+	}
+
+	//		ContentList
+	cc := a.ContentList
+	entries, chain = cc.FactomElements()
 
 	//	Enter into Factom
 	w.Writer.SubmitChain(*chain, *w.ECAddress)

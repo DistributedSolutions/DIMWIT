@@ -105,3 +105,15 @@ func ExIDLength(exid [][]byte) int {
 
 	return length
 }
+
+func howManyEntries(headerLength int, contentLength int, contentHeaderLength int) int {
+	contentLength -= (constants.ENTRY_MAX_SIZE - headerLength)
+	bytesPerEntry := constants.ENTRY_MAX_SIZE - contentHeaderLength
+	count := 0
+	for contentLength > 0 {
+		contentLength -= bytesPerEntry
+		count++
+	}
+
+	return count
+}

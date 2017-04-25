@@ -27,6 +27,15 @@ func NewManage() *Manage {
 	return m
 }
 
+func (m *Manage) FactomElements() ([]*factom.Entry, *factom.Chain) {
+	es := make([]*factom.Entry, 0)
+	c := m.ManageChain.FactomChain()
+
+	es = append(es, m.RegisterManageChain.FactomEntry())
+
+	return es, c
+}
+
 // Factom Chain
 //		byte		Version
 //		[24]byte	"Channel Management Chain"
@@ -194,6 +203,7 @@ func (mmd *ManageMetaData) Create(metaToChange ManageChainMetaData, key3 primiti
 	mmd.MetaData = metaToChange
 	mmd.KeyToSign = key3
 	mmd.manage = manChain
+	mmd.root = root
 }
 
 func (mmd *ManageMetaData) FactomEntry() ([]*factom.Entry, error) {
@@ -318,16 +328,4 @@ func (mmd *ManageMetaData) FactomEntry() ([]*factom.Entry, error) {
 
 	es = append(es, stiches...)
 	return es, nil
-}
-
-func howManyEntries(headerLength int, contentLength int, contentHeaderLength int) int {
-	contentLength -= (constants.ENTRY_MAX_SIZE - headerLength)
-	bytesPerEntry := constants.ENTRY_MAX_SIZE - contentHeaderLength
-	count := 0
-	for contentLength > 0 {
-		contentLength -= bytesPerEntry
-		count++
-	}
-
-	return count
 }

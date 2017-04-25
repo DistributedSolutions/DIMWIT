@@ -21,6 +21,14 @@ var (
 	TYPE_MANAGE_CHAIN          = []byte("Channel Management Chain")
 	TYPE_MANAGE_CHAIN_REGISTER = []byte("Register Management Chain")
 	TYPE_MANAGE_CHAIN_METADATA = []byte("Channel Management Metadata Main")
+
+	// ChanContentChain
+	TYPE_CHANNEL_CONENT_CHAIN          = []byte("Channel Content Chain")
+	TYPE_CHANNEL_CONENT_CHAIN_REGISTER = []byte("Register Content Chain")
+
+	// SingleContent
+	TYPE_SINGLE_CONTENT_CHAIN = []byte("Content Chain")
+	TYPE_CONTENT_LINK         = []byte("Content Link")
 )
 
 // Chains

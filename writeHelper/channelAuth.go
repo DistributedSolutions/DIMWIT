@@ -15,8 +15,9 @@ import (
 const PRIV_KEY_AMT int = 3
 
 type AuthChannel struct {
-	ChannelRoot   primitives.Hash
-	ChannelManage primitives.Hash
+	ChannelRoot    primitives.Hash
+	ChannelManage  primitives.Hash
+	ChannelContent primitives.Hash
 
 	PrivateKeys    [PRIV_KEY_AMT]primitives.PrivateKey
 	ContentSigning primitives.PrivateKey
@@ -24,8 +25,9 @@ type AuthChannel struct {
 	EntryCreditKey *factom.ECAddress
 
 	// Non-Marshaled
-	Root   *elements.Root
-	Manage *elements.Manage
+	Root        *elements.Root
+	Manage      *elements.Manage
+	ContentList *elements.ChanContentChain
 }
 
 func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, error) {
@@ -39,9 +41,6 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 	}
 
 	a := new(AuthChannel)
-
-	// TODO: Discover Root
-	//a.ChannelRoot = root
 
 	for i := 0; i < PRIV_KEY_AMT; i++ {
 		pk, err := primitives.GeneratePrivateKey()
@@ -74,9 +73,11 @@ func NewAuthChannel(ch *common.Channel, ec *factom.ECAddress) (*AuthChannel, err
 func (a *AuthChannel) Initiate(ch *common.Channel) {
 	r := a.initRoot(ch)
 	m := a.initManage(ch)
+	c := a.initContentList(ch)
 
 	a.Root = r
 	a.Manage = m
+	a.ContentList = c
 	return
 }
 
@@ -113,4 +114,18 @@ func (a *AuthChannel) initManage(ch *common.Channel) *elements.Manage {
 	a.ChannelManage = *man
 	ch.ManagementChainID = *man
 	return m
+}
+
+func (a *AuthChannel) initContentList(ch *common.Channel) *elements.ChanContentChain {
+	c := elements.NewChanContentChain()
+	conList, err := c.ContentChain.Create(a.ChannelRoot, a.PrivateKeys[2])
+	if err != nil { // TODO: Handle error
+		return nil
+	}
+
+	c.RegisterCContentChain.Create(a.ChannelRoot, *conList, a.PrivateKeys[2])
+
+	a.ChannelContent = *conList
+	ch.ContentChainID = *conList
+	return c
 }
