@@ -1,6 +1,13 @@
 package elements
 
-import ()
+import (
+	"bytes"
+	"fmt"
+	"reflect"
+
+	"github.com/DistributedSolutions/DIMWIT/common"
+	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+)
 
 //go:generate msgp
 type ManageChainMetaDataBytes struct {
