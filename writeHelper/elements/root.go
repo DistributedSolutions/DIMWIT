@@ -1,13 +1,15 @@
 package elements
 
 import (
-	//"fmt"
+	"fmt"
 	// "time"
 
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/FactomProject/factom"
 )
+
+var _ = fmt.Printf
 
 type Root struct {
 	Chain         *RootChain
@@ -47,7 +49,7 @@ type RootChain struct {
 	Nonce   []byte
 }
 
-func (RootChain) Type() []byte  { return TYPE_MANAGE_CHAIN }
+func (RootChain) Type() []byte  { return TYPE_ROOT_CHAIN }
 func (RootChain) IsChain() bool { return true }
 func (RootChain) ForChain() int { return CHAIN_NA }
 
@@ -144,9 +146,9 @@ func (cke *ContentKeyEntry) FactomEntry() *factom.Entry {
 	extIDs = append(extIDs, cke.RootChainID.Bytes())
 	extIDs = append(extIDs, cke.ContentPubKey.Bytes())
 	extIDs = append(extIDs, TimeStampBytes())
-	extIDs = append(extIDs, cke.KeyToSign.Public.Bytes())
-
 	sig := cke.KeyToSign.Sign(upToSig(extIDs))
+
+	extIDs = append(extIDs, cke.KeyToSign.Public.Bytes())
 	extIDs = append(extIDs, sig)
 
 	e.ExtIDs = extIDs

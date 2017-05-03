@@ -74,7 +74,7 @@ func (r *ManageChainApplyEntry) NeedIsFirstEntry() bool { return true }
 
 func (m *ManageChainApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	if !m.PubKey3.IsSameAs(&m.Channel.Channel.LV3PublicKey) {
-		log.Debug("[ManageChain] (1): Public key does not match")
+		log.Debug("[ManageChain] (1): Public key does not match:", m.PubKey3.String(), m.Channel.Channel.LV3PublicKey.String())
 		return m.Channel, false // Invalid key
 	}
 

@@ -54,6 +54,7 @@ func (m *ManageChain) Create(root primitives.Hash, key3 primitives.PrivateKey) (
 
 	nonce, chainID := FindValidNonce(m.AllButNonce())
 	m.Nonce = nonce
+	m.KeyToSign = key3
 
 	return primitives.BytesToHash(chainID)
 }
