@@ -5,6 +5,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 	"github.com/DistributedSolutions/DIMWIT/provider"
 	"github.com/DistributedSolutions/DIMWIT/torrent"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper"
 )
 
 type WholeState struct {
@@ -12,4 +13,5 @@ type WholeState struct {
 	Provider      *provider.Provider
 	FactomClient  lite.FactomLite
 	TorrentClient *torrent.TorrentClient
+	WriteHelper   *writeHelper.WriteHelper
 }

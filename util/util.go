@@ -42,6 +42,13 @@ func NewAPIError(logError error, userError error) *ApiError {
 	return apiError
 }
 
+func NewAPIErrorFromOne(err error) *ApiError {
+	apiError := new(ApiError)
+	apiError.LogError = err
+	apiError.UserError = err
+	return apiError
+}
+
 func DashDelimiterToCamelCase(input string) string {
 	input = strings.TrimSpace(input)
 	if len(input) > 0 {

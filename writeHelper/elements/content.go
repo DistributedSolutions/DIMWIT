@@ -49,8 +49,8 @@ func (SingleContentChain) Type() []byte  { return TYPE_SINGLE_CONTENT_CHAIN }
 func (SingleContentChain) IsChain() bool { return true }
 func (SingleContentChain) ForChain() int { return CHAIN_NA }
 
-func (scc *SingleContentChain) Create(metaToChange ContentChainContent, contentKey primitives.PrivateKey, root primitives.Hash, contentChain primitives.Hash, contentType byte) {
-	scc.MetaData = metaToChange
+func (scc *SingleContentChain) Create(meta *ContentChainContent, contentKey primitives.PrivateKey, root primitives.Hash, contentChain primitives.Hash, contentType byte) {
+	scc.MetaData = *meta
 	scc.ContentKey = contentKey
 	scc.cc = contentChain
 	scc.root = root

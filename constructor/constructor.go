@@ -365,6 +365,10 @@ func (c *Constructor) RetrieveChannel(chainID primitives.Hash) (*objects.Channel
 		return nil, err
 	}
 
+	if data == nil {
+		return nil, nil
+	}
+
 	ch := objects.NewChannelWrapper()
 	if len(data) == 0 {
 

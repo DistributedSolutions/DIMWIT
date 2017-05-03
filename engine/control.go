@@ -61,9 +61,10 @@ func Control(w *WholeState) {
 
 	var last string
 	var err error
-	var chanList []common.Channel
+	//var chanList []common.Channel
 	var amount int
 	var fileName string
+	var _ = amount
 	// Start loop
 	for scanner.Scan() {
 		err = nil
@@ -73,7 +74,7 @@ func Control(w *WholeState) {
 			cmd = last
 		}
 		last = cmd
-		chanList = nil
+		//chanList = nil
 		amount = 1
 		fileName = ""
 
@@ -120,10 +121,23 @@ func Control(w *WholeState) {
 			w.Provider.Serve()
 		case cmd == "ms":
 			fmt.Println("Adding small channels....")
-			chanList, err = testhelper.AddChannelsToClient(w.FactomClient, amount, true)
-			fallthrough
+			rc := common.RandomNewSmallChannel()
+			err := w.WriteHelper.InitiateChannel(rc)
+			if err != nil {
+				fmt.Println(err.LogError)
+			} else {
+				for _, content := range rc.Content.ContentList {
+					content.RootChainID = rc.RootChainID
+					err := w.WriteHelper.AddContent(&content)
+					if err != nil {
+						fmt.Println(err.LogError)
+					}
+				}
+			}
+			// chanList, err = testhelper.AddChannelsToClient(w.FactomClient, amount, true)
+			// fallthrough
 		case cmd == "ml":
-			if chanList == nil && err == nil {
+			/*if chanList == nil && err == nil {
 				fmt.Println("Adding large channels....")
 				chanList, err = testhelper.AddChannelsToClient(w.FactomClient, amount, false)
 			}
@@ -135,7 +149,7 @@ func Control(w *WholeState) {
 					fmt.Printf("Channel [%d]: %s\n", i, c.RootChainID.String())
 				}
 			}
-			chanList, err = nil, nil
+			chanList, err = nil, nil*/
 		case len(cmd) > 1 && cmd[:1] == "F":
 			var resp string
 			var con *common.Content

@@ -15,6 +15,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/provider"
 	"github.com/DistributedSolutions/DIMWIT/torrent"
 	"github.com/DistributedSolutions/DIMWIT/util"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper"
 )
 
 var _ = log.Prefix()
@@ -95,6 +96,12 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	//sets interface between api and torrent client up
 	prov.TorrentClientInterface.SetClient(torClient)
 
+	// Write Helper
+	wh, err := writeHelper.NewWriterHelper(con, factomClient)
+	if err != nil {
+		return nil
+	}
+
 	// Start Go Routines
 	go con.StartConstructor()
 	go prov.Serve()
@@ -117,6 +124,7 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	w.FactomClient = factomClient
 	w.Provider = prov
 	w.TorrentClient = torClient
+	w.WriteHelper = wh
 
 	// Run the Control
 	Control(w)

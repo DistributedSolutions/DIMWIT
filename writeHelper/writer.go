@@ -140,8 +140,24 @@ func (w *WriteHelper) VerifyContent(ch *common.Content) (cost int, apiErr *util.
 	return 0, util.NewAPIError(nil, nil)
 }
 
-func (w *WriteHelper) AddContent(con *common.Content, contentID *primitives.Hash) (chains []*factom.Chain, entries []*factom.Entry, apiErr *util.ApiError) {
-	return
+func (w *WriteHelper) AddContent(con *common.Content) (apiErr *util.ApiError) {
+	a, ok := w.AuthChannels[con.RootChainID.String()]
+	if !ok {
+		return util.NewAPIErrorFromOne(fmt.Errorf("Do not have the keys for that channel"))
+	}
+
+	ce := new(elements.SingleContentChain)
+	ce.Create(elements.CommonContentToContentChainContent(con), a.ContentSigning, a.ChannelRoot, a.ChannelContent, con.Type)
+	c, entries, err := ce.FactomElements()
+	if err != nil {
+		return util.NewAPIErrorFromOne(err)
+	}
+	w.Writer.SubmitChain(*c, *w.ECAddress)
+
+	for _, e := range entries {
+		w.Writer.SubmitEntry(*e, *w.ECAddress)
+	}
+	return nil
 }
 
 func (w *WriteHelper) DeleteContent(contentID *primitives.Hash) (apiErr *util.ApiError) {
