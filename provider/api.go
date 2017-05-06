@@ -138,10 +138,12 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 			}
 		}
 		if resultValues[0].CanInterface() {
-			data, err = json.Marshal(resultValues[0].Interface())
-			if err != nil {
-				extra = "Failed to marshal content"
-				goto InternalError
+			if resultValues[0].Interface() != nil {
+				data, err = json.Marshal(resultValues[0].Interface())
+				if err != nil {
+					extra = "Failed to marshal content"
+					goto InternalError
+				}
 			}
 			goto Success
 		}
@@ -237,6 +239,21 @@ InternalError:
 	return
 }
 
+func (apiProvider ApiProvider) PostTorrentStreamSeek(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	seconds := new(float64)
+	err := json.Unmarshal([]byte(input), seconds)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall torrent-stream-stat: %s", err.Error()),
+				fmt.Errorf("Error unmarshall torrent-stream-stat: %s", err.Error()),
+			},
+			invalidParameters
+	}
+	apiProvider.Provider.TorrentClientInterface.SetTorrentSeek(*seconds)
+	return nil, nil, noError
+}
+
 func (apiProvider ApiProvider) GetStats(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
 	stats, err := apiProvider.Provider.GetStats()
 	if err != nil {
@@ -278,7 +295,7 @@ func (apiProvider ApiProvider) GetTorrentStreamStats(input json.RawMessage) (suc
 			},
 			invalidParameters
 	}
-	stats, err := apiProvider.Provider.GetTorrentStreamStats(*hashString)
+	stats, err := apiProvider.Provider.TorrentClientInterface.GetTorrentFileMetaDataChunked(*hashString)
 	if err != nil {
 		return nil,
 			&util.ApiError{

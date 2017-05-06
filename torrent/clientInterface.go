@@ -137,3 +137,11 @@ func (c *ClientInterface) GetTorrentFileMetaDataChunked(torrentHash string) (*JS
 	}
 	return jsonFiles, nil
 }
+
+func (c *ClientInterface) SetTorrentSeek(seconds float64) {
+	if c.torrentClient != nil {
+		c.torrentClient.HandleSeek(seconds)
+	} else {
+		fmt.Printf("Error: torrent client is nil, cannot set seek")
+	}
+}

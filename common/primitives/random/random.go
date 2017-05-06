@@ -43,6 +43,10 @@ func RandomUInt32() uint32 {
 	return uint32(RandomInt())
 }
 
+func RandomUInt64() uint64 {
+	return uint64(RandomInt())
+}
+
 func RandomInt() int {
 	return rand.Int()
 }

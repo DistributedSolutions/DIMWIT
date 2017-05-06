@@ -192,3 +192,7 @@ func (c *TorrentClient) ShortStatus() string {
 
 	return resp
 }
+
+func (c *TorrentClient) HandleSeek(seconds float64) {
+	//TODOD HANDLE THE SEEK for querying where in torrent should go.
+}
