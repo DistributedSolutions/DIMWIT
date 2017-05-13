@@ -50,7 +50,7 @@ func TestProvider(t *testing.T) {
 		t.Error(err)
 	}
 
-	prov, err := NewProvider(db, fake, w)
+	prov, err := NewProvider(db, w, fake)
 	if err != nil {
 		t.Error(err)
 	}
