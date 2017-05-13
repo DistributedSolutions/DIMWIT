@@ -49,6 +49,7 @@ type CContentChain struct {
 
 func (m *CContentChain) Create(root primitives.Hash, key3 primitives.PrivateKey) (*primitives.Hash, error) {
 	m.RootChainID = root
+	m.KeyToSign = key3
 
 	nonce, chainID := FindValidNonce(m.AllButNonce())
 	m.Nonce = nonce

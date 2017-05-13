@@ -124,19 +124,25 @@ func Control(w *WholeState) {
 			for i := 0; i < amount; i++ {
 				rc := common.RandomNewSmallChannel()
 				err := w.WriteHelper.InitiateChannel(rc)
-				color.Yellow("Content list is has for content %d", len(rc.Content.GetContents()))
 				if err != nil {
 					fmt.Println(err.LogError)
 				} else {
+					err := w.WriteHelper.UpdateChannel(rc)
+					if err != nil {
+						fmt.Println(err.LogError)
+					}
 					for _, content := range rc.Content.ContentList {
 						content.RootChainID = rc.RootChainID
 						err := w.WriteHelper.AddContent(&content)
 						if err != nil {
 							fmt.Println(err.LogError)
+
 						}
 					}
 				}
+				fmt.Println("Root:", rc.RootChainID.String())
 			}
+
 			// chanList, err = testhelper.AddChannelsToClient(w.FactomClient, amount, true)
 			// fallthrough
 		case cmd == "ml":
