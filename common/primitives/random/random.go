@@ -52,7 +52,7 @@ func RandomInt() int {
 }
 
 func RandomIntBetween(min int, max int) int {
-	if min == max {
+	if min >= max {
 		max = min + 1
 	}
 	return rand.Intn(max-min) + min
