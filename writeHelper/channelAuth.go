@@ -113,6 +113,7 @@ func (a *AuthChannel) initManage(ch *common.Channel) *elements.Manage {
 
 	a.ChannelManage = *man
 	ch.ManagementChainID = *man
+
 	return m
 }
 

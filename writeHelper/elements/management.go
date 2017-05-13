@@ -51,10 +51,10 @@ type ManageChain struct {
 
 func (m *ManageChain) Create(root primitives.Hash, key3 primitives.PrivateKey) (*primitives.Hash, error) {
 	m.RootChainID = root
+	m.KeyToSign = key3
 
 	nonce, chainID := FindValidNonce(m.AllButNonce())
 	m.Nonce = nonce
-	m.KeyToSign = key3
 
 	return primitives.BytesToHash(chainID)
 }
@@ -75,7 +75,8 @@ func (m *ManageChain) FactomChain() *factom.Chain {
 	extIDs := m.AllButNonce()
 	e.ExtIDs = append(extIDs, m.Nonce)
 
-	return factom.NewChain(e)
+	c := factom.NewChain(e)
+	return c
 }
 
 func (ManageChain) Type() []byte  { return TYPE_MANAGE_CHAIN }
@@ -317,6 +318,7 @@ func (mmd *ManageMetaData) FactomEntry() ([]*factom.Entry, error) {
 		sig := mmd.KeyToSign.Sign(msg)
 		entry.ExtIDs = append(entry.ExtIDs, sig) // 8
 		entry.ChainID = mmd.manage.String()
+		fmt.Println("--", mmd.manage.String())
 		entry.Content = contentData
 
 		if int(seq) >= len(stiches) {

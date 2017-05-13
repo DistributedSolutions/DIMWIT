@@ -180,38 +180,52 @@ type ManageChainMetaData struct {
 }
 */
 
+func newele() *elements.ManageChainMetaData {
+	ele := new(elements.ManageChainMetaData)
+	ele.Website = new(primitives.SiteURL)
+	ele.LongDescription = new(primitives.LongDescription)
+	ele.ShortDescription = new(primitives.ShortDescription)
+	ele.Playlist = new(common.ManyPlayList)
+	ele.Thumbnail = new(primitives.Image)
+	ele.Banner = new(primitives.Image)
+	ele.ChannelTags = new(primitives.TagList)
+	ele.SuggestedChannels = new(primitives.HashList)
+
+	return ele
+}
+
 func (w *WriteHelper) createMetaDataChanges(ch *common.Channel, factomChannel *common.Channel) *elements.ManageChainMetaData {
-	changes := new(elements.ManageChainMetaData)
+	changes := newele()
 	if factomChannel == nil { // Only New
-		if !ch.Website.Empty() {
+		if !ch.Website.Empty() && changes.Website != nil {
 			*changes.Website = ch.Website
 		}
 
-		if !ch.LongDescription.Empty() {
+		if changes.LongDescription != nil && !ch.LongDescription.Empty() {
 			*changes.LongDescription = ch.LongDescription
 		}
 
-		if !ch.ShortDescription.Empty() {
+		if changes.ShortDescription != nil && !ch.ShortDescription.Empty() {
 			*changes.ShortDescription = ch.ShortDescription
 		}
 
-		if !ch.Playlist.Empty() {
+		if changes.Playlist != nil && !ch.Playlist.Empty() {
 			*changes.Playlist = ch.Playlist
 		}
 
-		if !ch.Thumbnail.Empty() {
+		if changes.Thumbnail != nil && !ch.Thumbnail.Empty() {
 			*changes.Thumbnail = ch.Thumbnail
 		}
 
-		if !ch.Banner.Empty() {
+		if changes.Banner != nil && !ch.Banner.Empty() {
 			*changes.Banner = ch.Banner
 		}
 
-		if !ch.Tags.Empty() {
+		if changes.ChannelTags != nil && !ch.Tags.Empty() {
 			*changes.ChannelTags = ch.Tags
 		}
 
-		if !ch.SuggestedChannel.Empty() {
+		if changes.SuggestedChannels != nil && !ch.SuggestedChannel.Empty() {
 			*changes.SuggestedChannels = ch.SuggestedChannel
 		}
 	} else { // Compare

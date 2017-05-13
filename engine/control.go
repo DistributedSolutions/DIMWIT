@@ -126,6 +126,10 @@ func Control(w *WholeState) {
 			if err != nil {
 				fmt.Println(err.LogError)
 			} else {
+				err := w.WriteHelper.UpdateChannel(rc)
+				if err != nil {
+					fmt.Println(err.LogError)
+				}
 				for _, content := range rc.Content.ContentList {
 					content.RootChainID = rc.RootChainID
 					err := w.WriteHelper.AddContent(&content)
@@ -134,6 +138,7 @@ func Control(w *WholeState) {
 					}
 				}
 			}
+			fmt.Println("Root:", rc.RootChainID.String())
 			// chanList, err = testhelper.AddChannelsToClient(w.FactomClient, amount, true)
 			// fallthrough
 		case cmd == "ml":
