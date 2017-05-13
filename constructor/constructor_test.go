@@ -11,7 +11,7 @@ import (
 	. "github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/database"
 	//"github.com/DistributedSolutions/DIMWIT/factom-lite"
-	"github.com/DistributedSolutions/DIMWIT/testHelper"
+	"github.com/DistributedSolutions/DIMWIT/testhelper"
 )
 
 var _ = fmt.Sprintf("")
