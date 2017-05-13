@@ -19,7 +19,7 @@ import (
 
 type Provider struct {
 	Level2Cache            database.IDatabase
-	CreationTool           *writeHelper.WriteHelper
+	CreationTool           writeHelper.IWriterHelper
 	FactomWriter           lite.FactomLiteWriter
 	TorrentClientInterface torrent.ClientInterface
 

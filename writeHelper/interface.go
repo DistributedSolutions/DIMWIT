@@ -4,7 +4,6 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/util"
-	"github.com/FactomProject/factom"
 )
 
 type IWriterHelper interface {
@@ -13,11 +12,11 @@ type IWriterHelper interface {
 
 	// Generate private keys and store. Also sets RootchainID, Manage, and ContentID in channel
 	// Only set title and keys. Will not set any metadata. TOTALLY EMPTY!! (Aside from title)
-	InitiateChannel(ch *common.Channel) (newCh *common.Channel, err *util.ApiError)
+	InitiateChannel(ch *common.Channel) (err *util.ApiError)
 
 	// Create factom elements to apply changes to channel in blockchain. Will create managment
 	// chain if needed. Does not do content
-	UpdateChannel(ch *common.Channel) (newCh *common.Channel, err *util.ApiError)
+	UpdateChannel(ch *common.Channel) (err *util.ApiError)
 
 	// Will delete channel given root chain id. Will check to see if we have the correct keys.
 	DeleteChannel(rootChain *primitives.Hash) (err *util.ApiError)
@@ -26,7 +25,7 @@ type IWriterHelper interface {
 	VerifyContent(ch *common.Content) (cost int, err *util.ApiError)
 
 	// Will add content given root chain id. Will check to see if we have the correct keys.
-	AddContent(con *common.Content) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError)
+	AddContent(con *common.Content) (err *util.ApiError)
 
 	// Will delete content given root chain id. Will check to see if we have the correct keys.
 	DeleteContent(contentID *primitives.Hash) (err *util.ApiError)
@@ -44,11 +43,11 @@ func (fakeChannelTool *FakeWriterHelper) VerifyChannel(ch *common.Channel) (cost
 	return 0, util.NewAPIError(nil, nil)
 }
 
-func (fakeChannelTool *FakeWriterHelper) InitiateChannel(ch *common.Channel) (newCh *common.Channel, err *util.ApiError) {
+func (fakeChannelTool *FakeWriterHelper) InitiateChannel(ch *common.Channel) (err *util.ApiError) {
 	return
 }
 
-func (fakeChannelTool *FakeWriterHelper) UpdateChannel(ch *common.Channel) (newCh *common.Channel, err *util.ApiError) {
+func (fakeChannelTool *FakeWriterHelper) UpdateChannel(ch *common.Channel) (err *util.ApiError) {
 	return
 }
 
@@ -60,7 +59,7 @@ func (fakeChannelTool *FakeWriterHelper) VerifyContent(ch *common.Content) (cost
 	return 0, util.NewAPIError(nil, nil)
 }
 
-func (fakeChannelTool *FakeWriterHelper) AddContent(con *common.Content) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError) {
+func (fakeChannelTool *FakeWriterHelper) AddContent(con *common.Content) (err *util.ApiError) {
 	return
 }
 

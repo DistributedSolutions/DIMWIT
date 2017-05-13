@@ -29,10 +29,10 @@ func (a ApiBase) ApiBaseMethod(json json.RawMessage) (successResponse *interface
 	return nil, nil, noError
 }
 
-type VerifyChannel struct {
-	Channel common.Channel `json:"channel"`
-	Paths   []string       `json:"path"`
-}
+// type VerifyChannel struct {
+// 	Channel common.Channel `json:"channel"`
+// 	Paths   []string       `json:"path"`
+// }
 
 type AddContent struct {
 	Channel common.Channel `json:"channel"`
@@ -152,64 +152,6 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 		color.Red(extra)
 		goto InternalError
 	}
-	// switch req.Method {
-	// case "verify-channel":
-	// 	verifyChannel := new(VerifyChannel)
-	// 	err = json.Unmarshal(req.Params, verifyChannel)
-	// 	if err != nil {
-	// 		extra = "Invalid request object, " + err.Error()
-	// 		goto InvalidRequest // Bad request data
-	// 	}
-	// 	var verifiedChannel *common.Channel
-	// 	hash := verifyChannel.Channel.RootChainID
-	// 	if hash.Empty() {
-	// 		verifiedChannel, err = apiService.Provider.CreateChannel(&verifyChannel.Channel, verifyChannel.Paths)
-	// 		if err != nil {
-	// 			color.Red("Error verifying channel: %s", err.Error())
-	// 			extra = fmt.Sprintf("Error verifying new channel with error: %s", err.Error())
-	// 			errorID = 6
-	// 			goto CustomError
-	// 		}
-	// 	} else {
-	// 		verifiedChannel, err = apiService.Provider.UpdateChannel(&verifyChannel.Channel, verifyChannel.Paths)
-	// 		if err != nil {
-	// 			color.Red("Error verifying UpdateChanne: %s", err.Error())
-	// 			extra = fmt.Sprintf("Error verifying update channel with error: %s", err.Error())
-	// 			errorID = 7
-	// 			goto CustomError
-	// 		}
-	// 	}
-
-	// 	data, err = (*verifiedChannel).CustomMarshalJSON()
-	// 	if err != nil {
-	// 		fmt.Println(err.Error())
-	// 		extra = "Failed to unmarshal verified channel"
-	// 		goto InternalError
-	// 	}
-	// 	goto Success
-	// case "submit-channel":
-	// 	submitChannel := new(SubmitChannel)
-	// 	err = json.Unmarshal(req.Params, submitChannel)
-	// 	if err != nil {
-	// 		extra = "Invalid request object, " + err.Error()
-	// 		goto InvalidRequest // Bad request data
-	// 	}
-	// 	err = apiService.Provider.SubmitChannel(submitChannel.ChannelHash)
-	// 	if err != nil {
-	// 		color.Red("Error submitting channel: %s", err.Error())
-	// 		extra = fmt.Sprintf("Error submiting new channel with error: %s", err.Error())
-	// 		errorID = 7
-	// 		goto CustomError
-	// 	}
-	// 	color.Blue("Finished adding in new Channel")
-
-	// 	data = []byte("{}")
-	// 	goto Success
-	// default:
-	// 	extra = req.Method
-	// 	goto MethodNotFound
-	// }
-
 	return
 
 	// Easier to handle general here
@@ -460,69 +402,195 @@ func (apiProvider ApiProvider) GetContents(input json.RawMessage) (successRespon
 	return retVal, nil, noError
 }
 
+func (apiProvider ApiProvider) VerifyChannel(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	verifyChannel := new(common.Channel)
+	err := json.Unmarshal(input, verifyChannel)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall verify-channel: %s", err.Error()),
+				fmt.Errorf("Error unmarshall verify-channel: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	cost, apiError := apiProvider.Provider.CreationTool.VerifyChannel(verifyChannel)
+	if apiError != nil {
+		return nil, apiError, customError
+	}
+	retVal := new(interface{})
+	*retVal = cost
+	return retVal, nil, noError
+}
+
+func (apiProvider ApiProvider) CreateChannel(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	verifiedChannel := new(common.Channel)
+	err := json.Unmarshal(input, verifiedChannel)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall create-channel: %s", err.Error()),
+				fmt.Errorf("Error unmarshall create-channel: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	apiError = apiProvider.Provider.CreationTool.InitiateChannel(verifiedChannel)
+	if apiError != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error in create-channel: initating channel: %s", apiError.LogError.Error()),
+				fmt.Errorf("Error in create-channel: initating channel: %s", apiError.UserError.Error()),
+			},
+			customError
+	}
+
+	apiError = apiProvider.Provider.CreationTool.UpdateChannel(verifiedChannel)
+	if apiError != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error in create-channel: updating channel: %s", apiError.LogError.Error()),
+				fmt.Errorf("Error in create-channel: updating channel: %s", apiError.UserError.Error()),
+			},
+			customError
+	}
+
+	retVal := new(interface{})
+	*retVal = verifiedChannel
+	return retVal, nil, noError
+}
+
+func (apiProvider ApiProvider) UpdateChannel(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	channel := new(common.Channel)
+	err := json.Unmarshal(input, channel)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall update-channel: %s", err.Error()),
+				fmt.Errorf("Error unmarshall update-channel: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	apiError = apiProvider.Provider.CreationTool.UpdateChannel(channel)
+	if apiError != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error in update-channel: updating channel: %s", apiError.LogError.Error()),
+				fmt.Errorf("Error in update-channel: updating channel: %s", apiError.UserError.Error()),
+			},
+			customError
+	}
+
+	retVal := new(interface{})
+	*retVal = channel
+	return retVal, nil, noError
+}
+
+func (apiProvider ApiProvider) DeleteChannel(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	hash := new(primitives.Hash)
+	err := json.Unmarshal(input, hash)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall delete-channel: %s", err.Error()),
+				fmt.Errorf("Error unmarshall delete-channel: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	apiError = apiProvider.Provider.CreationTool.DeleteChannel(hash)
+	if apiError != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error in delete-channel: deleting channel: %s", apiError.LogError.Error()),
+				fmt.Errorf("Error in delete-channel: deleting channel: %s", apiError.UserError.Error()),
+			},
+			customError
+	}
+
+	s := "Success"
+	retVal := new(interface{})
+	*retVal = s
+	return retVal, nil, noError
+}
+
+func (apiProvider ApiProvider) VerifyContent(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	verifyContent := new(common.Content)
+	err := json.Unmarshal(input, verifyContent)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall verify-content: %s", err.Error()),
+				fmt.Errorf("Error unmarshall verify-content: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	cost, apiError := apiProvider.Provider.CreationTool.VerifyContent(verifyContent)
+	if apiError != nil {
+		return nil, apiError, customError
+	}
+	retVal := new(interface{})
+	*retVal = cost
+	return retVal, nil, noError
+}
+
+func (apiProvider ApiProvider) CreateContent(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	verifiedContent := new(common.Content)
+	err := json.Unmarshal(input, verifiedContent)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall create-content: %s", err.Error()),
+				fmt.Errorf("Error unmarshall create-content: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	apiError = apiProvider.Provider.CreationTool.AddContent(verifiedContent)
+	if apiError != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error in create-content: creating content: %s", apiError.LogError.Error()),
+				fmt.Errorf("Error in create-content: creating content: %s", apiError.UserError.Error()),
+			},
+			customError
+	}
+
+	retVal := new(interface{})
+	*retVal = verifiedContent
+	return retVal, nil, noError
+}
+
+func (apiProvider ApiProvider) DeleteContent(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	hash := new(primitives.Hash)
+	err := json.Unmarshal(input, hash)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall delete-content: %s", err.Error()),
+				fmt.Errorf("Error unmarshall delete-content: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	apiError = apiProvider.Provider.CreationTool.DeleteContent(hash)
+	if apiError != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error in delete-channel: deleting content: %s", apiError.LogError.Error()),
+				fmt.Errorf("Error in delete-channel: deleting content: %s", apiError.UserError.Error()),
+			},
+			customError
+	}
+
+	s := "Success"
+	retVal := new(interface{})
+	*retVal = s
+	return retVal, nil, noError
+}
+
 func (apiService *ApiService) GetCompleteHeight() (uint32, error) {
 	return apiService.Provider.GetCompleteHeight()
-}
-
-func (apiService *ApiService) VerifyChannel(ch *common.Channel) (int, error) {
-	cost, apiError := apiService.Provider.CreationTool.VerifyChannel(ch)
-	if apiError.LogError != nil {
-		color.Red("VerifyChannel Error: %s", apiError.LogError.Error())
-		return cost, apiError.UserError
-	}
-	return cost, nil
-}
-
-func (apiService *ApiService) InitiateChannel(ch *common.Channel) error {
-	apiError := apiService.Provider.CreationTool.InitiateChannel(ch)
-	if apiError.LogError != nil {
-		color.Red("InitiateChannel Error: %s", apiError.LogError.Error())
-		return apiError.UserError
-	}
-	return nil
-}
-
-func (apiService *ApiService) UpdateChannel(ch *common.Channel) error {
-	apiError := apiService.Provider.CreationTool.UpdateChannel(ch)
-	if apiError.LogError != nil {
-		color.Red("UpdateChannel Error: %s", apiError.LogError.Error())
-		return apiError.UserError
-	}
-	return nil
-}
-
-func (apiService *ApiService) DeleteChannel(h *primitives.Hash) error {
-	apiError := apiService.Provider.CreationTool.DeleteChannel(h)
-	if apiError.LogError != nil {
-		color.Red("DeleteChannel Error: %s", apiError.LogError.Error())
-		return apiError.UserError
-	}
-	return nil
-}
-
-func (apiService *ApiService) VerifyContent(c *common.Content) (int, error) {
-	cost, apiError := apiService.Provider.CreationTool.VerifyContent(c)
-	if apiError.LogError != nil {
-		color.Red("VerifyContent Error: %s", apiError.LogError.Error())
-		return cost, apiError.UserError
-	}
-	return cost, nil
-}
-
-func (apiService *ApiService) AddContent(c *common.Content) error {
-	apiError := apiService.Provider.CreationTool.AddContent(c)
-	if apiError.LogError != nil {
-		color.Red("UpdateChannel Error: %s", apiError.LogError.Error())
-		return apiError.UserError
-	}
-	return nil
-}
-
-func (apiService *ApiService) DeleteContent(h *primitives.Hash) error {
-	apiError := apiService.Provider.CreationTool.DeleteContent(h)
-	if apiError.LogError != nil {
-		color.Red("DeleteContent Error: %s", apiError.LogError.Error())
-		return apiError.UserError
-	}
-	return nil
 }
