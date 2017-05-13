@@ -24,6 +24,7 @@ func TestRandInts(t *testing.T) {
 		}
 
 		var _ = RandomUInt32()
+		var _ = RandomUInt64()
 	}
 }
 
