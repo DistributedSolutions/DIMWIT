@@ -90,7 +90,7 @@ func TestRunner(t *testing.T) {
 		t.Error(err)
 	}
 
-	prov, err := provider.NewProvider(cache, fake, w)
+	prov, err := provider.NewProvider(cache, w, fake)
 	if err != nil {
 		t.Error(err)
 	}

@@ -72,10 +72,7 @@ func RandomInt64Between(min int64, max int64) int64 {
 func RandByteSlice() []byte {
 	l := RandomInt() % 64
 	answer := make([]byte, l)
-	_, err := rand.Read(answer)
-	if err != nil {
-		return nil
-	}
+	rand.Read(answer)
 	return answer
 }
 
@@ -84,10 +81,7 @@ func RandByteSliceOfSize(l int) []byte {
 		return nil
 	}
 	answer := make([]byte, l)
-	_, err := rand.Read(answer)
-	if err != nil {
-		return nil
-	}
+	rand.Read(answer)
 	return answer
 }
 
