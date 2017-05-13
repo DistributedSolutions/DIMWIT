@@ -1,18 +1,18 @@
-hash: 388ebe6064987afc4ee3f29bed144fc3ec57946345aeaaecc306d0921e6f26b1
-updated: 2017-03-26T20:51:48.893367348-05:00
+hash: 791c6f682050174e035f9c5168efe677e26fe685a66b69a9c58528f9f0bd6b93
+updated: 2017-05-13T11:57:29.577291516-05:00
 imports:
 - name: github.com/adams-sarah/prettytest
   version: 2880862ae7f579fe57d0a6ddcaabcadb228102e0
 - name: github.com/adams-sarah/test2doc
-  version: e96044288938931a6a83c9aac8913aa47bce72ab
+  version: da8da908883066abea518609b80da5a0031071cb
   subpackages:
   - doc/parse
 - name: github.com/anacrolix/dht
-  version: 41eead1aad955d3ba5011a26cde91b571a150404
+  version: 960f9dd591cc5bcc1c7d215c6683cfd07300a291
   subpackages:
   - krpc
 - name: github.com/anacrolix/missinggo
-  version: 3a4acd64fabf7ff8b9d5baa5d31be19608178110
+  version: 00e7d699a9063f958f13814802cd39e5ac9c85b4
   subpackages:
   - bitmap
   - container/xheap
@@ -29,7 +29,7 @@ imports:
 - name: github.com/anacrolix/sync
   version: d29d95568d362a0008c1ffbaea39a3449ea67509
 - name: github.com/anacrolix/torrent
-  version: ba3e798b5f050de4b60e0ca163c7c4f567ee7287
+  version: 40b96d0e4e5df84afb90181e679804638ef8e82e
   subpackages:
   - bencode
   - iplist
@@ -51,16 +51,12 @@ imports:
   version: 583e8937c61f1af6513608ccc75c97b6abdf4ff9
 - name: github.com/bradfitz/iter
   version: 454541ec3da2a73fc34fd049b19ee5777bf19345
-- name: github.com/btcsuitereleases/btcutil
-  version: f2b1058a82554c0c7c3b8809c5956c38374604d8
-  subpackages:
-  - base58
 - name: github.com/DistributedSolutions/logrus
   version: d26492970760ca5d33129d2d799e34be5c4782eb
 - name: github.com/dustin/go-humanize
-  version: 7a41df006ff9af79a29f0ffa9c5f21fbe6314a2d
+  version: 259d2a102b871d17f30e3cd9881a642961a1e486
 - name: github.com/edsrzf/mmap-go
-  version: 935e0e8a636ca4ba70b713f3e38a19e1b77739e8
+  version: 0bce6a6887123b67a60366d2c9fe2dfb74289d2e
 - name: github.com/Emyrk/test2doc
   version: 2da5c5d864172adaa2bacaff52337ac930bce2db
   subpackages:
@@ -68,8 +64,6 @@ imports:
   - test
 - name: github.com/FactomProject/basen
   version: fe3947df716ebfda9847eb1b9a48f9592e06478c
-- name: github.com/FactomProject/bolt
-  version: 952a1b4e9a55f458d536cf703bce25a4e9c99841
 - name: github.com/FactomProject/btcutil
   version: 43986820ccd50b2b02b83e575cb3a39c87457482
   subpackages:
@@ -80,44 +74,8 @@ imports:
   version: 38002c4fe7b609c2fa3144a3cc29b997b756bb4c
   subpackages:
   - edwards25519
-- name: github.com/FactomProject/factoid
-  version: 3ee9763f86849036723d1b059216e08a6d34b184
-  subpackages:
-  - block
-  - database
-  - state
-  - state/stateinit
-  - wallet
 - name: github.com/FactomProject/factom
-  version: 22c2a7941890085f4031ac4f84f9e8c2a1f2bd8a
-  subpackages:
-  - wallet
-- name: github.com/FactomProject/FactomCode
-  version: fa03af8ca695eb98cef90a71fd0f506cf54ddbe8
-  subpackages:
-  - controlpanel
-- name: github.com/FactomProject/factomd
-  version: 701f2cca5ed1f71771a36f8e0386f707106190fb
-  subpackages:
-  - anchor
-  - common/adminBlock
-  - common/constants
-  - common/directoryBlock
-  - common/directoryBlock/dbInfo
-  - common/entryBlock
-  - common/entryCreditBlock
-  - common/factoid
-  - common/interfaces
-  - common/primitives
-  - common/primitives/random
-  - database/blockExtractor
-  - database/boltdb
-  - database/databaseOverlay
-  - database/hybridDB
-  - database/leveldb
-  - database/mapdb
-  - log
-  - util
+  version: 35e13df20b8269a64560f55a558d4dcb2b11380e
 - name: github.com/FactomProject/go-bip32
   version: 3b593af1c415abc1017648e4eb24a88c32fee0f3
 - name: github.com/FactomProject/go-bip39
@@ -126,29 +84,8 @@ imports:
   version: fd672f46ddc35bb381f497f7b64c9cf34f9e0703
 - name: github.com/FactomProject/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
-- name: github.com/FactomProject/go-spew
-  version: ddfaec9b42f58fc8172b0cbb03b21c6668dd0a46
-  subpackages:
-  - spew
-- name: github.com/FactomProject/goleveldb
-  version: 9d147f2b8f767adca2a29f9728658681081b03a8
-  subpackages:
-  - leveldb
-  - leveldb/cache
-  - leveldb/comparer
-  - leveldb/errors
-  - leveldb/filter
-  - leveldb/iterator
-  - leveldb/journal
-  - leveldb/memdb
-  - leveldb/opt
-  - leveldb/storage
-  - leveldb/table
-  - leveldb/util
 - name: github.com/FactomProject/netki-go-partner-client
   version: 426acb535e66cc2f9e6226ae254555e3572fd142
-- name: github.com/FactomProject/snappy-go
-  version: f2f83b22c29e5abc60e3a95062ce1491d3b95371
 - name: github.com/fatih/color
   version: 9131ab34cf20d2f6d83fdc67168a5430d1c7dc23
 - name: github.com/glycerine/go-unsnap-stream
@@ -158,7 +95,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/golang/snappy
-  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
+  version: 553a641470496b2327abcac10b36396bd98e45c9
 - name: github.com/google/btree
   version: 316fb6d3f031ae8f4d457c6c5186b9e3ded70435
 - name: github.com/mattn/go-colorable
@@ -194,7 +131,7 @@ imports:
 - name: github.com/prometheus/procfs
   version: abf152e5f3e97f2fafac028d2cc06c1feb87ffa5
 - name: github.com/RoaringBitmap/roaring
-  version: 943a2da912da2faacc263c82956d40de0841f15d
+  version: 6dacb3b11b80b593f3718e4599c7354711f4f117
 - name: github.com/ryszard/goskiplist
   version: 2dfbae5fcf46374f166f8969cb07e167f1be6273
   subpackages:
@@ -206,11 +143,11 @@ imports:
   subpackages:
   - msgp
 - name: github.com/tylertreat/BoomFilters
-  version: 6cd71b875c8a3852dc50277e5e9bcf9473a8ad66
+  version: b282640b93f349cd208f8d5921df2cfaf5780ee2
 - name: github.com/willf/bitset
-  version: 5c3c0fce48842b2c0bbaa99b4e61b0175d84b47c
+  version: 988f4f24992fc745de53c42df0da6581e42a6686
 - name: github.com/willf/bloom
-  version: 278d7d8b14584245fe9f826a30e48d4301bd6fd9
+  version: 54e3b963ee1652b06c4562cb9b6020ebc6e36e59
 - name: golang.org/x/crypto
   version: bed12803fa9663d7aa2c2346b0c634ad2dcd43b7
   subpackages:
@@ -227,17 +164,9 @@ imports:
   subpackages:
   - unix
 - name: golang.org/x/time
-  version: f51c12702a4d776e4c1fa9b0fabab841babae631
+  version: 8be79e1e0910c292df4e79c241bb7e8f7e725959
   subpackages:
   - rate
-- name: gopkg.in/gcfg.v1
-  version: 27e4946190b4a327b539185f2b5b1f7c84730728
-  subpackages:
-  - scanner
-  - token
-  - types
-- name: gopkg.in/warnings.v0
-  version: 8a331561fe74dadba6edfc59f3be66c22c3b065d
 testImports:
 - name: github.com/leanovate/gopter
   version: 43cf95bdcf8d4b73624e7e71fec73765eb0a92dc

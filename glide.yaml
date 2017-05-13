@@ -23,6 +23,25 @@ import:
 - package: github.com/prometheus/client_golang
   subpackages:
   - prometheus
+- package: github.com/anacrolix/dht
+  version: 960f9dd591cc5bcc1c7d215c6683cfd07300a291
+  subpackages:
+  - krpc
+- package: github.com/anacrolix/torrent
+  version: 40b96d0e4e5df84afb90181e679804638ef8e82e
+  subpackages:
+  - bencode
+  - iplist
+  - logonce
+  - metainfo
+  - mmap_span
+  - mse
+  - peer_protocol
+  - storage
+  - tracker
+  - util
+- package: github.com/anacrolix/utp
+  version: cb02a8a1ac94501fb8421531cd94d874360d35b1
 testImport:
 - package: github.com/leanovate/gopter
   version: v0.1
