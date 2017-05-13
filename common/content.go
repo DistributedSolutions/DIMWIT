@@ -407,9 +407,9 @@ func RandomContentList(max uint32) *ContentList {
 	return p
 }
 
-func SmartRandomContentList(max uint32, root primitives.Hash, content primitives.Hash) *ContentList {
+func SmartRandomContentList(min uint32, max uint32, root primitives.Hash, content primitives.Hash) *ContentList {
 	p := new(ContentList)
-	l := random.RandomUInt32Between(0, max)
+	l := random.RandomUInt32Between(min, max)
 
 	p.ContentList = make([]Content, l)
 	for i := range p.ContentList {

@@ -136,7 +136,6 @@ func Control(w *WholeState) {
 						err := w.WriteHelper.AddContent(&content)
 						if err != nil {
 							fmt.Println(err.LogError)
-
 						}
 					}
 				}

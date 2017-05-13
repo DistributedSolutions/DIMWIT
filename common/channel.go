@@ -126,7 +126,7 @@ func RandomNewSmallChannel() *Channel {
 	c.Website = *primitives.RandomSiteURL()
 	c.LongDescription = *primitives.RandomLongDescription()
 	c.ShortDescription = *primitives.RandomShortDescription()
-	c.Content = *SmartRandomContentList(random.RandomUInt32Between(1, 3),
+	c.Content = *SmartRandomContentList(1, random.RandomUInt32Between(1, 3),
 		c.RootChainID,
 		c.ContentChainID)
 	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))
@@ -162,7 +162,7 @@ func RandomNewChannel() *Channel {
 	c.Website = *primitives.RandomSiteURL()
 	c.LongDescription = *primitives.RandomLongDescription()
 	c.ShortDescription = *primitives.RandomShortDescription()
-	c.Content = *SmartRandomContentList(random.RandomUInt32Between(0, 30),
+	c.Content = *SmartRandomContentList(1, random.RandomUInt32Between(0, 30),
 		c.RootChainID,
 		c.ContentChainID)
 	// c.Playlist = *RandomManyPlayList(random.RandomUInt32Between(0, 100))

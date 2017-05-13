@@ -164,6 +164,16 @@ func (scc *SingleContentChain) FactomElements() (*factom.Chain, []*factom.Entry,
 		seq++
 	}
 
+	ph, _ := primitives.HexToHash(e.ChainID)
+	cl := new(ContentLinkEntry)
+	cl.Create(scc.root, scc.cc, *ph, scc.ContentKey, scc.contentType)
+	le, err := cl.FactomEntry()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	stiches = append(stiches, le)
+
 	return c, stiches, nil
 }
 

@@ -146,12 +146,14 @@ func (w *WriteHelper) AddContent(con *common.Content) (apiErr *util.ApiError) {
 		return util.NewAPIErrorFromOne(fmt.Errorf("Do not have the keys for that channel"))
 	}
 
+	con.Thumbnail = *primitives.RandomHugeImage()
 	ce := new(elements.SingleContentChain)
 	ce.Create(elements.CommonContentToContentChainContent(con), a.ContentSigning, a.ChannelRoot, a.ChannelContent, con.Type)
 	c, entries, err := ce.FactomElements()
 	if err != nil {
 		return util.NewAPIErrorFromOne(err)
 	}
+
 	w.Writer.SubmitChain(*c, *w.ECAddress)
 
 	for _, e := range entries {
