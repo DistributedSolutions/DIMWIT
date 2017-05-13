@@ -144,6 +144,7 @@ func RandomFile() *File {
 	f.SetFileName(str)
 	s := random.RandomInt64()
 	f.SetSize(s)
+	f.Checksum = *RandomMD5()
 	return f
 
 }
