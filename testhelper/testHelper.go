@@ -42,11 +42,11 @@ func AddChannelsToClient(fake lite.FactomLite, amt int, small bool) ([]common.Ch
 			ch = common.RandomNewChannel()
 		}
 
-		chanList = append(chanList, *ch)
 		err := w.MakeNewAuthChannel(ch)
 		if err != nil {
 			return nil, err
 		}
+		chanList = append(chanList, *ch)
 	}
 
 	fake.SubmitEntry(*inc, *ec)

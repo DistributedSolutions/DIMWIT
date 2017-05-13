@@ -56,8 +56,14 @@ func (w *WriteHelper) MakeNewAuthChannel(ch *common.Channel) error {
 		return err
 	}
 
-	for _, c := range ch.Content.ContentList {
-		w.AddContent(&c)
+	for i, c := range ch.Content.ContentList {
+		c.RootChainID = ch.RootChainID
+		p := &c
+		err := w.AddContent(p)
+		if err != nil {
+			return err
+		}
+		ch.Content.ContentList[i] = *p
 	}
 
 	return nil
@@ -172,6 +178,8 @@ func (w *WriteHelper) AddContent(con *common.Content) (apiErr *util.ApiError) {
 	}
 
 	w.Writer.SubmitChain(*c, *w.ECAddress)
+	he, _ := primitives.HexToHash(c.FirstEntry.ChainID)
+	con.ContentID = *he
 
 	for _, e := range entries {
 		w.Writer.SubmitEntry(*e, *w.ECAddress)

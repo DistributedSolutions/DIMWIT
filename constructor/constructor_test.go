@@ -5,14 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DistributedSolutions/DIMWIT/channelTool"
-	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
-	"github.com/DistributedSolutions/DIMWIT/common"
+	//"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
-	"github.com/DistributedSolutions/DIMWIT/common/primitives"
+	//"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	. "github.com/DistributedSolutions/DIMWIT/constructor"
 	"github.com/DistributedSolutions/DIMWIT/database"
-	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	//"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	"github.com/DistributedSolutions/DIMWIT/testHelper"
 )
 
 var _ = fmt.Sprintf("")
@@ -20,15 +19,10 @@ var _ = time.Second
 
 func TestConstructor(t *testing.T) {
 	constants.CHECK_FACTOM_FOR_UPDATES = time.Millisecond * 100
-	fake := lite.NewFakeDumbLite()
-	m := creation.NewMasterChain()
-	ec := lite.GetECAddress()
-	_, _, err := fake.SubmitChain(*m.Chain, *ec)
+	fake, channels, err := testhelper.PopulateFakeClient(true, 5)
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(string(m.Chain.FirstEntry.ExtIDs[1]))
-	//fake := lite.NewDumbLite()
 
 	sqlW, err := NewSqlWriter()
 	if err != nil {
@@ -41,58 +35,11 @@ func TestConstructor(t *testing.T) {
 		t.Error(err)
 	}
 	con.SetReader(fake)
-	authList := make([]channelTool.AuthChannel, 0)
-	totalStuff := 0
 
-	for i := 0; i < 5; i++ {
-		ch := common.RandomNewChannel()
-		auth, err := channelTool.MakeNewAuthChannel(ch, ec)
-		if err != nil {
-			t.Error(err)
-		}
-
-		chains, err := auth.ReturnFactomChains()
-		if err != nil {
-			t.Error(err)
-		}
-
-		entries, err := auth.ReturnFactomEntries()
-		if err != nil {
-			t.Error(err)
-		}
-
-		for _, c := range chains {
-			totalStuff++
-			_, _, err := fake.SubmitChain(*c, *ec)
-			if err != nil {
-				t.Error(err)
-			}
-		}
-
-		eHashes := make([]string, 0)
-		for _, e := range entries {
-			totalStuff++
-			_, ehash, err := fake.SubmitEntry(*e, *ec)
-			if err != nil {
-				t.Error(err)
-			}
-			eHashes = append(eHashes, ehash)
-		}
-
-		for _, h := range eHashes {
-			hash, _ := primitives.HexToHash(h)
-			_, err := fake.GetEntry(*hash)
-			if err != nil {
-				t.Error(err)
-			}
-		}
-		authList = append(authList, *auth)
-
-		// Jesse Test Assertions
-
-		// END JESSE ASSERTIONS
-	}
 	//fmt.Println(con.CompletedHeight)
+	testhelper.IncrementFakeHeight(fake)
+	testhelper.IncrementFakeHeight(fake)
+	testhelper.IncrementFakeHeight(fake)
 	go con.StartConstructor()
 	time.Sleep(1 * time.Second)
 	max, _ := con.Reader.GetReadyHeight()
@@ -103,15 +50,20 @@ func TestConstructor(t *testing.T) {
 	}
 	//fmt.Println(con.CompletedHeight, max-1, totalStuff-1)
 
-	for _, a := range authList {
+	for _, a := range channels {
 		// Constructor finished!
-		cw, err := con.RetrieveChannel(a.Channel.RootChainID)
+		cw, err := con.RetrieveChannel(a.RootChainID)
 		if err != nil {
 			t.Error(err)
+			continue
+		}
+		if cw == nil {
+			t.Error("Channel not found")
+			continue
 		}
 
-		if !cw.Channel.IsSameAs(&a.Channel) {
-			t.Error("Channels not the same", cw.Channel.RootChainID.String(), a.Channel.RootChainID.String())
+		if !cw.Channel.IsSameAs(&a) {
+			t.Error("Channels not the same", cw.Channel.RootChainID.String(), a.RootChainID.String())
 		}
 	}
 
