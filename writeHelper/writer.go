@@ -70,7 +70,7 @@ func (w *WriteHelper) MakeNewAuthChannel(ch *common.Channel) error {
 }
 
 func (w *WriteHelper) VerifyChannel(ch *common.Channel) (cost int, apiErr *util.ApiError) {
-	return 0, util.NewAPIError(nil, nil)
+	return 100, nil
 }
 
 func (w *WriteHelper) InitiateChannel(ch *common.Channel) *util.ApiError {
