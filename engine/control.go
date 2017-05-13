@@ -121,16 +121,19 @@ func Control(w *WholeState) {
 			w.Provider.Serve()
 		case cmd == "ms":
 			fmt.Println("Adding small channels....")
-			rc := common.RandomNewSmallChannel()
-			err := w.WriteHelper.InitiateChannel(rc)
-			if err != nil {
-				fmt.Println(err.LogError)
-			} else {
-				for _, content := range rc.Content.ContentList {
-					content.RootChainID = rc.RootChainID
-					err := w.WriteHelper.AddContent(&content)
-					if err != nil {
-						fmt.Println(err.LogError)
+			for i := 0; i < amount; i++ {
+				rc := common.RandomNewSmallChannel()
+				err := w.WriteHelper.InitiateChannel(rc)
+				color.Yellow("Content list is has for content %d", len(rc.Content.GetContents()))
+				if err != nil {
+					fmt.Println(err.LogError)
+				} else {
+					for _, content := range rc.Content.ContentList {
+						content.RootChainID = rc.RootChainID
+						err := w.WriteHelper.AddContent(&content)
+						if err != nil {
+							fmt.Println(err.LogError)
+						}
 					}
 				}
 			}
