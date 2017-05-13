@@ -7,11 +7,11 @@ import (
 	//"log"
 	"time"
 
-	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper/elements"
 	log "github.com/DistributedSolutions/logrus"
 )
 
@@ -43,7 +43,7 @@ type ContentLinkApplyEntry struct {
 
 	// Content
 	ContentChainID primitives.Hash
-	ContentData    creation.ContentChainContent
+	ContentData    elements.ContentChainContent
 	Content        common.Content
 	LinkTimestamp  time.Time
 

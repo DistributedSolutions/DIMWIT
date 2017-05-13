@@ -465,7 +465,7 @@ func (apiService *ApiService) GetCompleteHeight() (uint32, error) {
 }
 
 func (apiService *ApiService) VerifyChannel(ch *common.Channel) (int, error) {
-	cost, apiError := (*apiService.Provider.CreationTool.ApiTool).VerifyChannel(ch)
+	cost, apiError := apiService.Provider.CreationTool.VerifyChannel(ch)
 	if apiError.LogError != nil {
 		color.Red("VerifyChannel Error: %s", apiError.LogError.Error())
 		return cost, apiError.UserError
@@ -474,7 +474,7 @@ func (apiService *ApiService) VerifyChannel(ch *common.Channel) (int, error) {
 }
 
 func (apiService *ApiService) InitiateChannel(ch *common.Channel) error {
-	_, _, apiError := (*apiService.Provider.CreationTool.ApiTool).InitiateChannel(ch)
+	apiError := apiService.Provider.CreationTool.InitiateChannel(ch)
 	if apiError.LogError != nil {
 		color.Red("InitiateChannel Error: %s", apiError.LogError.Error())
 		return apiError.UserError
@@ -483,7 +483,7 @@ func (apiService *ApiService) InitiateChannel(ch *common.Channel) error {
 }
 
 func (apiService *ApiService) UpdateChannel(ch *common.Channel) error {
-	_, _, apiError := (*apiService.Provider.CreationTool.ApiTool).UpdateChannel(ch)
+	apiError := apiService.Provider.CreationTool.UpdateChannel(ch)
 	if apiError.LogError != nil {
 		color.Red("UpdateChannel Error: %s", apiError.LogError.Error())
 		return apiError.UserError
@@ -492,7 +492,7 @@ func (apiService *ApiService) UpdateChannel(ch *common.Channel) error {
 }
 
 func (apiService *ApiService) DeleteChannel(h *primitives.Hash) error {
-	apiError := (*apiService.Provider.CreationTool.ApiTool).DeleteChannel(h)
+	apiError := apiService.Provider.CreationTool.DeleteChannel(h)
 	if apiError.LogError != nil {
 		color.Red("DeleteChannel Error: %s", apiError.LogError.Error())
 		return apiError.UserError
@@ -501,7 +501,7 @@ func (apiService *ApiService) DeleteChannel(h *primitives.Hash) error {
 }
 
 func (apiService *ApiService) VerifyContent(c *common.Content) (int, error) {
-	cost, apiError := (*apiService.Provider.CreationTool.ApiTool).VerifyContent(c)
+	cost, apiError := apiService.Provider.CreationTool.VerifyContent(c)
 	if apiError.LogError != nil {
 		color.Red("VerifyContent Error: %s", apiError.LogError.Error())
 		return cost, apiError.UserError
@@ -510,7 +510,7 @@ func (apiService *ApiService) VerifyContent(c *common.Content) (int, error) {
 }
 
 func (apiService *ApiService) AddContent(c *common.Content) error {
-	_, _, apiError := (*apiService.Provider.CreationTool.ApiTool).AddContent(c, &c.ContentID)
+	apiError := apiService.Provider.CreationTool.AddContent(c)
 	if apiError.LogError != nil {
 		color.Red("UpdateChannel Error: %s", apiError.LogError.Error())
 		return apiError.UserError
@@ -519,7 +519,7 @@ func (apiService *ApiService) AddContent(c *common.Content) error {
 }
 
 func (apiService *ApiService) DeleteContent(h *primitives.Hash) error {
-	apiError := (*apiService.Provider.CreationTool.ApiTool).DeleteContent(h)
+	apiError := apiService.Provider.CreationTool.DeleteContent(h)
 	if apiError.LogError != nil {
 		color.Red("DeleteContent Error: %s", apiError.LogError.Error())
 		return apiError.UserError

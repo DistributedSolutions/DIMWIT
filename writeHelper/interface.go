@@ -26,7 +26,7 @@ type IWriterHelper interface {
 	VerifyContent(ch *common.Content) (cost int, err *util.ApiError)
 
 	// Will add content given root chain id. Will check to see if we have the correct keys.
-	AddContent(con *common.Content, contentID *primitives.Hash) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError)
+	AddContent(con *common.Content) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError)
 
 	// Will delete content given root chain id. Will check to see if we have the correct keys.
 	DeleteContent(contentID *primitives.Hash) (err *util.ApiError)
@@ -60,7 +60,7 @@ func (fakeChannelTool *FakeWriterHelper) VerifyContent(ch *common.Content) (cost
 	return 0, util.NewAPIError(nil, nil)
 }
 
-func (fakeChannelTool *FakeWriterHelper) AddContent(con *common.Content, contentID *primitives.Hash) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError) {
+func (fakeChannelTool *FakeWriterHelper) AddContent(con *common.Content) (chains []*factom.Chain, entries []*factom.Entry, err *util.ApiError) {
 	return
 }
 

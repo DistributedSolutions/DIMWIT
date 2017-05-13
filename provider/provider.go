@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/DistributedSolutions/DIMWIT/channelTool"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
@@ -15,11 +14,12 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/database"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
 	"github.com/DistributedSolutions/DIMWIT/torrent"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper"
 )
 
 type Provider struct {
 	Level2Cache            database.IDatabase
-	CreationTool           *channelTool.CreationTool
+	CreationTool           *writeHelper.WriteHelper
 	FactomWriter           lite.FactomLiteWriter
 	TorrentClientInterface torrent.ClientInterface
 
@@ -30,14 +30,9 @@ type Provider struct {
 	apicloser io.Closer
 }
 
-func NewProvider(db database.IDatabase, writer lite.FactomLiteWriter) (*Provider, error) {
-	var err error
-
+func NewProvider(db database.IDatabase, wh *writeHelper.WriteHelper, writer lite.FactomLiteWriter) (*Provider, error) {
 	p := new(Provider)
-	p.CreationTool, err = channelTool.NewCreationTool()
-	if err != nil {
-		return nil, err
-	}
+	p.CreationTool = wh
 	p.Level2Cache = db
 	p.FactomWriter = writer
 
@@ -169,68 +164,33 @@ func (p *Provider) GetCompleteHeight() (uint32, error) {
 }
 
 func (p *Provider) UpdateChannel(ch *common.Channel, dirsPath []string) (*common.Channel, error) {
-	return p.CreationTool.UpdateChannel(ch, dirsPath)
+	return ch, p.CreationTool.UpdateChannel(ch)
 }
 
 func (p *Provider) CreateChannel(ch *common.Channel, dirsPath []string) (*common.Channel, error) {
-	return p.CreationTool.AddNewChannel(ch, dirsPath)
+	err := p.CreationTool.InitiateChannel(ch)
+	if err != nil {
+		return nil, err
+	}
+
+	err = p.CreationTool.UpdateChannel(ch)
+	if err != nil {
+		return nil, err
+	}
+	return ch, nil
 }
 
 func (p *Provider) SubmitChannel(root primitives.Hash) error {
-	ents, chains, err := p.CreationTool.ReturnFactomElements(root)
-	if err != nil {
-		return err
-	}
-
-	ec, err := p.CreationTool.GetECAddress(root)
-	if err != nil {
-		return err
-	}
-
-	for _, c := range chains {
-		com, chainID, err := p.FactomWriter.SubmitChain(*c, *ec)
-		var _, _, _ = com, chainID, err
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, e := range ents {
-		com, ehash, err := p.FactomWriter.SubmitEntry(*e, *ec)
-		var _, _, _ = com, ehash, err
-		if err != nil {
-			return err
-		}
-	}
+	// TODO: Maybe fix this?
 
 	return nil
 }
 
 func (p *Provider) AddContent(root primitives.Hash, con *common.Content) error {
-	ents, chains, err := p.CreationTool.AddContent(root, con)
+	con.RootChainID = root
+	err := p.CreationTool.AddContent(con)
 	if err != nil {
 		return err
-	}
-
-	ec, err := p.CreationTool.GetECAddress(root)
-	if err != nil {
-		return err
-	}
-
-	for _, c := range chains {
-		com, chainID, err := p.FactomWriter.SubmitChain(*c, *ec)
-		var _, _, _ = com, chainID, err
-		if err != nil {
-			return err
-		}
-	}
-
-	for _, e := range ents {
-		com, ehash, err := p.FactomWriter.SubmitEntry(*e, *ec)
-		var _, _, _ = com, ehash, err
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

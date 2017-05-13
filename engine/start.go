@@ -78,8 +78,14 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	con.SetReader(factomClient)
 	CloseCalls = append(CloseCalls, con.InterruptClose)
 
+	// Write Helper
+	wh, err := writeHelper.NewWriterHelper(con, factomClient)
+	if err != nil {
+		return nil
+	}
+
 	// Provider -> Serves API
-	prov, err := provider.NewProvider(lvl2Cache, factomClient)
+	prov, err := provider.NewProvider(lvl2Cache, wh, factomClient)
 	if err != nil {
 		return err
 	}
@@ -95,12 +101,6 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 
 	//sets interface between api and torrent client up
 	prov.TorrentClientInterface.SetClient(torClient)
-
-	// Write Helper
-	wh, err := writeHelper.NewWriterHelper(con, factomClient)
-	if err != nil {
-		return nil
-	}
 
 	// Start Go Routines
 	go con.StartConstructor()

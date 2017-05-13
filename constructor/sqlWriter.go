@@ -13,6 +13,22 @@ const (
 	LOOP_DELAY time.Duration = time.Duration(1 * time.Second)
 )
 
+type ISqlWriter interface {
+	AddChannelArr(channels []common.Channel, height uint32) error
+	FlushTempPlaylists(height uint32) error
+	DeleteDBChannels() error
+	DeleteDB() error
+	Close()
+}
+
+type FakeSqlWriter struct{}
+
+func (FakeSqlWriter) AddChannelArr(channels []common.Channel, height uint32) error { return nil }
+func (FakeSqlWriter) FlushTempPlaylists(height uint32) error                       { return nil }
+func (FakeSqlWriter) DeleteDBChannels() error                                      { return nil }
+func (FakeSqlWriter) DeleteDB() error                                              { return nil }
+func (FakeSqlWriter) Close()                                                       {}
+
 type SqlWriter struct {
 	// Incoming channels to write to sql db
 	db *database.SqlDBWrapper

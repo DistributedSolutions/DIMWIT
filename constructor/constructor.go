@@ -17,7 +17,7 @@ import (
 // Constructor builds the level 2 cache using factom-lite
 type Constructor struct {
 	Level2Cache database.IDatabase
-	SqlGuy      *SqlWriter
+	SqlGuy      ISqlWriter
 
 	// Used per block
 	ChannelCache map[string]objects.ChannelWrapper
@@ -33,7 +33,7 @@ type Constructor struct {
 }
 
 //dbType string,
-func NewContructor(db database.IDatabase, sqlDb *SqlWriter) (*Constructor, error) {
+func NewContructor(db database.IDatabase, sqlDb ISqlWriter) (*Constructor, error) {
 	c := new(Constructor)
 
 	c.SqlGuy = sqlDb

@@ -46,6 +46,23 @@ func NewWriterHelper(con *constructor.Constructor, fw lite.FactomLiteWriter) (*W
 	return w, nil
 }
 
+func (w *WriteHelper) MakeNewAuthChannel(ch *common.Channel) error {
+	err := w.InitiateChannel(ch)
+	if err != nil {
+		return err
+	}
+	err = w.UpdateChannel(ch)
+	if err != nil {
+		return err
+	}
+
+	for _, c := range ch.Content.ContentList {
+		w.AddContent(&c)
+	}
+
+	return nil
+}
+
 func (w *WriteHelper) VerifyChannel(ch *common.Channel) (cost int, apiErr *util.ApiError) {
 	return 0, util.NewAPIError(nil, nil)
 }

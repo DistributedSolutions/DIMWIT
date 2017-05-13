@@ -10,6 +10,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/provider"
 	"github.com/DistributedSolutions/DIMWIT/testhelper"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper"
 
 	"github.com/Emyrk/test2doc/test"
 	"github.com/adams-sarah/prettytest"
@@ -84,7 +85,12 @@ func TestRunner(t *testing.T) {
 	}
 	defer con.Close()
 
-	prov, err := provider.NewProvider(cache, fake)
+	w, err := writeHelper.NewWriterHelper(con, fake)
+	if err != nil {
+		t.Error(err)
+	}
+
+	prov, err := provider.NewProvider(cache, fake, w)
 	if err != nil {
 		t.Error(err)
 	}

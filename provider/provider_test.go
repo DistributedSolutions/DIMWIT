@@ -9,6 +9,7 @@ import (
 	"github.com/DistributedSolutions/DIMWIT/database"
 	. "github.com/DistributedSolutions/DIMWIT/provider"
 	"github.com/DistributedSolutions/DIMWIT/testhelper"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper"
 )
 
 var _ = fmt.Sprintf("")
@@ -44,7 +45,12 @@ func TestProvider(t *testing.T) {
 		// fmt.Println(con.CompletedHeight, max)
 	}
 
-	prov, err := NewProvider(db, fake)
+	w, err := writeHelper.NewWriterHelper(con, fake)
+	if err != nil {
+		t.Error(err)
+	}
+
+	prov, err := NewProvider(db, fake, w)
 	if err != nil {
 		t.Error(err)
 	}

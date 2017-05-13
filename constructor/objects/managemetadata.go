@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DistributedSolutions/DIMWIT/channelTool/creation"
 	"github.com/DistributedSolutions/DIMWIT/common"
 	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/factom-lite"
+	"github.com/DistributedSolutions/DIMWIT/writeHelper/elements"
 )
 
 type ManageMetaApplyEntry struct {
@@ -30,13 +30,13 @@ type ManageMetaApplyEntry struct {
 	Signature       []byte
 
 	// Holders
-	Meta     creation.ManageChainMetaData
+	Meta     elements.ManageChainMetaData
 	DBlockTS time.Time
 }
 
 func NewManageMetaApplyEntry() IApplyEntry {
 	m := new(ManageMetaApplyEntry)
-	meta := new(creation.ManageChainMetaData)
+	meta := new(elements.ManageChainMetaData)
 	meta.ChannelTags = primitives.NewTagList(uint32(constants.MAX_CHANNEL_TAGS))
 	m.Meta = *meta
 	return m
@@ -196,7 +196,7 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 		return nil, false
 	}
 
-	t := new(creation.ManageChainMetaData)
+	t := new(elements.ManageChainMetaData)
 	m.Meta = *t
 
 	// Wow, we did it.
@@ -212,7 +212,7 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	return m.Channel, true
 }
 
-func metaToChannel(ch common.Channel, meta creation.ManageChainMetaData) common.Channel {
+func metaToChannel(ch common.Channel, meta elements.ManageChainMetaData) common.Channel {
 	if meta.Website != nil {
 		ch.Website = *meta.Website
 	}
