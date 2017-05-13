@@ -11,12 +11,17 @@ import (
 type SeekableContent interface {
 	io.ReadSeeker
 	io.Closer
+	Offset() int64
 }
 
 // FileEntry helps reading a torrent file.
 type FileEntry struct {
 	*torrent.File
 	*torrent.Reader
+}
+
+func (fe *FileEntry) Offset() int64 {
+	return fe.Offset()
 }
 
 // Seek seeks to the correct file position, paying attention to the offset.

@@ -140,6 +140,7 @@ func (c *TorrentClient) GetFile(infohash metainfo.Hash, w http.ResponseWriter, r
 		}
 	}()
 
+	c.selectedReader = entry
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+t.Info().Name+"\"")
 	http.ServeContent(w, r, target.DisplayPath(), time.Now(), entry)
 	return nil
@@ -194,5 +195,7 @@ func (c *TorrentClient) ShortStatus() string {
 }
 
 func (c *TorrentClient) HandleSeek(seconds float64) {
-	//TODOD HANDLE THE SEEK for querying where in torrent should go.
+	// TODO: HANDLE THE SEEK for querying where in torrent should go.
+	// Currently resets to first byte
+	c.selectedReader.Seek(c.selectedReader.Offset(), os.SEEK_SET)
 }
