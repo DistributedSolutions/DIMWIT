@@ -15,6 +15,7 @@ import (
 
 var _ = fmt.Sprintf("")
 
+
 func (t *mainSuite) TestGetStats() {
 	req := jsonrpc.NewEmptyParamsJSONRPCRequest("get-stats", 0)
 
