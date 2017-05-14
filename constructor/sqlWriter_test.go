@@ -3,7 +3,8 @@ package constructor_test
 import (
 	"testing"
 
-	"github.com/DistributedSolutions/DIMWIT/constructor"
+	"github.com/DistributedSolutions/DIMWIT/common"
+	. "github.com/DistributedSolutions/DIMWIT/constructor"
 )
 
 func TestFakeSQLWriter(t *testing.T) {
