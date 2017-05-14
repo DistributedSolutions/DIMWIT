@@ -28,6 +28,15 @@ func NewEmptyJSONRPCRequest() *JSONRPCRequest {
 	return j
 }
 
+func NewEmptyParamsJSONRPCRequest(method string, id uint32) *JSONRPCRequest {
+	j := new(JSONRPCRequest)
+	j.JsonRpc = "2.0"
+	j.ID = id
+	j.Method = method
+	j.Params = nil
+	return j
+}
+
 func NewJSONRPCRequest(method string, params interface{}, id uint32) *JSONRPCRequest {
 	j := new(JSONRPCRequest)
 	j.JsonRpc = "2.0"

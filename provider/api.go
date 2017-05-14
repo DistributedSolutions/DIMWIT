@@ -100,15 +100,15 @@ func (apiService *ApiService) HandleAPICalls(w http.ResponseWriter, r *http.Requ
 	}
 
 	//get the api interface object
-	st := reflect.TypeOf(apiProvider)
+	_, ok := reflect.TypeOf(apiProvider).MethodByName(methodCamelCase)
 	//checks to see if method exists to call it
-	method := reflect.ValueOf(apiProvider).MethodByName(methodCamelCase)
-	if method == reflect.Zero(st) {
+	if !ok {
 		//method does not exist
 		extra = fmt.Sprintf("Method not found: %s", methodCamelCase)
 		color.Red(extra)
 		goto MethodNotFound
 	} else {
+		method := reflect.ValueOf(apiProvider).MethodByName(methodCamelCase)
 		//method exists
 		//successResponse JSON before
 		//apiError = object containing messages
@@ -192,8 +192,11 @@ func (apiProvider ApiProvider) PostTorrentStreamSeek(input json.RawMessage) (suc
 			},
 			invalidParameters
 	}
+	s := "Success"
 	apiProvider.Provider.TorrentClientInterface.SetTorrentSeek(*seconds)
-	return nil, nil, noError
+	retVal := new(interface{})
+	*retVal = s
+	return retVal, nil, noError
 }
 
 func (apiProvider ApiProvider) GetStats(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
@@ -212,17 +215,9 @@ func (apiProvider ApiProvider) GetStats(input json.RawMessage) (successResponse 
 }
 
 func (apiProvider ApiProvider) GetConstants(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
-	tempData, err := constants.ConstantJSONMarshal()
-	if err != nil {
-		return nil,
-			&util.ApiError{
-				fmt.Errorf("Error retrieving constants: %s", err.Error()),
-				fmt.Errorf("Error retrieving constants: %s", err.Error()),
-			},
-			customError
-	}
+	constants := constants.ConstantJSONMarshal()
 	retVal := new(interface{})
-	*retVal = tempData
+	*retVal = constants
 	return retVal, nil, noError
 }
 
