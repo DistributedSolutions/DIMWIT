@@ -8,7 +8,7 @@ import (
 
 type IWriterHelper interface {
 	// Verifies this channel can be added
-	VerifyChannel(ch *common.Channel) (cost int, err *util.ApiError)
+	VerifyChannel(ch *common.Channel) (cost *CostStruct, err *util.ApiError)
 
 	// Generate private keys and store. Also sets RootchainID, Manage, and ContentID in channel
 	// Only set title and keys. Will not set any metadata. TOTALLY EMPTY!! (Aside from title)
@@ -39,8 +39,8 @@ func NewFakeIWriterHelper() IWriterHelper {
 	return new(FakeWriterHelper)
 }
 
-func (fakeChannelTool *FakeWriterHelper) VerifyChannel(ch *common.Channel) (cost int, err *util.ApiError) {
-	return 0, util.NewAPIError(nil, nil)
+func (fakeChannelTool *FakeWriterHelper) VerifyChannel(ch *common.Channel) (cost *CostStruct, err *util.ApiError) {
+	return cost, util.NewAPIError(nil, nil)
 }
 
 func (fakeChannelTool *FakeWriterHelper) InitiateChannel(ch *common.Channel) (err *util.ApiError) {

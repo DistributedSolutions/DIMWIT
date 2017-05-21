@@ -208,6 +208,8 @@ func (mmd *ManageMetaData) Create(metaToChange *ManageChainMetaData, key3 primit
 	mmd.root = root
 }
 
+const ManageContentHeaderLength = 245 + 9*2 + 2
+
 func (mmd *ManageMetaData) FactomEntry() ([]*factom.Entry, error) {
 	placeHolder := make([]byte, 64)
 	metaDataBytes, err := mmd.MetaData.MarshalBinary()
@@ -246,11 +248,11 @@ func (mmd *ManageMetaData) FactomEntry() ([]*factom.Entry, error) {
 	headerLength := ExIDLength(extIDs)
 	contentLength := len(metaDataBytes)
 	totalSize := contentLength + headerLength
-	contentHeaderLen := 245 + 9*2 + 2
+	contentHeaderLen := ManageContentHeaderLength
 
 	var entryCount int = 0
 	if totalSize > constants.ENTRY_MAX_SIZE {
-		entryCount = howManyEntries(headerLength, contentLength, contentHeaderLen)
+		entryCount = HowManyEntries(headerLength, contentLength, contentHeaderLen)
 	}
 	extIDs[4] = primitives.Uint32ToBytes(uint32(entryCount))
 	e.ExtIDs = extIDs

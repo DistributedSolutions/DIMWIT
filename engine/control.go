@@ -36,6 +36,10 @@ var HelpText string
 
 // Control function lasts until signal hit
 func Control(w *WholeState) {
+	// Sec: Es4LdV2ncRirQhUhF87UTqHXASjajR7UVifxLzkuVbcGfGuWKSoE
+	// Pub: EC34dsLdmGwKJwweC8s8oGJmFLA5R8eLMByfNytdojpeooZ7gnmn
+	w.WriteHelper.SetECAddress("Es4LdV2ncRirQhUhF87UTqHXASjajR7UVifxLzkuVbcGfGuWKSoE")
+
 	scanner := bufio.NewScanner(os.Stdin)
 	HelpText = "------------------------------------------    Commands    ------------------------------------------\n"
 	AddHelp("|---[command]---|", "|---[text]---|")
@@ -58,6 +62,7 @@ func Control(w *WholeState) {
 	AddHelp("ts[l]", "Shows torrent status, 'l' for long")
 	AddHelp("i", "Increment fake factom height")
 	AddHelp("hard-reset-interfaceDB", "Hard reset the db... be sure you want to do this.")
+	AddHelp("ec", "Get EC Address")
 
 	var last string
 	var err error
@@ -113,6 +118,13 @@ func Control(w *WholeState) {
 				fmt.Println("Error:", err.Error())
 			}
 			fmt.Printf("Incrementing. At height %d\n", h)
+		case cmd == "ec":
+			ec := w.WriteHelper.GetECAddress()
+			if ec != nil {
+				fmt.Printf("Sec: %s\nPub: %s\n", ec.SecString(), ec.String())
+			} else {
+				fmt.Println("EC Address is nil")
+			}
 		case cmd == "c":
 			fmt.Printf("Constructor Completed Height: %d\n", w.Constructor.CompletedHeight)
 		case cmd == "a":

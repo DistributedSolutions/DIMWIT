@@ -46,6 +46,19 @@ func NewWriterHelper(con *constructor.Constructor, fw lite.FactomLiteWriter) (*W
 	return w, nil
 }
 
+func (w *WriteHelper) SetECAddress(sec string) error {
+	ec, err := factom.GetECAddress(sec)
+	if err != nil {
+		return err
+	}
+	w.ECAddress = ec
+	return nil
+}
+
+func (w *WriteHelper) GetECAddress() *factom.ECAddress {
+	return w.ECAddress
+}
+
 func (w *WriteHelper) MakeNewAuthChannel(ch *common.Channel) error {
 	err := w.InitiateChannel(ch)
 	if err != nil {
@@ -69,8 +82,29 @@ func (w *WriteHelper) MakeNewAuthChannel(ch *common.Channel) error {
 	return nil
 }
 
-func (w *WriteHelper) VerifyChannel(ch *common.Channel) (cost int, apiErr *util.ApiError) {
-	return 100, nil
+type CostStruct struct {
+	InitCost   int `json:"initcost"`
+	UpdateCost int `json:"updatecost"`
+}
+
+func (w *WriteHelper) VerifyChannel(ch *common.Channel) (cost *CostStruct, apiErr *util.ApiError) {
+	cs := new(CostStruct)
+	// Init cost
+	// 	3 Chains = 30
+	// 	3 Register = 3
+	cs.InitCost = 33
+	cs.UpdateCost = -1
+
+	metaData := w.createMetaDataChanges(ch, nil)
+	data, err := metaData.MarshalBinary()
+	if err != nil {
+		return cs, util.NewAPIErrorFromOne(err)
+	}
+	// Cost of the Management MetaData
+	ec := elements.HowManyEntries(elements.ManageContentHeaderLength, len(data), 248)
+	cs.UpdateCost = ec
+
+	return cs, nil
 }
 
 func (w *WriteHelper) InitiateChannel(ch *common.Channel) *util.ApiError {
