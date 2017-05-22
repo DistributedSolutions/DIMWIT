@@ -92,7 +92,7 @@ func (scc *SingleContentChain) FactomElements() (*factom.Chain, []*factom.Entry,
 	totalSize := contentLength + headerLength
 	var entryCount int = 0
 	if totalSize > constants.ENTRY_MAX_SIZE {
-		entryCount = howManyEntries(headerLength, contentLength, 142)
+		entryCount = HowManyEntries(headerLength, contentLength, 142)
 	}
 	extIDs[3] = primitives.Uint32ToBytes(uint32(entryCount))
 
