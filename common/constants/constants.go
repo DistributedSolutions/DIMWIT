@@ -23,6 +23,12 @@ const (
 	TAG_MAX_LENGTH               int = 100
 )
 
+// Common type constants
+const (
+	MAX_CONTENT_TAGS int = 4
+	MAX_CHANNEL_TAGS int = 4
+)
+
 type ConstantJSON struct {
 	HashLength             int `json:"hashlength"`
 	FileNameLength         int `json:"filenamelength"`
@@ -32,6 +38,8 @@ type ConstantJSON struct {
 	FilePathLength         int `json:"filepathlength"`
 	TitleLength            int `json:"titlelength"`
 	UrlLength              int `json:"urllength"`
+	MaxChannelTags         int `json:"maxchanneltags"`
+	MaxContentTags         int `json:"maxcontenttags"`
 }
 
 func ConstantJSONMarshal() *ConstantJSON {
@@ -44,14 +52,10 @@ func ConstantJSONMarshal() *ConstantJSON {
 	c.FilePathLength = FILE_PATH_MAX_LENGTH
 	c.TitleLength = TITLE_MAX_LENGTH
 	c.UrlLength = URL_MAX_LENGTH
+	c.MaxChannelTags = MAX_CHANNEL_TAGS
+	c.MaxContentTags = MAX_CONTENT_TAGS
 	return c
 }
-
-// Common type constants
-const (
-	MAX_CONTENT_TAGS int = 4
-	MAX_CHANNEL_TAGS int = 4
-)
 
 // Channel Status Values
 const (
