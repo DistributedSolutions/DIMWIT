@@ -163,35 +163,35 @@ func (p *Provider) GetCompleteHeight() (uint32, error) {
 	return u, nil
 }
 
-func (p *Provider) UpdateChannel(ch *common.Channel, dirsPath []string) (*common.Channel, error) {
-	return ch, p.CreationTool.UpdateChannel(ch)
-}
+// func (p *Provider) UpdateChannel(ch *common.Channel, dirsPath []string) (*common.Channel, error) {
+// 	return ch, p.CreationTool.UpdateChannel(ch)
+// }
 
-func (p *Provider) CreateChannel(ch *common.Channel, dirsPath []string) (*common.Channel, error) {
-	err := p.CreationTool.InitiateChannel(ch)
-	if err != nil {
-		return nil, err
-	}
+// func (p *Provider) CreateChannel(ch *common.Channel, dirsPath []string) (*common.Channel, error) {
+// 	err := p.CreationTool.InitiateChannel(ch)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	err = p.CreationTool.UpdateChannel(ch)
-	if err != nil {
-		return nil, err
-	}
-	return ch, nil
-}
+// 	err = p.CreationTool.UpdateChannel(ch)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return ch, nil
+// }
 
-func (p *Provider) SubmitChannel(root primitives.Hash) error {
-	// TODO: Maybe fix this?
+// func (p *Provider) SubmitChannel(root primitives.Hash) error {
+// 	// TODO: Maybe fix this?
 
-	return nil
-}
+// 	return nil
+// }
 
-func (p *Provider) AddContent(root primitives.Hash, con *common.Content) error {
-	con.RootChainID = root
-	err := p.CreationTool.AddContent(con)
-	if err != nil {
-		return err
-	}
+// func (p *Provider) AddContent(root primitives.Hash, con *common.Content) error {
+// 	con.RootChainID = root
+// 	err := p.CreationTool.AddContent(con)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }

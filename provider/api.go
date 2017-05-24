@@ -430,7 +430,7 @@ func (apiProvider ApiProvider) CreateChannel(input json.RawMessage) (successResp
 			invalidParameters
 	}
 
-	apiError = apiProvider.Provider.CreationTool.InitiateChannel(verifiedChannel)
+	hash, apiError := apiProvider.Provider.CreationTool.InitiateChannel(verifiedChannel)
 	if apiError != nil {
 		return nil,
 			&util.ApiError{
@@ -439,6 +439,8 @@ func (apiProvider ApiProvider) CreateChannel(input json.RawMessage) (successResp
 			},
 			customError
 	}
+
+	verifiedChannel.RootChainID = *hash
 
 	apiError = apiProvider.Provider.CreationTool.UpdateChannel(verifiedChannel)
 	if apiError != nil {
@@ -543,7 +545,7 @@ func (apiProvider ApiProvider) CreateContent(input json.RawMessage) (successResp
 			invalidParameters
 	}
 
-	apiError = apiProvider.Provider.CreationTool.AddContent(verifiedContent)
+	hash, apiError := apiProvider.Provider.CreationTool.AddContent(verifiedContent)
 	if apiError != nil {
 		return nil,
 			&util.ApiError{
@@ -552,6 +554,8 @@ func (apiProvider ApiProvider) CreateContent(input json.RawMessage) (successResp
 			},
 			customError
 	}
+
+	verifiedContent.ContentID = *hash
 
 	retVal := new(interface{})
 	*retVal = verifiedContent

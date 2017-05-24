@@ -60,7 +60,7 @@ func (w *WriteHelper) GetECAddress() *factom.ECAddress {
 }
 
 func (w *WriteHelper) MakeNewAuthChannel(ch *common.Channel) error {
-	err := w.InitiateChannel(ch)
+	_, err := w.InitiateChannel(ch)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (w *WriteHelper) MakeNewAuthChannel(ch *common.Channel) error {
 	for i, c := range ch.Content.ContentList {
 		c.RootChainID = ch.RootChainID
 		p := &c
-		err := w.AddContent(p)
+		_, err := w.AddContent(p)
 		if err != nil {
 			return err
 		}
@@ -107,13 +107,13 @@ func (w *WriteHelper) VerifyChannel(ch *common.Channel) (cost *CostStruct, apiEr
 	return cs, nil
 }
 
-func (w *WriteHelper) InitiateChannel(ch *common.Channel) *util.ApiError {
+func (w *WriteHelper) InitiateChannel(ch *common.Channel) (*primitives.Hash, *util.ApiError) {
 	// TODO: Check Balance
 
 	// Generate Keys
 	a, err := NewAuthChannel(ch, w.ECAddress)
 	if err != nil {
-		return util.NewAPIError(err, fmt.Errorf("failed to generate channel keys"))
+		return nil, util.NewAPIError(err, fmt.Errorf("failed to generate channel keys"))
 	}
 
 	// Brute force a ChainIDs
@@ -152,7 +152,7 @@ func (w *WriteHelper) InitiateChannel(ch *common.Channel) *util.ApiError {
 
 	// Add to our Map
 	w.AuthChannels[ch.RootChainID.String()] = a
-	return nil
+	return &a.ChannelRoot, nil
 }
 
 func (w *WriteHelper) UpdateChannel(ch *common.Channel) (apiErr *util.ApiError) {
@@ -197,10 +197,10 @@ func (w *WriteHelper) VerifyContent(ch *common.Content) (cost int, apiErr *util.
 	return 0, util.NewAPIError(nil, nil)
 }
 
-func (w *WriteHelper) AddContent(con *common.Content) (apiErr *util.ApiError) {
+func (w *WriteHelper) AddContent(con *common.Content) (hash *primitives.Hash, apiErr *util.ApiError) {
 	a, ok := w.AuthChannels[con.RootChainID.String()]
 	if !ok {
-		return util.NewAPIErrorFromOne(fmt.Errorf("Do not have the keys for that channel"))
+		return nil, util.NewAPIErrorFromOne(fmt.Errorf("Do not have the keys for that channel"))
 	}
 
 	con.Thumbnail = *primitives.RandomHugeImage()
@@ -208,7 +208,7 @@ func (w *WriteHelper) AddContent(con *common.Content) (apiErr *util.ApiError) {
 	ce.Create(elements.CommonContentToContentChainContent(con), a.ContentSigning, a.ChannelRoot, a.ChannelContent, con.Type)
 	c, entries, err := ce.FactomElements()
 	if err != nil {
-		return util.NewAPIErrorFromOne(err)
+		return nil, util.NewAPIErrorFromOne(err)
 	}
 
 	w.Writer.SubmitChain(*c, *w.ECAddress)
@@ -218,7 +218,7 @@ func (w *WriteHelper) AddContent(con *common.Content) (apiErr *util.ApiError) {
 	for _, e := range entries {
 		w.Writer.SubmitEntry(*e, *w.ECAddress)
 	}
-	return nil
+	return &a.ChannelContent, nil
 }
 
 func (w *WriteHelper) DeleteContent(contentID *primitives.Hash) (apiErr *util.ApiError) {

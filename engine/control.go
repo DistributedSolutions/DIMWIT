@@ -135,7 +135,7 @@ func Control(w *WholeState) {
 			fmt.Println("Adding small channels....")
 			for i := 0; i < amount; i++ {
 				rc := common.RandomNewSmallChannel()
-				err := w.WriteHelper.InitiateChannel(rc)
+				_, err := w.WriteHelper.InitiateChannel(rc)
 				if err != nil {
 					fmt.Println(err.LogError)
 				} else {
@@ -145,7 +145,7 @@ func Control(w *WholeState) {
 					}
 					for _, content := range rc.Content.ContentList {
 						content.RootChainID = rc.RootChainID
-						err := w.WriteHelper.AddContent(&content)
+						_, err := w.WriteHelper.AddContent(&content)
 						if err != nil {
 							fmt.Println(err.LogError)
 						}
