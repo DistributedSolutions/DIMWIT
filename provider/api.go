@@ -484,6 +484,34 @@ func (apiProvider ApiProvider) UpdateChannel(input json.RawMessage) (successResp
 	return retVal, nil, noError
 }
 
+func (apiProvider ApiProvider) AddExistingChannel(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
+	pk := new(primitives.PublicKey)
+	err := json.Unmarshal(input, pk)
+	if err != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error unmarshall add-existing-channel: %s", err.Error()),
+				fmt.Errorf("Error unmarshall add-existing-channel: %s", err.Error()),
+			},
+			invalidParameters
+	}
+
+	apiError = apiProvider.Provider.CreationTool.AddExistingChannel(pk)
+	if apiError != nil {
+		return nil,
+			&util.ApiError{
+				fmt.Errorf("Error in add-existing-channel: deleting channel: %s", apiError.LogError.Error()),
+				fmt.Errorf("Error in add-existing-channel: deleting channel: %s", apiError.UserError.Error()),
+			},
+			customError
+	}
+
+	s := "Success"
+	retVal := new(interface{})
+	*retVal = s
+	return retVal, nil, noError
+}
+
 func (apiProvider ApiProvider) DeleteChannel(input json.RawMessage) (successResponse *interface{}, apiError *util.ApiError, errorType uint8) {
 	hash := new(primitives.Hash)
 	err := json.Unmarshal(input, hash)

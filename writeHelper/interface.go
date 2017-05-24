@@ -18,6 +18,9 @@ type IWriterHelper interface {
 	// chain if needed. Does not do content
 	UpdateChannel(ch *common.Channel) (err *util.ApiError)
 
+	// AddExisting channel if passes keys
+	AddExistingChannel(pk *primitives.PublicKey) (err *util.ApiError)
+
 	// Will delete channel given root chain id. Will check to see if we have the correct keys.
 	DeleteChannel(rootChain *primitives.Hash) (err *util.ApiError)
 
@@ -48,6 +51,10 @@ func (fakeChannelTool *FakeWriterHelper) InitiateChannel(ch *common.Channel) (ha
 }
 
 func (fakeChannelTool *FakeWriterHelper) UpdateChannel(ch *common.Channel) (err *util.ApiError) {
+	return
+}
+
+func (fakeChannelTool *FakeWriterHelper) AddExistingChannel(pk *primitives.PublicKey) (err *util.ApiError) {
 	return
 }
 

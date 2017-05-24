@@ -186,6 +186,13 @@ func (w *WriteHelper) UpdateChannel(ch *common.Channel) (apiErr *util.ApiError) 
 	return
 }
 
+func (w *WriteHelper) AddExistingChannel(pk *primitives.PublicKey) (err *util.ApiError) {
+	return &util.ApiError{
+		LogError:  fmt.Errorf("Cannot add existing channel"),
+		UserError: fmt.Errorf("Cannot add existing channel"),
+	}
+}
+
 func (w *WriteHelper) DeleteChannel(rootChain *primitives.Hash) (apiErr *util.ApiError) {
 	return &util.ApiError{
 		LogError:  fmt.Errorf("Cannot delete channel"),
