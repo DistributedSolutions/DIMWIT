@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetByHeight(t *testing.T) {
-	l := NewDumbLite()
+	l := NewMapFakeDumbLite()
 	// I am real
 	var _ = l
 
