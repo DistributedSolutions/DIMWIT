@@ -24,19 +24,20 @@ var CloseCalls []func()
 
 func GrabFlagsAndRun() {
 	var (
-		fct  = flag.String("fct", "fake", "Factom Client Type: 'fake', 'dumb")
-		cdbt = flag.String("lvl2", "Map", "Constructor DB Type: 'Map', 'Bolt', 'LDB'")
+		fct             = flag.String("fct", "fake", "Factom Client Type: 'fake', 'dumb")
+		cdbt            = flag.String("lvl2", "Map", "Constructor DB Type: 'Map', 'Bolt', 'LDB'")
+		persistFactomDB = flag.Bool("p", false, "Use persistent factom storage")
 	)
 	flag.Parse()
 
-	err := StartEngine(*fct, *cdbt)
+	err := StartEngine(*fct, *cdbt, *persistFactomDB)
 	if err != nil {
 		log.Printf("Error: Failed to start: %s", err.Error())
 	}
 }
 
 // StartEngine is the main start, that launches the appropriate go routines and handles closing.
-func StartEngine(factomClientType string, lvl2CacheType string) error {
+func StartEngine(factomClientType string, lvl2CacheType string, persistent bool) error {
 	log.Println("-- DIMWIT Engine Initiated -- ")
 	log.Printf("%-20s: %s\n", "FactomClientType", factomClientType)
 	log.Printf("%-20s: %s\n", "Level2CacheType", lvl2CacheType)
@@ -48,7 +49,11 @@ func StartEngine(factomClientType string, lvl2CacheType string) error {
 	case "dumb":
 		factomClient = lite.NewDumbLite()
 	case "fake":
-		factomClient = lite.NewFakeDumbLite()
+		if persistent {
+			factomClient = lite.NewBoltFakeDumbLite()
+		} else {
+			factomClient = lite.NewMapFakeDumbLite()
+		}
 	default:
 		return fmt.Errorf("Level 2 Cache Type given not valid. Found '%s', expected either: 'dumb', 'fake'", factomClientType)
 	}

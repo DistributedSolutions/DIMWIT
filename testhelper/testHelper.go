@@ -94,7 +94,7 @@ func IncrementFakeHeight(fake lite.FactomLite) (uint32, error) {
 }
 
 func PopulateFakeClient(small bool, amt int) (lite.FactomLite, []common.Channel, error) {
-	fake := lite.NewFakeDumbLite()
+	fake := lite.NewMapFakeDumbLite()
 	// m := creation.NewMasterChain()
 	//ec := lite.GetECAddress()
 	//	fake.SubmitChain(*m.Chain, *ec)

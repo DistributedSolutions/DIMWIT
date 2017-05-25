@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"path"
 	"sync"
 	"time"
 
-	//"github.com/DistributedSolutions/DIMWIT/common/constants"
+	"github.com/DistributedSolutions/DIMWIT/common/constants"
 	"github.com/DistributedSolutions/DIMWIT/common/primitives"
 	"github.com/DistributedSolutions/DIMWIT/database"
+	"github.com/DistributedSolutions/DIMWIT/util"
 	"github.com/FactomProject/factom"
 )
 
@@ -30,9 +32,17 @@ type FakeDumbLite struct {
 	sync.RWMutex
 }
 
-func NewFakeDumbLite() FactomLite {
+func NewBoltFakeDumbLite() FactomLite {
+	return newFake(database.NewBoltDB(path.Join(util.GetHomeDir(), constants.HIDDEN_DIR, "persistentFactom.db")))
+}
+
+func NewMapFakeDumbLite() FactomLite {
+	return newFake(database.NewMapDB())
+}
+
+func newFake(db database.IDatabase) FactomLite {
 	d := new(FakeDumbLite)
-	d.db = database.NewMapDB()
+	d.db = db
 	d.chainlists = make(map[string][]factom.Entry)
 	d.heightlist = make([][]factom.Entry, 50000)
 
