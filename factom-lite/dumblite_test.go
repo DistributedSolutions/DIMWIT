@@ -18,7 +18,7 @@ func TestGetByHeight(t *testing.T) {
 }
 
 func TestFake(t *testing.T) {
-	l := NewFakeDumbLite()
+	l := NewMapFakeDumbLite()
 	// I am a fake
 	var _ = l
 }
