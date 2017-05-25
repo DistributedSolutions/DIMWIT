@@ -66,6 +66,11 @@ func (d *FakeDumbLite) SubmitEntry(e factom.Entry, ec factom.ECAddress) (comId s
 		d.height++
 		return "", "", nil
 	}
+
+	if string(e.ExtIDs[1]) == "Channel Management Metadata Main" {
+		d.height++
+	}
+
 	data, err := e.MarshalJSON()
 	if err != nil {
 		return "", "", err

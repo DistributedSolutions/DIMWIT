@@ -225,7 +225,7 @@ func (w *WriteHelper) AddContent(con *common.Content) (hash *primitives.Hash, ap
 	for _, e := range entries {
 		w.Writer.SubmitEntry(*e, *w.ECAddress)
 	}
-	return &a.ChannelContent, nil
+	return &con.ContentID, nil
 }
 
 func (w *WriteHelper) DeleteContent(contentID *primitives.Hash) (apiErr *util.ApiError) {
