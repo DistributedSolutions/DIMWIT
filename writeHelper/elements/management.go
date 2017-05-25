@@ -130,6 +130,40 @@ type ManageChainMetaData struct {
 	SuggestedChannels *primitives.HashList
 }
 
+func (m *ManageChainMetaData) StripEmpty() {
+	if m.Website.Empty() {
+		m.Website = nil
+	}
+
+	if m.LongDescription.Empty() {
+		m.LongDescription = nil
+	}
+
+	if m.ShortDescription.Empty() {
+		m.ShortDescription = nil
+	}
+
+	if m.Playlist.Empty() {
+		m.Playlist = nil
+	}
+
+	if m.Thumbnail.Empty() {
+		m.Thumbnail = nil
+	}
+
+	if m.Banner.Empty() {
+		m.Banner = nil
+	}
+
+	if m.ChannelTags.Empty() {
+		m.ChannelTags = nil
+	}
+
+	if m.SuggestedChannels.Empty() {
+		m.SuggestedChannels = nil
+	}
+}
+
 func NewManageChainMetaData() *ManageChainMetaData {
 	m := new(ManageChainMetaData)
 	m.Website = new(primitives.SiteURL)

@@ -30,7 +30,7 @@ type ManageMetaApplyEntry struct {
 	Signature       []byte
 
 	// Holders
-	Meta     elements.ManageChainMetaData
+	Meta     *elements.ManageChainMetaData
 	DBlockTS time.Time
 }
 
@@ -38,7 +38,7 @@ func NewManageMetaApplyEntry() IApplyEntry {
 	m := new(ManageMetaApplyEntry)
 	meta := new(elements.ManageChainMetaData)
 	meta.ChannelTags = primitives.NewTagList(uint32(constants.MAX_CHANNEL_TAGS))
-	m.Meta = *meta
+	m.Meta = meta
 	return m
 }
 
@@ -197,7 +197,7 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	}
 
 	t := new(elements.ManageChainMetaData)
-	m.Meta = *t
+	m.Meta = t
 
 	// Wow, we did it.
 	err := m.Meta.UnmarshalBinary(content)
@@ -212,13 +212,18 @@ func (m *ManageMetaApplyEntry) ApplyEntry() (*ChannelWrapper, bool) {
 	return m.Channel, true
 }
 
-func metaToChannel(ch common.Channel, meta elements.ManageChainMetaData) common.Channel {
+func metaToChannel(ch common.Channel, meta *elements.ManageChainMetaData) common.Channel {
+	// Set values to nil if empty
+	meta.StripEmpty()
+
 	if meta.Website != nil {
 		ch.Website = *meta.Website
 	}
+
 	if meta.LongDescription != nil {
 		ch.LongDescription = *meta.LongDescription
 	}
+
 	if meta.ShortDescription != nil {
 		ch.ShortDescription = *meta.ShortDescription
 	}

@@ -269,8 +269,8 @@ func (apiProvider ApiProvider) GetChannel(input json.RawMessage) (successRespons
 	if channel == nil {
 		return nil,
 			&util.ApiError{
-				fmt.Errorf("Error channel hash not found: %s", err.Error()),
-				fmt.Errorf("Error channel hash not found: %s", err.Error()),
+				fmt.Errorf("Error channel hash not found: %s", hash.String()),
+				fmt.Errorf("Error channel hash not found: %s", hash.String()),
 			},
 			customError
 	}
