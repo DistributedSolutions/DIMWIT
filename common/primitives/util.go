@@ -7,6 +7,39 @@ import (
 	"fmt"
 )
 
+func UnmarshalBinarySlice(data []byte) (resp []byte, err error) {
+	r, _, e := UnmarshalBinarySliceData(data)
+	return r, e
+}
+
+func UnmarshalBinarySliceData(data []byte) (resp []byte, newData []byte, err error) {
+	newData = data
+
+	u, err := BytesToUint32(data)
+	if err != nil {
+		return nil, data, err
+	}
+
+	newData = newData[4:]
+	if len(newData) < int(u) {
+		return nil, data, fmt.Errorf("need at least %d bytes, found %d", u+4, len(data))
+	}
+
+	resp = newData[:u]
+	newData = newData[u:]
+	return
+}
+
+func MarshalBinarySlice(slice []byte) []byte {
+	buf := new(bytes.Buffer)
+
+	u := uint32(len(slice))
+	buf.Write(Uint32ToBytes(u))
+	buf.Write(slice)
+
+	return buf.Next(buf.Len())
+}
+
 func MarshalStringToBytes(str string, maxlength int) ([]byte, error) {
 	if len(str) > maxlength {
 		return nil, fmt.Errorf("Length of string is too long, found length is %d, max length is %d",

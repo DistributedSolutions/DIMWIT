@@ -16,6 +16,39 @@ import (
 
 var _ = fmt.Sprintf("")
 
+func TestMarshalSlice(t *testing.T) {
+	for i := 0; i < 100; i++ {
+		s := random.RandByteSliceOfSize(i)
+		data := MarshalBinarySlice(s)
+
+		s2, nd, err := UnmarshalBinarySliceData(data)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if bytes.Compare(s, s2) != 0 {
+			t.Error("[slice] Should be the same")
+		}
+
+		if len(nd) != 0 {
+			t.Error("Left over bytes")
+		}
+	}
+
+	s := random.RandByteSliceOfSize(5)
+	data := MarshalBinarySlice(s)
+
+	s2, err := UnmarshalBinarySlice(data)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if bytes.Compare(s, s2) != 0 {
+		t.Error("[slice] Should be the same")
+	}
+
+}
+
 func TestPropString(t *testing.T) {
 	properties := gopter.NewProperties(nil)
 
