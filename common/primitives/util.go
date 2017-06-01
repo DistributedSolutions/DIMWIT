@@ -7,6 +7,37 @@ import (
 	"fmt"
 )
 
+func Float64ToBytes(v float64) ([]byte, error) {
+	str := strconv.FormatFloat(v, 'f', 6, 64)
+	b, err := MarshalStringToBytes(str, 200)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func BytesToFloat64(data []byte) (float64, error) {
+	v, _, e := BytesToFloat64Data(data)
+	return v, e
+}
+
+func BytesToFloat64Data(data []byte) (float64, []byte, error) {
+	var err error
+	var resp string
+	newData := data
+
+	resp, newData, err = UnmarshalStringFromBytesData(newData, 200)
+	if err != nil {
+		return 0, data, err
+	}
+	f, err := strconv.ParseFloat(resp, 64)
+	if err != nil {
+		return 0, data, err
+	}
+
+	return f, newData, nil
+}
+
 func UnmarshalBinarySlice(data []byte) (resp []byte, err error) {
 	r, _, e := UnmarshalBinarySliceData(data)
 	return r, e

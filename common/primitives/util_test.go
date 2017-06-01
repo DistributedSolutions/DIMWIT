@@ -49,6 +49,32 @@ func TestMarshalSlice(t *testing.T) {
 
 }
 
+func TestFloat64Bytes(t *testing.T) {
+	var i uint64 = 0
+	for ; i < 2000; i++ {
+		a := float64(i)
+		data, err := Float64ToBytes(a)
+		if err != nil {
+			t.Error(err)
+		}
+
+		b, err := BytesToFloat64(data)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if b != a {
+			t.Error("Failed, should be same")
+		}
+	}
+
+	// Bad Marshal
+	_, err := BytesToUint64([]byte{0x00, 0x00})
+	if err == nil {
+		t.Error("Should error")
+	}
+}
+
 func TestPropString(t *testing.T) {
 	properties := gopter.NewProperties(nil)
 
