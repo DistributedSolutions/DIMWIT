@@ -176,7 +176,7 @@ func (db *MapDB) GetAll(bucket []byte) ([][]byte, [][]byte, error) {
 		v := db.Cache[string(bucket)][string(k)]
 		answer = append(answer, v)
 	}
-	return keys, answer, nil
+	return answer, keys, nil
 }
 
 func (db *MapDB) Clear(bucket []byte) error {
