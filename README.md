@@ -6,6 +6,7 @@
 
 # External Repos
 
+-  Videos in js: https://github.com/brion/ogv.js/
 -  Torrents : https://github.com/coreos/libtorrent-go
 -  API Docs : https://github.com/adams-sarah/test2doc
 -  Some Encoding: https://github.com/tinylib/msgp
